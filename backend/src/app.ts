@@ -13,27 +13,26 @@ import { getSellerEvents, createEvent, updateEvent, deleteEvent } from './contro
 const app = express();
 app.set('trust proxy', 1);
 
-// ── Security Headers ──
+// ── Bulletproof CORS & Preflight OPTIONS Handler ──
+app.use((req: Request, res: Response, next) => {
+  const origin = req.headers.origin || 'https://veternity-frontend.vercel.app';
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-CSRF-Token');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
+
 // ── Security Headers & Compression ──
 app.use(helmet({ hidePoweredBy: true }));
 app.use(compression({
   level: zlib.constants.Z_BEST_SPEED,
   threshold: 1024,
 }));
-
-// ── CORS (Preflight Cached 24 Hours) ──
-const corsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    return callback(null, true);
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  maxAge: 86400, // Cache preflight OPTIONS requests in browser for 24 hours
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 
 // ── Body Parser ──
 app.use(express.json({ limit: '5mb' }));
