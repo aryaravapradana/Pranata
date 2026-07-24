@@ -26,7 +26,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-transparent font-sans overflow-x-hidden relative">
       
       {/* Unified Responsive Hero Section */}
-      <section className="relative w-full flex flex-col justify-between min-h-screen md:min-h-0 pt-6 sm:pt-10 md:pt-12 pb-0 bg-[#F8F6F0] overflow-hidden">
+      <section className="relative w-full flex flex-col justify-between min-h-screen md:min-h-0 pt-6 sm:pt-4 md:pt-6 pb-0 bg-[#F8F6F0] overflow-hidden">
         {/* Soft Organic Background Gradients - Omitted heavy CSS blurs on mobile for 60 FPS performance */}
         <div className="hidden sm:block absolute top-0 right-0 w-100 sm:w-200 h-100 sm:h-200 bg-[#E8E3D2]/40 rounded-full blur-[80px] sm:blur-[120px] -translate-y-1/4 translate-x-1/4 pointer-events-none" />
         <div className="hidden sm:block absolute bottom-0 left-0 w-75 sm:w-150 h-75 sm:h-150 bg-[#DDE2D6]/50 rounded-full blur-[60px] sm:blur-[100px] translate-y-1/4 -translate-x-1/4 pointer-events-none" />
@@ -41,8 +41,8 @@ export default function LandingPage() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="relative flex flex-col items-center justify-center w-full transform-gpu"
           >
-            {/* Pranata Basic Black Logo (Top Center - Shifted Down Slightly) */}
-            <div className="mb-2 sm:mb-4 pt-4 sm:pt-6 md:pt-8 flex justify-center">
+            {/* Pranata Basic Black Logo (Top Center) */}
+            <div className="mb-2 sm:mb-2 pt-6 sm:pt-4 md:pt-5 flex justify-center">
               <img 
                 src="/logos/basic/logo black.webp" 
                 alt="Pranata Logo" 
@@ -52,7 +52,7 @@ export default function LandingPage() {
               />
             </div>
 
-            <h1 className="text-[1.85rem] min-[380px]:text-[2.15rem] min-[440px]:text-[2.5rem] sm:text-[2.85rem] md:text-5xl lg:text-[4.35rem] font-bold text-[#1C241E] tracking-tight mt-12 min-[380px]:mt-14 sm:mt-22 md:mt-28 mb-4 md:mb-6 leading-[1.15] sm:leading-tight flex flex-col items-center justify-center text-center px-1">
+            <h1 className="text-[1.85rem] min-[380px]:text-[2.15rem] min-[440px]:text-[2.5rem] sm:text-[2.85rem] md:text-5xl lg:text-[4.35rem] font-bold text-[#1C241E] tracking-tight mt-12 min-[380px]:mt-14 sm:mt-4 md:mt-6 mb-3 md:mb-4 leading-[1.15] sm:leading-tight flex flex-col items-center justify-center text-center px-1">
               <span className="block max-w-[230px] min-[380px]:max-w-[270px] sm:max-w-none sm:whitespace-nowrap">Empowering farmers with</span>
               <FlipWords 
                 duration={3500}
@@ -61,7 +61,7 @@ export default function LandingPage() {
               />
             </h1>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 mt-8 sm:mt-10 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 mt-8 sm:mt-4 w-full sm:w-auto">
               {session ? (
                 <>
                   <Link href={session.role === 'PRODUCER' ? '/hub' : '/market'} className="w-full sm:w-auto">
@@ -124,12 +124,12 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-          className="relative w-full flex items-center justify-center z-20 pointer-events-none -mt-4 md:-mt-10 transform-gpu"
+          className="relative w-full flex items-center justify-center z-20 pointer-events-none -mt-6 sm:-mt-8 md:-mt-12 transform-gpu"
         >
           <img 
             src="/images/hero_section.webp" 
             alt="Pranata Hero" 
-            className="w-full h-auto pointer-events-none object-cover" 
+            className="w-full h-auto pointer-events-none object-cover scale-[2.8] min-[380px]:scale-[2.6] min-[440px]:scale-[2.4] sm:scale-100 -translate-y-72 min-[380px]:-translate-y-80 min-[440px]:-translate-y-96 sm:translate-y-0 origin-top" 
             fetchPriority="high"
             decoding="async"
           />
