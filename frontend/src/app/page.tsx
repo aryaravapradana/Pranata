@@ -4,10 +4,10 @@ import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Bird, Heart, ArrowRight } from "lucide-react";
-import { FlipWords } from "@/components/ui/flip-words";
 import { EditorialGallery } from "@/components/ui/editorial-gallery";
 import { FeaturesRopeSection } from "@/components/ui/features-rope-section";
 import { AnimatedDekorasi } from "@/components/ui/animated-dekorasi";
+import { Footer } from "@/components/layout/Footer";
 import "@fontsource/stack-sans-notch";
 
 
@@ -42,43 +42,43 @@ export default function LandingPage() {
             className="relative flex flex-col items-center justify-center w-full transform-gpu"
           >
             {/* Pranata Basic Black Logo (Top Center) */}
-            <div className="mb-2 sm:mb-2 pt-6 sm:pt-4 md:pt-5 flex justify-center">
+            <div className="mb-1 pt-4 sm:pt-2 md:pt-3 flex justify-center">
               <img 
                 src="/logos/basic/logo black.webp" 
                 alt="Pranata Logo" 
-                className="h-7 sm:h-9 md:h-11 w-auto object-contain" 
+                className="h-6 sm:h-8 md:h-10 w-auto object-contain" 
                 fetchPriority="high"
                 decoding="async"
               />
             </div>
 
-            <h1 className="text-[1.85rem] min-[380px]:text-[2.15rem] min-[440px]:text-[2.5rem] sm:text-[2.85rem] md:text-5xl lg:text-[4.35rem] font-bold text-[#1C241E] tracking-tight mt-12 min-[380px]:mt-14 sm:mt-4 md:mt-6 mb-3 md:mb-4 leading-[1.15] sm:leading-tight flex flex-col items-center justify-center text-center px-1">
-              <span className="block max-w-[230px] min-[380px]:max-w-[270px] sm:max-w-none sm:whitespace-nowrap">Empowering farmers with</span>
-              <FlipWords 
-                duration={3500}
-                words={["beautiful precision.", "actionable insights.", "smart analytics."]} 
-                className="text-[#3A6B49] bg-clip-text font-black tracking-tight text-center whitespace-nowrap inline-block" 
-              />
+            <h1 className="text-[1.65rem] min-[380px]:text-[1.95rem] min-[440px]:text-[2.25rem] sm:text-[2.5rem] md:text-[2.85rem] lg:text-[3.65rem] font-extrabold text-[#1C241E] tracking-tight mt-6 min-[380px]:mt-8 sm:mt-2 md:mt-3 mb-2 md:mb-3 leading-[1.15] sm:leading-tight text-center px-1">
+              <span className="block">Dari Peternak,</span>
+              <span className="text-[#3A6B49] block">Langsung ke Konsumen</span>
             </h1>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 mt-8 sm:mt-4 w-full sm:w-auto">
+            <p className="text-[11px] sm:text-xs md:text-sm text-[#5A635B] font-medium max-w-xl text-center leading-relaxed mt-1 mb-2 sm:mb-3 px-4">
+              Pranata membantu peternak menjual hasil ternaknya langsung kepada konsumen dan pembeli bisnis tanpa perantara. Dapatkan harga yang lebih adil, perluas pasar, dan kembangkan usaha dengan insight bisnis serta AI Assistant.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3.5 mt-3 sm:mt-2.5 w-full sm:w-auto">
               {session ? (
                 <>
                   <Link href={session.role === 'PRODUCER' ? '/hub' : '/market'} className="w-full sm:w-auto">
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-6 sm:px-7.5 py-2.5 sm:py-3 rounded-xl sm:rounded-full font-bold text-sm sm:text-base shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-2.5 group transform-gpu"
+                      className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-2 group transform-gpu cursor-pointer"
                     >
                       {session.avatar ? (
-                        <img src={session.avatar} alt="PFP" className="w-5 h-5 rounded-full object-cover border-2 border-white/50" loading="lazy" decoding="async" />
+                        <img src={session.avatar} alt="PFP" className="w-4.5 h-4.5 rounded-full object-cover border-2 border-white/50" loading="lazy" decoding="async" />
                       ) : (
-                        <div className="w-5 h-5 rounded-full border-2 border-white/50 bg-[#3A6B49] flex items-center justify-center text-white text-[10px] font-bold">
+                        <div className="w-4.5 h-4.5 rounded-full border-2 border-white/50 bg-[#3A6B49] flex items-center justify-center text-white text-[9px] font-bold">
                           {(session.fullName || session.username || 'U').charAt(0).toUpperCase()}
                         </div>
                       )}
                       Lanjut sebagai {session.username}
-                      <ArrowRight size={18} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight size={16} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
                     </motion.button>
                   </Link>
                   <button 
@@ -87,7 +87,7 @@ export default function LandingPage() {
                       import("js-cookie").then(Cookies => Cookies.default.remove("auth-token"));
                       window.location.href = "/login";
                     }}
-                    className="w-full sm:w-auto bg-white/50 text-[#3F4841] border border-[#D5D0C5] backdrop-blur-sm px-6 sm:px-7.5 py-2.5 sm:py-3 rounded-xl sm:rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-colors shadow-sm hover:bg-white"
+                    className="w-full sm:w-auto bg-white/50 text-[#3F4841] border border-[#D5D0C5] backdrop-blur-sm px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors shadow-sm hover:bg-white cursor-pointer"
                   >
                     Use Another Account
                   </button>
@@ -98,17 +98,17 @@ export default function LandingPage() {
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-6 sm:px-7.5 py-2.5 sm:py-3 rounded-xl sm:rounded-full font-bold text-sm sm:text-base shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-2.5 group transform-gpu"
+                      className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-2 group transform-gpu cursor-pointer"
                     >
                       Create Account
-                      <ArrowRight size={18} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight size={16} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
                     </motion.button>
                   </Link>
                   <Link href="/login" className="w-full sm:w-auto">
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full sm:w-auto bg-white/50 text-[#3F4841] border border-[#D5D0C5] backdrop-blur-sm px-6 sm:px-7.5 py-2.5 sm:py-3 rounded-xl sm:rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-colors shadow-sm transform-gpu"
+                      className="w-full sm:w-auto bg-white/50 text-[#3F4841] border border-[#D5D0C5] backdrop-blur-sm px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors shadow-sm transform-gpu cursor-pointer"
                     >
                       Log In
                     </motion.button>
@@ -124,7 +124,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-          className="relative w-full flex items-center justify-center z-20 pointer-events-none -mt-6 sm:-mt-8 md:-mt-12 transform-gpu"
+          className="relative w-full flex items-center justify-center z-20 pointer-events-none -mt-10 sm:-mt-14 md:-mt-20 lg:-mt-24 transform-gpu"
         >
           <img 
             src="/images/hero_section.webp" 
@@ -147,44 +147,10 @@ export default function LandingPage() {
         <EditorialGallery />
       </section>
 
-      {/* Global Network Section */}
-      <section className="py-12 sm:py-24 px-4 sm:px-6 relative bg-transparent">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
-          <motion.div 
-            whileInView={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 20 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="bg-rust rounded-[2rem] sm:rounded-[3rem] p-8 sm:p-12 md:p-20 text-center relative overflow-hidden transform-gpu"
-          >
-            <div className="hidden sm:block absolute top-0 right-0 w-96 h-96 bg-vibrant/40 rounded-full blur-3xl" />
-            <div className="hidden sm:block absolute bottom-0 left-0 w-96 h-96 bg-sage/40 rounded-full blur-3xl" />
-            
-            <div className="relative z-10">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4 sm:mb-6">
-                Ready to transform your farm?
-              </h2>
-              <p className="text-slate-400 font-medium text-sm sm:text-base lg:text-lg max-w-xl mx-auto mb-8 sm:mb-10 px-0">
-                Join our non-profit initiative to digitalize local agriculture. Setup takes less than 5 minutes and is completely free forever.
-              </p>
-              <Link href="/hub">
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-vibrant text-white px-10 py-4 rounded-full font-extrabold text-lg shadow-xl transform-gpu"
-                >
-                  Create Organization
-                </motion.button>
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+
       
-      {/* Footer */}
-      <footer className="bg-sage border-t border-olive/30 py-8 sm:py-12 px-4 text-center text-forest font-bold">
-        <p>© 2026 Pranata Org. A non-profit initiative.</p>
-      </footer>
+      {/* Responsive Pranata Footer */}
+      <Footer />
     </div>
   );
 }

@@ -31,6 +31,16 @@ function AuthContent() {
     }
   }, [router]);
 
+  const switchMode = (mode: 'login' | 'register') => {
+    setAuthMode(mode);
+    setError(null);
+    if (mode === 'register') {
+      router.replace('/login?mode=register', { scroll: false });
+    } else {
+      router.replace('/login', { scroll: false });
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -68,94 +78,160 @@ function AuthContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F6F0] flex items-center justify-center p-6 text-[#1C241E]" >
-      <AnimatePresence mode="wait">
-        {authMode === 'login' ? (
-          <motion.div 
-            key="login"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="w-full max-w-md bg-white border border-[#DDE2D6] p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_-10px_rgba(43,76,59,0.1)]"
-          >
-            <div className="flex flex-col items-center text-center mb-8">
-              <div className="w-14 h-14 bg-gradient-to-br from-[#2B4C3B] to-[#4A7C59] rounded-2xl flex items-center justify-center text-white shadow-lg mb-4">
-                <Bird size={28} strokeWidth={2.5} />
-              </div>
-              <h1 className="text-3xl font-black text-[#2B4C3B] mb-2 tracking-tight">Welcome Back</h1>
-              <p className="text-[#5A635B] text-sm font-medium">Log in with your Pranata username.</p>
-            </div>
-            
-            {error && <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 mb-6 text-sm font-bold text-center">{error}</div>}
+    <div className="min-h-screen bg-[#F8F6F0] flex flex-col items-center justify-center p-5 text-[#1C241E] relative overflow-hidden">
+      {/* Background Soft Organic Blurs */}
+      <div className="hidden sm:block absolute top-0 right-0 w-96 h-96 bg-[#E8E3D2]/50 rounded-full blur-3xl pointer-events-none -translate-y-1/3 translate-x-1/3" />
+      <div className="hidden sm:block absolute bottom-0 left-0 w-96 h-96 bg-[#DDE2D6]/60 rounded-full blur-3xl pointer-events-none translate-y-1/3 -translate-x-1/3" />
 
-            <form onSubmit={handleLogin} className="space-y-5">
-              <div>
-                <label className="block text-sm font-bold mb-2 text-[#2B4C3B]">Username</label>
-                <input 
-                  type="text" 
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-[#F8F6F0] border border-[#DDE2D6] rounded-xl p-4 text-[#1C241E] focus:outline-none focus:ring-2 focus:ring-[#B4C179] transition-all"
-                  required
-                  placeholder="budi_farm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-2 text-[#2B4C3B]">Password</label>
-                <div className="relative">
+      {/* Main Container */}
+      <div className="w-full max-w-md relative z-10">
+        
+        {/* Brand Logo Header */}
+        <div className="flex flex-col items-center text-center mb-6">
+          <Link href="/" className="inline-block transition-transform hover:scale-105 active:scale-95">
+            <img 
+              src="/logos/basic/logo black.webp" 
+              alt="Pranata Logo" 
+              className="h-10 sm:h-12 w-auto object-contain mb-2" 
+              fetchPriority="high"
+              decoding="async"
+            />
+          </Link>
+          <p className="text-[#5A635B] text-xs sm:text-sm font-semibold">
+            {authMode === 'login' ? 'Masuk ke Akun Peternakan & Pasar Anda' : 'Buat Akun Pranata Baru'}
+          </p>
+        </div>
+
+        {/* Segmented Auth Switcher (Login / Register) */}
+        <div className="bg-[#EAE6D8] p-1.5 rounded-full flex items-center justify-between mb-6 shadow-inner border border-[#DDD8C8]">
+          <button
+            type="button"
+            onClick={() => switchMode('login')}
+            className={`relative flex-1 py-2.5 rounded-full text-xs sm:text-sm font-extrabold transition-all duration-300 ${
+              authMode === 'login' ? 'text-[#1C241E]' : 'text-[#6C756D] hover:text-[#1C241E]'
+            }`}
+          >
+            {authMode === 'login' && (
+              <motion.div
+                layoutId="activeAuthPill"
+                className="absolute inset-0 bg-white rounded-full shadow-md"
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              />
+            )}
+            <span className="relative z-10">Log In</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => switchMode('register')}
+            className={`relative flex-1 py-2.5 rounded-full text-xs sm:text-sm font-extrabold transition-all duration-300 ${
+              authMode === 'register' ? 'text-[#1C241E]' : 'text-[#6C756D] hover:text-[#1C241E]'
+            }`}
+          >
+            {authMode === 'register' && (
+              <motion.div
+                layoutId="activeAuthPill"
+                className="absolute inset-0 bg-white rounded-full shadow-md"
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              />
+            )}
+            <span className="relative z-10">Register</span>
+          </button>
+        </div>
+
+        {/* Card Body */}
+        <AnimatePresence mode="wait">
+          {authMode === 'login' ? (
+            <motion.div 
+              key="login"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="bg-white/95 backdrop-blur-xl border border-[#DDE2D6] p-7 sm:p-9 rounded-[2.5rem] shadow-[0_20px_40px_-10px_rgba(43,76,59,0.08)]"
+            >
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 rounded-2xl px-4 py-3 mb-5 text-xs sm:text-sm font-bold text-center">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
+                <div>
+                  <label className="block text-xs sm:text-sm font-extrabold mb-1.5 text-[#2B4C3B]">Username</label>
                   <input 
-                    type={showPassword ? "text" : "password"} 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-[#F8F6F0] border border-[#DDE2D6] rounded-xl p-4 text-[#1C241E] focus:outline-none focus:ring-2 focus:ring-[#B4C179] transition-all pr-12"
+                    type="text" 
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full bg-[#F8F6F0] border border-[#DDE2D6] rounded-2xl px-4 py-3.5 text-sm text-[#1C241E] font-medium focus:outline-none focus:ring-2 focus:ring-[#3A6B49] focus:bg-white transition-all placeholder:text-[#9A9E96]"
                     required
-                    placeholder="••••••••"
+                    placeholder="Contoh: budi_farm"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#7A8678] hover:text-[#2B4C3B] transition-colors p-1"
-                    tabIndex={-1}
+                </div>
+
+                <div>
+                  <label className="block text-xs sm:text-sm font-extrabold mb-1.5 text-[#2B4C3B]">Password</label>
+                  <div className="relative">
+                    <input 
+                      type={showPassword ? "text" : "password"} 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full bg-[#F8F6F0] border border-[#DDE2D6] rounded-2xl px-4 py-3.5 text-sm text-[#1C241E] font-medium focus:outline-none focus:ring-2 focus:ring-[#3A6B49] focus:bg-white transition-all pr-12 placeholder:text-[#9A9E96]"
+                      required
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#7A8678] hover:text-[#2B4C3B] transition-colors p-1"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+                
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full bg-[#2B4C3B] hover:bg-[#1E362A] active:scale-[0.99] text-[#F8F6F0] rounded-2xl font-extrabold text-sm sm:text-base py-3.5 shadow-md shadow-[#2B4C3B]/20 transition-all disabled:opacity-50 mt-2 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      <span>Memproses Log In...</span>
+                    </>
+                  ) : (
+                    "Log In"
+                  )}
+                </button>
+
+                <div className="mt-5 text-center text-xs font-semibold text-[#5A635B]">
+                  Belum memiliki akun?{" "}
+                  <button 
+                    type="button" 
+                    onClick={() => switchMode('register')} 
+                    className="text-[#C25939] font-extrabold hover:underline cursor-pointer"
                   >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    Daftar Akun Baru
                   </button>
                 </div>
-              </div>
-              
-              <button 
-                type="submit" 
-                disabled={loading}
-                className="w-full bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] rounded-xl font-bold text-lg py-4 shadow-lg transition-all disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 size={20} className="animate-spin" />
-                    Authenticating...
-                  </>
-                ) : (
-                  "Log In"
-                )}
-              </button>
-
-              <div className="mt-6 text-center text-sm font-semibold">
-                <p className="text-[#5A635B]">
-                  Don't have an account? <button type="button" onClick={() => setAuthMode('register')} className="text-[#F5990D] hover:underline">Register</button>
-                </p>
-              </div>
-            </form>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="register"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="w-full max-w-xl bg-white border border-[#DDE2D6] p-6 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_-10px_rgba(43,76,59,0.1)]"
-          >
-            <RegisterForm onSuccess={() => {}} onSwitchToLogin={() => setAuthMode('login')} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+              </form>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="register"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="bg-white/95 backdrop-blur-xl border border-[#DDE2D6] p-6 sm:p-9 rounded-[2.5rem] shadow-[0_20px_40px_-10px_rgba(43,76,59,0.08)]"
+            >
+              <RegisterForm onSuccess={() => {}} onSwitchToLogin={() => switchMode('login')} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

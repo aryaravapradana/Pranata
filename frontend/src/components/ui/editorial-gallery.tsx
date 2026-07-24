@@ -209,8 +209,8 @@ function DesktopEditorialGallery() {
       scrollTrigger: {
         trigger: containerRef.current,
         start: "top top",
-        end: `+=${(panels.length - 1) * 100}%`,
-        scrub: true,
+        end: `+=${(panels.length + 0.5) * 100}%`,
+        scrub: 0.5,
         pin: true,
         anticipatePin: 0,
         fastScrollEnd: true,
@@ -218,6 +218,9 @@ function DesktopEditorialGallery() {
         invalidateOnRefresh: true
       }
     })
+
+    // Initial scroll hold buffer: Keep Card 1 static and readable upon arrival before triggering Card 2 mask
+    tl.to({}, { duration: 0.6 });
 
     panels.forEach((panel, i) => {
       if (i === 0) return;
@@ -235,7 +238,8 @@ function DesktopEditorialGallery() {
         tl.to(panel, {
           clipPath: "circle(150% at 50% 50%)",
           WebkitClipPath: "circle(150% at 50% 50%)",
-          ease: "none"
+          ease: "power1.inOut",
+          duration: 1
         });
       } else {
         gsap.set(panel, { 
@@ -245,7 +249,8 @@ function DesktopEditorialGallery() {
         tl.to(panel, {
           clipPath: "inset(0% 0 0 0)",
           WebkitClipPath: "inset(0% 0 0 0)",
-          ease: "none"
+          ease: "power1.inOut",
+          duration: 1
         });
       }
 
@@ -253,7 +258,7 @@ function DesktopEditorialGallery() {
       if (img && !isMobileBrowser) {
         tl.fromTo(img, 
           { scale: 1.12, y: isCircle ? -20 : 30 }, 
-          { scale: 1, y: 0, ease: "none" }, 
+          { scale: 1, y: 0, ease: "none", duration: 1 }, 
           "<"
         );
       }
@@ -262,10 +267,13 @@ function DesktopEditorialGallery() {
       if (content) {
         tl.fromTo(content,
           { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, ease: "power1.out" },
-          "<+=0.05"
+          { opacity: 1, y: 0, ease: "power1.out", duration: 1 },
+          "<+=0.1"
         );
       }
+
+      // Hold buffer for subsequent cards before transitioning
+      tl.to({}, { duration: 0.4 });
     });
 
     const resizeObserver = new ResizeObserver(() => {
@@ -319,7 +327,7 @@ function DesktopEditorialGallery() {
 
             {/* Bottom Transition Gradient */}
             {item.bottomGradient && (
-              <div className="absolute bottom-0 left-0 right-0 z-10 bg-linear-to-t from-[#32452C] via-[#32452C]/70 to-transparent w-full h-48 sm:h-64 md:h-80 pointer-events-none" />
+              <div className="absolute bottom-0 left-0 right-0 z-10 bg-linear-to-t from-[#32452C] via-[#32452C] via-25% to-transparent w-full h-64 sm:h-96 md:h-[500px] pointer-events-none" />
             )}
             
             {/* Panel Content (Granular Positioning Container) */}

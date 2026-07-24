@@ -102,35 +102,32 @@ export function GlobalRope() {
       outlineRef.current.style.strokeDashoffset = `${length}px`;
     }
 
+    const targets = [pathEl, glowRef.current, outlineRef.current].filter(Boolean);
+
+    gsap.killTweensOf(targets);
     ScrollTrigger.getAll().forEach(st => {
       if (st.trigger === wrapper) st.kill();
     });
 
-    let rafId: number | null = null;
-    let lastProgress = -1;
-
-    ScrollTrigger.create({
-      trigger: wrapper,
-      start: () => `top+=${rawAnchors[0].y}px center`,
-      end: () => `top+=${rawAnchors[rawAnchors.length - 1].y}px center`,
-      onUpdate: (self) => {
-        const p = self.progress;
-        if (Math.abs(p - lastProgress) < 0.001) return;
-        lastProgress = p;
-
-        if (rafId) cancelAnimationFrame(rafId);
-
-        rafId = requestAnimationFrame(() => {
-          if (containerRef.current) {
-            containerRef.current.style.opacity = Math.min(1, p * 6).toString();
+    gsap.fromTo(targets, 
+      { strokeDashoffset: length },
+      {
+        strokeDashoffset: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: wrapper,
+          start: () => `top+=${rawAnchors[0].y}px center`,
+          end: () => `top+=${rawAnchors[rawAnchors.length - 1].y}px center`,
+          scrub: 0.1,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            if (containerRef.current) {
+              containerRef.current.style.opacity = Math.min(1, self.progress * 6).toString();
+            }
           }
-          const offset = `${length - (length * p)}px`;
-          if (pathEl) pathEl.style.strokeDashoffset = offset;
-          if (glowRef.current) glowRef.current.style.strokeDashoffset = offset;
-          if (outlineRef.current) outlineRef.current.style.strokeDashoffset = offset;
-        });
+        }
       }
-    });
+    );
   }, []);
 
   useEffect(() => {

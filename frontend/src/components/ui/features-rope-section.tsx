@@ -12,7 +12,7 @@ if (typeof window !== "undefined") {
 const features = [
   {
     title: "Pranata Intelligence",
-    description: "Your on-demand agricultural AI expert. Leverage advanced machine learning and real-time data to receive instant, actionable insights for diagnostics, yield predictions, and operational efficiency.",
+    description: "Asisten AI yang siap membantu menjawab pertanyaan seputar peternakan, memberikan rekomendasi berbasis data, serta membantu Anda mengambil keputusan bisnis dengan lebih cepat dan tepat.",
     logoWhite: "/logos/intelligence/intelligence-white.webp",
     logoBlack: "/logos/intelligence/intelligence-black.webp",
     illustration: "/images/PRANATA_INTELLIGENCE.webp",
@@ -20,7 +20,7 @@ const features = [
   },
   {
     title: "Pranata Market",
-    description: "Connect directly with trusted suppliers and buyers. Track real-time commodity prices and securely trade agricultural products with zero hidden fees.",
+    description: "Jual hasil peternakan langsung kepada konsumen dan pembeli bisnis tanpa melalui tengkulak. Nikmati proses transaksi yang lebih transparan dengan peluang keuntungan yang lebih besar.",
     logoWhite: "/logos/market/market-white.webp",
     logoBlack: "/logos/market/market-black.webp",
     illustration: "/images/PRANATA_MARKET.webp",
@@ -28,7 +28,7 @@ const features = [
   },
   {
     title: "Pranata Hub",
-    description: "Your centralized dashboard for operations. Monitor micro-climate sensors, automate task scheduling, and track financial ROI with unprecedented clarity.",
+    description: "Pantau performa penjualan, tren permintaan, dan perkembangan usaha melalui dashboard analitik yang mudah dipahami, sehingga setiap keputusan didukung oleh data.",
     logoWhite: "/logos/hub/hub-white.webp",
     logoBlack: "/logos/hub/hub-black.webp",
     illustration: "/images/PRANATA_HUB.webp",
@@ -110,14 +110,6 @@ const FeatureCard = ({ feature, layout, index }: { feature: FeatureType, layout?
         <p className={`font-medium leading-relaxed text-xs sm:text-sm lg:text-[17px] transition-colors duration-0 max-w-md ${active ? 'text-white/95' : 'text-slate-600'}`}>
           {feature.description}
         </p>
-
-        {/* Interactive Pseudo-Action */}
-        <div className={`mt-2 sm:mt-5 lg:mt-8 flex items-center gap-1 lg:gap-2 text-xs sm:text-xs lg:text-sm font-semibold cursor-pointer group/link ${active ? 'text-white hover:text-white/80' : 'text-forest hover:text-vibrant'}`}>
-          Explore Module 
-          <svg className="w-3 h-3 lg:w-4 lg:h-4 group-hover/link:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-        </div>
       </div>
     </div>
   );
@@ -173,11 +165,11 @@ export function FeaturesRopeSection() {
         
         {/* Header section */}
         <div className="text-center mb-12 sm:mb-16 md:mb-20 flex flex-col items-center">
-          <h2 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-slate-50 tracking-tighter mb-4 sm:mb-8 leading-[0.9]"  data-parallax="0.5">
-            Intelligent by design.
+          <h2 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black text-slate-50 tracking-tight mb-4 sm:mb-6 leading-[1.05] max-w-4xl" data-parallax="0.5">
+            Semua yang Dibutuhkan dalam Satu Platform
           </h2>
-          <p className="text-base sm:text-xl md:text-2xl text-slate-300 max-w-xl font-medium leading-snug px-2 sm:px-0" data-parallax="0.8">
-            Three core pillars seamlessly connected to transform your agricultural operations. Follow the thread.
+          <p className="text-sm sm:text-lg md:text-xl text-slate-300/90 max-w-2xl font-medium leading-relaxed px-2 sm:px-0" data-parallax="0.8">
+            Tiga solusi utama yang saling terintegrasi untuk membantu peternak menjual langsung ke konsumen, memahami performa bisnis, dan mengambil keputusan yang lebih cerdas
           </p>
         </div>
 

@@ -469,34 +469,7 @@ export default function MobileTestPage() {
           )}
         </AnimatePresence>
 
-        {/* STICKY BOTTOM ACTION BAR - ONLY SHOWN WHEN CART IS NOT EMPTY */}
-        <AnimatePresence>
-          {cartTotalQty > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              className="fixed bottom-0 left-0 right-0 z-40 bg-[#F8F6F0]/95 backdrop-blur-xl border-t border-[#E8E3D2] p-3.5 shadow-2xl"
-            >
-              <div className="w-full max-w-md mx-auto flex items-center justify-between gap-3">
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Total Keranjang</span>
-                  <span className="text-xs font-black text-[#1C241E]">
-                    {cartTotalQty} Produk • <strong className="text-[#C25939]">Rp {cartTotalPrice.toLocaleString()}</strong>
-                  </span>
-                </div>
 
-                <Link 
-                  href="/market/cart"
-                  className="bg-[#1C241E] text-white hover:bg-[#2B4C3B] active:scale-95 py-3 px-5 rounded-full font-extrabold text-xs shadow-lg flex items-center space-x-1.5 transition-all shrink-0"
-                >
-                  <ShoppingCart className="w-3.5 h-3.5 text-[#B4C179]" />
-                  <span>Lihat Keranjang</span>
-                </Link>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
       </div>
     </main>
