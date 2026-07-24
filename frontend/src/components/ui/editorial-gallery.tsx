@@ -140,9 +140,8 @@ function MobileTestimoniCarousel() {
 
             {/* Top Module Badge */}
             <div className="relative z-10 flex justify-between items-center">
-              <span className="inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-md text-[#1C241E] font-bold text-[11px] px-3 py-1.5 rounded-full shadow-md border border-white/80">
-                <img src={panel.logo} alt={panel.title} className="h-3.5 w-auto object-contain" decoding="async" />
-                <span>{panel.title}</span>
+              <span className="inline-flex items-center bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md border border-white/80">
+                <img src={panel.logo} alt={panel.title} className="h-4 w-auto object-contain" decoding="async" />
               </span>
               <span className="text-white/80 text-[11px] font-black tracking-widest">
                 0{panel.id} / 03
