@@ -41,8 +41,8 @@ export default function LandingPage() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="relative flex flex-col items-center justify-center w-full transform-gpu"
           >
-            {/* Pranata Basic Black Logo (Top Center) */}
-            <div className="mb-2 sm:mb-4 flex justify-center">
+            {/* Pranata Basic Black Logo (Top Center - Shifted Down Slightly) */}
+            <div className="mb-2 sm:mb-4 pt-4 sm:pt-6 md:pt-8 flex justify-center">
               <img 
                 src="/logos/basic/logo black.webp" 
                 alt="Pranata Logo" 
@@ -52,33 +52,33 @@ export default function LandingPage() {
               />
             </div>
 
-            <h1 className="text-[1.35rem] min-[380px]:text-[1.5rem] sm:text-4xl md:text-5xl lg:text-[4rem] font-bold text-[#1C241E] tracking-tight mt-1 sm:mt-2 mb-2 md:mb-3 leading-tight flex flex-col items-center justify-center text-center">
-              <span className="block whitespace-nowrap">Empowering farmers with</span>
+            <h1 className="text-[1.85rem] min-[380px]:text-[2.15rem] min-[440px]:text-[2.5rem] sm:text-[2.85rem] md:text-5xl lg:text-[4.35rem] font-bold text-[#1C241E] tracking-tight mt-12 min-[380px]:mt-14 sm:mt-22 md:mt-28 mb-4 md:mb-6 leading-[1.15] sm:leading-tight flex flex-col items-center justify-center text-center px-1">
+              <span className="block max-w-[230px] min-[380px]:max-w-[270px] sm:max-w-none sm:whitespace-nowrap">Empowering farmers with</span>
               <FlipWords 
                 duration={3500}
                 words={["beautiful precision.", "actionable insights.", "smart analytics."]} 
-                className="text-[#3A6B49] bg-clip-text font-black tracking-tight" 
+                className="text-[#3A6B49] bg-clip-text font-black tracking-tight text-center whitespace-nowrap inline-block" 
               />
             </h1>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 mt-2 sm:mt-4 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 mt-8 sm:mt-10 w-full sm:w-auto">
               {session ? (
                 <>
                   <Link href={session.role === 'PRODUCER' ? '/hub' : '/market'} className="w-full sm:w-auto">
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-7 sm:px-9 py-3.5 sm:py-4 rounded-2xl sm:rounded-full font-bold text-base sm:text-lg shadow-[0_12px_24px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-3 group transform-gpu"
+                      className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-6 sm:px-7.5 py-2.5 sm:py-3 rounded-xl sm:rounded-full font-bold text-sm sm:text-base shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-2.5 group transform-gpu"
                     >
                       {session.avatar ? (
-                        <img src={session.avatar} alt="PFP" className="w-6 h-6 rounded-full object-cover border-2 border-white/50" loading="lazy" decoding="async" />
+                        <img src={session.avatar} alt="PFP" className="w-5 h-5 rounded-full object-cover border-2 border-white/50" loading="lazy" decoding="async" />
                       ) : (
-                        <div className="w-6 h-6 rounded-full border-2 border-white/50 bg-[#3A6B49] flex items-center justify-center text-white text-[11px] font-bold">
+                        <div className="w-5 h-5 rounded-full border-2 border-white/50 bg-[#3A6B49] flex items-center justify-center text-white text-[10px] font-bold">
                           {(session.fullName || session.username || 'U').charAt(0).toUpperCase()}
                         </div>
                       )}
                       Lanjut sebagai {session.username}
-                      <ArrowRight size={20} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight size={18} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
                     </motion.button>
                   </Link>
                   <button 
@@ -87,7 +87,7 @@ export default function LandingPage() {
                       import("js-cookie").then(Cookies => Cookies.default.remove("auth-token"));
                       window.location.href = "/login";
                     }}
-                    className="w-full sm:w-auto bg-white/50 text-[#3F4841] border border-[#D5D0C5] backdrop-blur-sm px-7 sm:px-9 py-3.5 sm:py-4 rounded-2xl sm:rounded-full font-bold text-base sm:text-lg flex items-center justify-center gap-2 transition-colors shadow-sm hover:bg-white"
+                    className="w-full sm:w-auto bg-white/50 text-[#3F4841] border border-[#D5D0C5] backdrop-blur-sm px-6 sm:px-7.5 py-2.5 sm:py-3 rounded-xl sm:rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-colors shadow-sm hover:bg-white"
                   >
                     Use Another Account
                   </button>
@@ -98,17 +98,17 @@ export default function LandingPage() {
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-7 sm:px-9 py-3.5 sm:py-4 rounded-2xl sm:rounded-full font-bold text-base sm:text-lg shadow-[0_12px_24px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-3 group transform-gpu"
+                      className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-6 sm:px-7.5 py-2.5 sm:py-3 rounded-xl sm:rounded-full font-bold text-sm sm:text-base shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-2.5 group transform-gpu"
                     >
                       Create Account
-                      <ArrowRight size={20} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight size={18} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
                     </motion.button>
                   </Link>
                   <Link href="/login" className="w-full sm:w-auto">
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full sm:w-auto bg-white/50 text-[#3F4841] border border-[#D5D0C5] backdrop-blur-sm px-7 sm:px-9 py-3.5 sm:py-4 rounded-2xl sm:rounded-full font-bold text-base sm:text-lg flex items-center justify-center gap-2 transition-colors shadow-sm transform-gpu"
+                      className="w-full sm:w-auto bg-white/50 text-[#3F4841] border border-[#D5D0C5] backdrop-blur-sm px-6 sm:px-7.5 py-2.5 sm:py-3 rounded-xl sm:rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-colors shadow-sm transform-gpu"
                     >
                       Log In
                     </motion.button>
