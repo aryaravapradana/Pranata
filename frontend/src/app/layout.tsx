@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Nunito, Playfair_Display, Geist } from "next/font/google";
 import "./globals.css";
 
-const nunito = Nunito({ subsets: ["latin"], weight: ["400", "500", "700", "800", "900"], variable: "--font-nunito" });
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
+const nunito = Nunito({ subsets: ["latin"], weight: ["400", "500", "700", "800", "900"], variable: "--font-nunito", display: "swap" });
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Pranata",
@@ -15,7 +15,7 @@ import { PageTransition } from "@/components/layout/page-transition";
 import { LoadingProvider } from "@/components/shared/loading-context";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans', display: "swap" });
 
 
 export default function RootLayout({

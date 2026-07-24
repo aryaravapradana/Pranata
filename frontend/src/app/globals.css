@@ -365,6 +365,17 @@ html, body, * {
 }
 
 /* --- PERFORMANCE OPTIMIZATIONS --- */
+html, body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Eliminate 300ms mobile touch tap delay on interactive controls */
+a, button, input, select, textarea {
+  touch-action: manipulation;
+}
+
 .content-visibility-auto {
   content-visibility: auto;
   contain-intrinsic-size: 1000px;
