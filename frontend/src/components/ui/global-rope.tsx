@@ -65,27 +65,72 @@ export function GlobalRope() {
     // Ensure they are ordered top-to-bottom
     rawAnchors.sort((a, b) => a.y - b.y);
     
-    // Generate the static fully-extended path
+    // Generate the path
     const d = buildRopePath(rawAnchors, totalWidth);
     pathEl.setAttribute('d', d);
     if (glowRef.current) glowRef.current.setAttribute('d', d);
     if (outlineRef.current) outlineRef.current.setAttribute('d', d);
 
-    // Fully extend stroke natively without dashoffset animation
-    pathEl.style.strokeDasharray = "none";
-    pathEl.style.strokeDashoffset = "0";
-    if (glowRef.current) {
-      glowRef.current.style.strokeDasharray = "none";
-      glowRef.current.style.strokeDashoffset = "0";
-    }
-    if (outlineRef.current) {
-      outlineRef.current.style.strokeDasharray = "none";
-      outlineRef.current.style.strokeDashoffset = "0";
+    if (mobile) {
+      // Mobile: Fully extend stroke statically without scroll listeners for 60 FPS performance
+      pathEl.style.strokeDasharray = "none";
+      pathEl.style.strokeDashoffset = "0";
+      if (glowRef.current) {
+        glowRef.current.style.strokeDasharray = "none";
+        glowRef.current.style.strokeDashoffset = "0";
+      }
+      if (outlineRef.current) {
+        outlineRef.current.style.strokeDasharray = "none";
+        outlineRef.current.style.strokeDashoffset = "0";
+      }
+      if (containerRef.current) {
+        containerRef.current.style.opacity = "1";
+      }
+      return;
     }
 
-    if (containerRef.current) {
-      containerRef.current.style.opacity = "1";
+    // Desktop & Tablet: Setup smooth dynamic DrawSVG scroll animation following user scroll
+    const length = pathEl.getTotalLength();
+    pathEl.style.strokeDasharray = `${length}px`;
+    pathEl.style.strokeDashoffset = `${length}px`;
+    if (glowRef.current) {
+      glowRef.current.style.strokeDasharray = `${length}px`;
+      glowRef.current.style.strokeDashoffset = `${length}px`;
     }
+    if (outlineRef.current) {
+      outlineRef.current.style.strokeDasharray = `${length}px`;
+      outlineRef.current.style.strokeDashoffset = `${length}px`;
+    }
+
+    ScrollTrigger.getAll().forEach(st => {
+      if (st.trigger === wrapper) st.kill();
+    });
+
+    let rafId: number | null = null;
+    let lastProgress = -1;
+
+    ScrollTrigger.create({
+      trigger: wrapper,
+      start: () => `top+=${rawAnchors[0].y}px center`,
+      end: () => `top+=${rawAnchors[rawAnchors.length - 1].y}px center`,
+      onUpdate: (self) => {
+        const p = self.progress;
+        if (Math.abs(p - lastProgress) < 0.001) return;
+        lastProgress = p;
+
+        if (rafId) cancelAnimationFrame(rafId);
+
+        rafId = requestAnimationFrame(() => {
+          if (containerRef.current) {
+            containerRef.current.style.opacity = Math.min(1, p * 6).toString();
+          }
+          const offset = `${length - (length * p)}px`;
+          if (pathEl) pathEl.style.strokeDashoffset = offset;
+          if (glowRef.current) glowRef.current.style.strokeDashoffset = offset;
+          if (outlineRef.current) outlineRef.current.style.strokeDashoffset = offset;
+        });
+      }
+    });
   }, []);
 
   useEffect(() => {

@@ -493,7 +493,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         : "border-[#E8E3D2] opacity-70 hover:opacity-100"
                     }`}
                   >
-                    <img src={imgUrl} alt={`Thumb ${idx}`} className="w-full h-full object-cover object-center scale-[1.08]" />
+                    <img src={imgUrl} alt={`Thumb ${idx}`} className="w-full h-full object-cover object-center scale-[1.08]" loading="lazy" decoding="async" />
                   </button>
                 ))}
               </div>
@@ -521,7 +521,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {seller && (
                 <Link href={`/market/seller/${seller.id}`} className="flex items-center gap-4 bg-white hover:bg-[#F8F6F0] border border-[#E8E3D2] p-4 rounded-2xl mb-6 shadow-sm transition-colors group">
                   {seller.avatarUrl ? (
-                    <img src={seller.avatarUrl} alt="Seller Avatar" className="w-12 h-12 rounded-full object-cover shrink-0 shadow-inner group-hover:scale-105 transition-transform" />
+                    <img src={seller.avatarUrl} alt="Seller Avatar" className="w-12 h-12 rounded-full object-cover shrink-0 shadow-inner group-hover:scale-105 transition-transform" loading="lazy" decoding="async" />
                   ) : (
                     <div className="w-12 h-12 rounded-full bg-[#2B4C3B] text-white flex items-center justify-center font-black text-xl shrink-0 shadow-inner group-hover:scale-105 transition-transform">
                       {(seller.farmName || seller.fullName || seller.username || "?").charAt(0).toUpperCase()}

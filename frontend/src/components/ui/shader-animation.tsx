@@ -111,7 +111,7 @@ export function ShaderAnimation({ className }: { className?: string }) {
 
     // Initial resize
     onWindowResize()
-    window.addEventListener("resize", onWindowResize, false)
+    window.addEventListener("resize", onWindowResize, { passive: true })
 
     // Track real time so it's not frame-rate dependent!
     const startTime = performance.now()
