@@ -8,6 +8,11 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfa
 export const metadata: Metadata = {
   title: "Pranata",
   description: "Friendly farm tracking and inventory management",
+  icons: {
+    icon: "/logomarks/basic-logomark.webp",
+    shortcut: "/logomarks/basic-logomark.webp",
+    apple: "/logomarks/basic-logomark.webp",
+  },
 };
 
 import { SmoothScroll } from "@/components/ui/smooth-scroll";

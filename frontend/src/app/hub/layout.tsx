@@ -1,4 +1,15 @@
+import type { Metadata } from "next";
 import DashboardNavbar from "@/components/layout/DashboardNavbar";
+
+export const metadata: Metadata = {
+  title: "Pranata Hub",
+  description: "Dasbor Manajemen & Inventaris Peternakan",
+  icons: {
+    icon: "/logomarks/basic-logomark.webp",
+    shortcut: "/logomarks/basic-logomark.webp",
+    apple: "/logomarks/basic-logomark.webp",
+  },
+};
 
 export default function DashboardLayout({
   children,
