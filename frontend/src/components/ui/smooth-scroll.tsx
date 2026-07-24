@@ -30,12 +30,20 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       smoothWheel: true,
       wheelMultiplier: 1,
       touchMultiplier: 1,
-      autoRaf: true,
     })
 
     lenis.on("scroll", ScrollTrigger.update)
 
+    // Synchronize Lenis raf loop directly with GSAP's high-precision ticker
+    const update = (time: number) => {
+      lenis.raf(time * 1000)
+    }
+
+    gsap.ticker.add(update)
+    gsap.ticker.lagSmoothing(0)
+
     return () => {
+      gsap.ticker.remove(update)
       lenis.destroy()
     }
   }, [])

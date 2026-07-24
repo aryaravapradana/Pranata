@@ -129,7 +129,7 @@ export default function LandingPage() {
           <img 
             src="/images/hero_section.webp" 
             alt="Pranata Hero" 
-            className="w-full h-auto pointer-events-none object-cover scale-[2.8] min-[380px]:scale-[2.6] min-[440px]:scale-[2.4] sm:scale-100 -translate-y-72 min-[380px]:-translate-y-80 min-[440px]:-translate-y-96 sm:translate-y-0 origin-top" 
+            className="w-full h-auto pointer-events-none object-cover scale-[2.2] min-[380px]:scale-[2.0] min-[440px]:scale-[1.85] sm:scale-100 -translate-y-48 min-[380px]:-translate-y-56 min-[440px]:-translate-y-64 sm:translate-y-0 origin-top" 
             fetchPriority="high"
             decoding="async"
           />

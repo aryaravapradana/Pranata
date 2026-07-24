@@ -210,9 +210,9 @@ function DesktopEditorialGallery() {
         trigger: containerRef.current,
         start: "top top",
         end: `+=${(panels.length - 1) * 100}%`,
-        scrub: isMobileBrowser ? 0.5 : 0.2,
+        scrub: true,
         pin: true,
-        anticipatePin: 1,
+        anticipatePin: 0,
         fastScrollEnd: true,
         preventOverlaps: true,
         invalidateOnRefresh: true
