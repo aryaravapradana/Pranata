@@ -156,6 +156,11 @@
     line-height: 1.2 !important;
   }
 
+  .font-rustic {
+    font-family: 'Rustic Delight', serif !important;
+    letter-spacing: 0.03em !important;
+  }
+
   h2 {
     font-family: 'SFUIDisplay', system-ui, sans-serif !important;
     font-weight: 900 !important;

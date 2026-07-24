@@ -44,6 +44,10 @@ export default function RootLayout({
         <link rel="preload" href="/images/PRANATA_INTELLIGENCE.webp" as="image" type="image/webp" />
         <link rel="preload" href="/images/PRANATA_MARKET.webp" as="image" type="image/webp" />
         <link rel="preload" href="/images/PRANATA_HUB.webp" as="image" type="image/webp" />
+        {/* Testimony photos */}
+        <link rel="preload" href="/testimonies/ayam.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/testimonies/sapi.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/testimonies/susu.webp" as="image" type="image/webp" />
       </head>
       <body className={`${nunito.className} bg-forest text-white selection:bg-vibrant selection:text-white min-h-screen`}>
         <SmoothScroll>

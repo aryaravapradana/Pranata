@@ -125,7 +125,7 @@ export const AnimatedTestimonials = ({
             <p className="text-sm text-slate-500">
               {testimonials[active].designation}
             </p>
-            <motion.p className="mt-8 text-lg text-slate-600">
+            <motion.p className="mt-8 text-lg sm:text-xl font-rustic text-slate-700" style={{ fontFamily: "'Rustic Delight', serif" }}>
               {testimonials[active].quote.split(" ").map((word, index) => (
                 <motion.span
                   key={index}

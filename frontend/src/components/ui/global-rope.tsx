@@ -16,6 +16,7 @@ export function GlobalRope() {
   const [svgHeight, setSvgHeight] = useState(0)
   const [svgWidth, setSvgWidth] = useState(0)
   const [strokeW, setStrokeW] = useState(120)
+  const [isMobile, setIsMobile] = useState(false)
 
   // Dynamic Path Builder that intersects the anchors in a straight line
   const buildRopePath = (anchors: {x: number, y: number}[], totalWidth: number) => {
@@ -40,7 +41,9 @@ export function GlobalRope() {
     const wrapperRect = wrapper.getBoundingClientRect();
     const totalHeight = wrapper.scrollHeight;
     const totalWidth = wrapperRect.width; 
-    
+    const mobile = window.innerWidth < 768;
+
+    setIsMobile(mobile);
     setSvgHeight(totalHeight);
     setSvgWidth(totalWidth);
 
@@ -57,99 +60,71 @@ export function GlobalRope() {
          };
     });
 
-    setStrokeW(window.innerWidth < 768 ? 40 : 120);
+    setStrokeW(mobile ? 20 : 120);
 
     // Ensure they are ordered top-to-bottom
     rawAnchors.sort((a, b) => a.y - b.y);
     
-    // Generate the perfectly intersecting swinging path
+    // Generate the static fully-extended path
     const d = buildRopePath(rawAnchors, totalWidth);
     pathEl.setAttribute('d', d);
     if (glowRef.current) glowRef.current.setAttribute('d', d);
     if (outlineRef.current) outlineRef.current.setAttribute('d', d);
 
-    // Setup DrawSVG animation using strokeDashoffset natively for extreme performance
-    const length = pathEl.getTotalLength();
-    pathEl.style.strokeDasharray = `${length}px`;
-    pathEl.style.strokeDashoffset = `${length}px`;
+    // Fully extend stroke natively without dashoffset animation
+    pathEl.style.strokeDasharray = "none";
+    pathEl.style.strokeDashoffset = "0";
     if (glowRef.current) {
-      glowRef.current.style.strokeDasharray = `${length}px`;
-      glowRef.current.style.strokeDashoffset = `${length}px`;
+      glowRef.current.style.strokeDasharray = "none";
+      glowRef.current.style.strokeDashoffset = "0";
     }
     if (outlineRef.current) {
-      outlineRef.current.style.strokeDasharray = `${length}px`;
-      outlineRef.current.style.strokeDashoffset = `${length}px`;
+      outlineRef.current.style.strokeDasharray = "none";
+      outlineRef.current.style.strokeDashoffset = "0";
     }
-    
-    ScrollTrigger.getAll().forEach(st => {
-      if (st.trigger === wrapper) st.kill()
-    });
 
-    // Remove old fade trigger. We will bind opacity to progress directly!
-
-    // Drawing animation trigger
-    ScrollTrigger.create({
-        trigger: wrapper,
-        start: () => `top+=${rawAnchors[0].y}px center`,
-        end: () => `top+=${rawAnchors[rawAnchors.length - 1].y}px center`,
-        onUpdate: (self) => {
-            // PERFORMANCE: Native assignment synced perfectly with the browser painting cycle
-            requestAnimationFrame(() => {
-              // Fade in over the first ~16% of the scroll progress (slower fade to prevent pop-in on fast scrolls)
-              const currentOpacity = Math.min(1, self.progress * 6);
-              if (containerRef.current) {
-                containerRef.current.style.opacity = currentOpacity.toString();
-              }
-
-              if (pathEl) {
-                pathEl.style.strokeDashoffset = `${length - (length * self.progress)}px`;
-              }
-              if (glowRef.current) {
-                glowRef.current.style.strokeDashoffset = `${length - (length * self.progress)}px`;
-              }
-              if (outlineRef.current) {
-                outlineRef.current.style.strokeDashoffset = `${length - (length * self.progress)}px`;
-              }
-            });
-        }
-    });
-
+    if (containerRef.current) {
+      containerRef.current.style.opacity = "1";
+    }
   }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    // Initial draw
+    let isScheduled = false;
+    const scheduleUpdate = () => {
+      if (isScheduled) return;
+      isScheduled = true;
+      requestAnimationFrame(() => {
+        updateRopeAndAnimation();
+        isScheduled = false;
+      });
+    };
+
     if (document.readyState === 'complete') {
-        setTimeout(updateRopeAndAnimation, 0);
+        setTimeout(scheduleUpdate, 0);
     } else {
-        window.addEventListener('load', updateRopeAndAnimation);
+        window.addEventListener('load', scheduleUpdate);
     }
 
-    let lastWidth = window.innerWidth;
-    let resizeTimer: NodeJS.Timeout;
-    updateRopeAndAnimation();
-    
-    // Slight delay to ensure DOM is settled
-    const timer = setTimeout(updateRopeAndAnimation, 500);
+    scheduleUpdate();
+    const timer = setTimeout(scheduleUpdate, 500);
 
-    // Robust observer for any layout shifts (e.g. late image loads causing container to expand)
     const wrapper = document.querySelector('.features-rope-container') as HTMLElement;
     let resizeObserver: ResizeObserver | null = null;
     
     if (wrapper) {
       resizeObserver = new ResizeObserver(() => {
-        updateRopeAndAnimation();
+        scheduleUpdate();
       });
       resizeObserver.observe(wrapper);
     }
 
-    // Fallback window resize listener
-    window.addEventListener('resize', updateRopeAndAnimation);
+    window.addEventListener('resize', scheduleUpdate, { passive: true });
     
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('resize', updateRopeAndAnimation);
+      window.removeEventListener('resize', scheduleUpdate);
       if (resizeObserver && wrapper) resizeObserver.disconnect();
     };
   }, [updateRopeAndAnimation]);
@@ -157,16 +132,16 @@ export function GlobalRope() {
   return (
     <div 
         ref={containerRef}
-        className="absolute top-0 left-0 w-full pointer-events-none opacity-0"
-        style={{ zIndex: 10, height: `${svgHeight}px` }}
+        className="absolute top-0 left-0 w-full pointer-events-none opacity-100 transform-gpu"
+        style={{ zIndex: 10, height: `${svgHeight}px`, transform: 'translateZ(0)' }}
     >
         <svg 
             width="100%" 
             height="100%" 
             viewBox={`0 0 ${svgWidth} ${svgHeight}`}
             preserveAspectRatio="none"
-            className="absolute top-0 left-0 w-full overflow-visible"
-            style={{ height: `${svgHeight}px`, zIndex: 50, pointerEvents: 'none', willChange: 'transform' }}
+            className="absolute top-0 left-0 w-full overflow-visible pointer-events-none transform-gpu"
+            style={{ height: `${svgHeight}px`, zIndex: 50, transform: 'translateZ(0)' }}
         >
             <defs>
                 <linearGradient id="rope-gradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={svgHeight}>
@@ -175,18 +150,20 @@ export function GlobalRope() {
                 </linearGradient>
             </defs>
 
-            {/* Glow behind the rope */}
-            <path
-              ref={glowRef}
-              d=""
-              fill="none"
-              stroke="#B4C179"
-              strokeWidth={strokeW * 1.2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="opacity-20 blur-xl"
-              style={{ willChange: "stroke-dashoffset" }}
-            />
+            {/* Glow behind the rope - Omitted on mobile for 60 FPS performance */}
+            {!isMobile && (
+              <path
+                ref={glowRef}
+                d=""
+                fill="none"
+                stroke="#B4C179"
+                strokeWidth={strokeW * 1.2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="opacity-20 blur-xl hidden sm:block"
+                style={{ willChange: "stroke-dashoffset" }}
+              />
+            )}
             
             {/* White outline path */}
             <path 
@@ -194,7 +171,7 @@ export function GlobalRope() {
                 d=""
                 fill="none" 
                 stroke="#FFFFFF" 
-                strokeWidth={strokeW + 16}
+                strokeWidth={strokeW + (isMobile ? 6 : 16)}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 style={{ willChange: "stroke-dashoffset" }}
@@ -208,7 +185,7 @@ export function GlobalRope() {
                 strokeWidth={strokeW}
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="drop-shadow-2xl"
+                className={isMobile ? "" : "drop-shadow-2xl"}
                 style={{
                   willChange: 'stroke-dashoffset'
                 }}

@@ -26,20 +26,20 @@ export default function LandingPage() {
     <div className="min-h-screen bg-transparent font-sans overflow-x-hidden relative">
       
       {/* Unified Responsive Hero Section */}
-      <section className="relative w-full flex flex-col justify-between min-h-dvh md:min-h-0 pt-6 sm:pt-10 md:pt-12 pb-0 bg-[#F8F6F0] overflow-hidden">
-        {/* Soft Organic Background Gradients */}
-        <div className="absolute top-0 right-0 w-100 sm:w-200 h-100 sm:h-200 bg-[#E8E3D2]/40 rounded-full blur-[80px] sm:blur-[120px] -translate-y-1/4 translate-x-1/4 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-75 sm:w-150 h-75 sm:h-150 bg-[#DDE2D6]/50 rounded-full blur-[60px] sm:blur-[100px] translate-y-1/4 -translate-x-1/4 pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 w-150 sm:w-250 h-150 sm:h-250 bg-[#F1EBE1]/30 rounded-full blur-[100px] sm:blur-[150px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+      <section className="relative w-full flex flex-col justify-between min-h-screen md:min-h-0 pt-6 sm:pt-10 md:pt-12 pb-0 bg-[#F8F6F0] overflow-hidden">
+        {/* Soft Organic Background Gradients - Omitted heavy CSS blurs on mobile for 60 FPS performance */}
+        <div className="hidden sm:block absolute top-0 right-0 w-100 sm:w-200 h-100 sm:h-200 bg-[#E8E3D2]/40 rounded-full blur-[80px] sm:blur-[120px] -translate-y-1/4 translate-x-1/4 pointer-events-none" />
+        <div className="hidden sm:block absolute bottom-0 left-0 w-75 sm:w-150 h-75 sm:h-150 bg-[#DDE2D6]/50 rounded-full blur-[60px] sm:blur-[100px] translate-y-1/4 -translate-x-1/4 pointer-events-none" />
+        <div className="hidden sm:block absolute top-1/2 left-1/2 w-150 sm:w-250 h-150 sm:h-250 bg-[#F1EBE1]/30 rounded-full blur-[100px] sm:blur-[150px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
         {/* Text Content Container */}
         <div className="max-w-7xl mx-auto relative z-10 flex flex-col items-center text-center mb-2 md:mb-4 px-5 sm:px-8 lg:px-12">
           
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, type: "spring", bounce: 0.2 }}
-            className="relative flex flex-col items-center justify-center w-full will-change-transform will-change-opacity"
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="relative flex flex-col items-center justify-center w-full transform-gpu"
           >
             {/* Pranata Basic Black Logo (Top Center) */}
             <div className="mb-2 sm:mb-4 flex justify-center">
@@ -68,7 +68,7 @@ export default function LandingPage() {
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-7 sm:px-9 py-3.5 sm:py-4 rounded-2xl sm:rounded-full font-bold text-base sm:text-lg shadow-[0_12px_24px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-3 group"
+                      className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-7 sm:px-9 py-3.5 sm:py-4 rounded-2xl sm:rounded-full font-bold text-base sm:text-lg shadow-[0_12px_24px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-3 group transform-gpu"
                     >
                       {session.avatar ? (
                         <img src={session.avatar} alt="PFP" className="w-6 h-6 rounded-full object-cover border-2 border-white/50" loading="lazy" decoding="async" />
@@ -98,7 +98,7 @@ export default function LandingPage() {
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-7 sm:px-9 py-3.5 sm:py-4 rounded-2xl sm:rounded-full font-bold text-base sm:text-lg shadow-[0_12px_24px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-3 group"
+                      className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-7 sm:px-9 py-3.5 sm:py-4 rounded-2xl sm:rounded-full font-bold text-base sm:text-lg shadow-[0_12px_24px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-3 group transform-gpu"
                     >
                       Create Account
                       <ArrowRight size={20} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
@@ -106,9 +106,9 @@ export default function LandingPage() {
                   </Link>
                   <Link href="/login" className="w-full sm:w-auto">
                     <motion.button 
-                      whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.8)" }}
+                      whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full sm:w-auto bg-white/50 text-[#3F4841] border border-[#D5D0C5] backdrop-blur-sm px-7 sm:px-9 py-3.5 sm:py-4 rounded-2xl sm:rounded-full font-bold text-base sm:text-lg flex items-center justify-center gap-2 transition-colors shadow-sm"
+                      className="w-full sm:w-auto bg-white/50 text-[#3F4841] border border-[#D5D0C5] backdrop-blur-sm px-7 sm:px-9 py-3.5 sm:py-4 rounded-2xl sm:rounded-full font-bold text-base sm:text-lg flex items-center justify-center gap-2 transition-colors shadow-sm transform-gpu"
                     >
                       Log In
                     </motion.button>
@@ -121,10 +121,10 @@ export default function LandingPage() {
 
         {/* Hero Illustration Section inside white/cream background section */}
         <motion.div 
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, type: "spring", bounce: 0.1, delay: 0.1 }}
-          className="relative w-full flex items-center justify-center z-20 pointer-events-none -mt-4 md:-mt-10"
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+          className="relative w-full flex items-center justify-center z-20 pointer-events-none -mt-4 md:-mt-10 transform-gpu"
         >
           <img 
             src="/images/hero_section.webp" 
@@ -151,14 +151,14 @@ export default function LandingPage() {
       <section className="py-12 sm:py-24 px-4 sm:px-6 relative bg-transparent">
         <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
           <motion.div 
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="bg-rust rounded-[2rem] sm:rounded-[3rem] p-8 sm:p-12 md:p-20 text-center relative overflow-hidden"
+            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="bg-rust rounded-[2rem] sm:rounded-[3rem] p-8 sm:p-12 md:p-20 text-center relative overflow-hidden transform-gpu"
           >
-            <div className="absolute top-0 right-0 w-96 h-96 bg-vibrant/40 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-sage/40 rounded-full blur-3xl" />
+            <div className="hidden sm:block absolute top-0 right-0 w-96 h-96 bg-vibrant/40 rounded-full blur-3xl" />
+            <div className="hidden sm:block absolute bottom-0 left-0 w-96 h-96 bg-sage/40 rounded-full blur-3xl" />
             
             <div className="relative z-10">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4 sm:mb-6">
@@ -171,7 +171,7 @@ export default function LandingPage() {
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-vibrant text-white px-10 py-4 rounded-full font-extrabold text-lg shadow-xl"
+                  className="bg-vibrant text-white px-10 py-4 rounded-full font-extrabold text-lg shadow-xl transform-gpu"
                 >
                   Create Organization
                 </motion.button>

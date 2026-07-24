@@ -2,7 +2,6 @@
 
 import React, { useRef, useEffect, useState } from "react"
 import { GlobalRope } from "./global-rope"
-import { motion } from "framer-motion"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
@@ -48,17 +47,26 @@ const FeatureCard = ({ feature, layout, index }: { feature: FeatureType, layout?
     : (isLeft ? "flex-row-reverse items-center" : "flex-row items-center");
 
   const cardRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: cardRef.current,
-        start: "top center",
-        end: "+=999999px",
-        toggleClass: "is-active"
+    setIsMobile(window.innerWidth < 640);
+    if (!cardRef.current) return;
+
+    // Use browser native IntersectionObserver for zero-reflow, 60 FPS performance
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setIsActive(true);
+        } else if (entry.boundingClientRect.top > 0) {
+          setIsActive(false);
+        }
       });
-    });
-    return () => ctx.revert();
+    }, { rootMargin: '-15% 0px -15% 0px', threshold: 0.1 });
+
+    observer.observe(cardRef.current);
+    return () => observer.disconnect();
   }, []);
 
   const renderCardContent = (active: boolean) => (
@@ -68,10 +76,10 @@ const FeatureCard = ({ feature, layout, index }: { feature: FeatureType, layout?
         className={`relative flex items-center justify-center shrink-0 group w-28 sm:w-48 lg:w-72`} 
         {...(!active ? { "data-rope-anchor": true } : {})}
       >
-        <div data-parallax="0.6" className="w-full relative z-50">
+        <div data-parallax="0.6" className="w-full relative z-50 transform-gpu">
           <div className="w-full drop-shadow-2xl transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105 group-hover:-translate-y-2">
             <div className={`w-full flex items-center justify-center border-[3px] sm:border-[5px] lg:border-[6px] rounded-[1.5rem] sm:rounded-[2.2rem] lg:rounded-[2.5rem] shadow-inner overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] ${active ? 'bg-[#2B4C3B]/20 border-[#F4F6F0]' : 'bg-white border-[#E8E3D2]'}`}>
-              <img src={feature.illustration} alt={feature.title} className="w-full h-auto object-contain block scale-[1.02]" decoding="async" />
+              <img src={feature.illustration} alt={feature.title} className="w-full h-auto object-contain block scale-[1.02]" loading="lazy" decoding="async" />
             </div>
           </div>
         </div>
@@ -81,13 +89,12 @@ const FeatureCard = ({ feature, layout, index }: { feature: FeatureType, layout?
       <div className={`flex-1 w-full relative z-10 flex flex-col items-start text-left justify-center`} data-parallax="-0.4">
         {/* Logo acting as Heading */}
         <div className="mb-2 sm:mb-4 lg:mb-8">
-          <div className={`inline-flex items-center justify-center rounded-xl sm:rounded-2xl transition-all duration-500 ${active ? 'p-2 sm:p-3.5 lg:p-5 bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.12)]' : ''}`}>
+          {/* backdrop-blur only on sm+ to avoid GPU thrash on mobile */}
+          <div className={`inline-flex items-center justify-center rounded-xl sm:rounded-2xl transition-all duration-500 ${active ? 'p-2 sm:p-3.5 lg:p-5 bg-white/10 sm:backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.12)]' : ''}`}>
             <div className="h-6 sm:h-10 lg:h-16 shrink-0 inline-block relative">
-              {/* White logo (overlay layer) — always rendered, revealed by clip-path */}
               {active && (
                 <img src={feature.logoWhite} alt={feature.title} className="h-full w-auto object-contain" decoding="async" />
               )}
-              {/* Black logo (base layer) — fades out immediately when is-active fires so it doesn't ghost under the expanding clip-path */}
               {!active && (
                 <img
                   src={feature.logoBlack}
@@ -116,41 +123,43 @@ const FeatureCard = ({ feature, layout, index }: { feature: FeatureType, layout?
   );
 
   return (
-    <div ref={cardRef} className={`group/card relative overflow-clip transition-all duration-700 hover:-translate-y-2 border-[3px] border-[#E8E3D2] group-[.is-active]/card:border-white rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_20px_80px_-15px_rgba(0,0,0,0.05)] w-full max-w-4xl bg-white`}>
-      
-      {/* BASE LAYER (Dark Text, White BG) */}
-      {renderCardContent(false)}
+    <div
+      ref={cardRef}
+      className={`group/card relative overflow-clip border-[3px] rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_20px_80px_-15px_rgba(0,0,0,0.05)] w-full max-w-4xl bg-white ${
+        isActive
+          ? 'border-white -translate-y-2'
+          : 'border-[#E8E3D2] hover:-translate-y-2'
+      } transition-[border-color,transform] duration-700`}
+    >
+      {/* BASE LAYER (Dark Text, White BG) — visible when inactive */}
+      <div
+        className="transition-opacity duration-700"
+        style={{ opacity: isActive ? 0 : 1 }}
+        aria-hidden={isActive}
+      >
+        {renderCardContent(false)}
+      </div>
 
-      {/* OVERLAY LAYER (White Text, Soft Green BG with Clip Path) */}
-      <div 
-        className="absolute inset-0 bg-linear-to-br from-[#8FA76B] to-[#405D46] z-20 transition-all duration-1000 ease-[cubic-bezier(0.32,0.72,0,1)] flex items-center justify-center pointer-events-none [clip-path:circle(0%_at_50%_50%)] group-[.is-active]/card:[clip-path:circle(150%_at_50%_50%)]"
+      {/* OVERLAY LAYER (White Text, Soft Green BG) — fade in on mobile, clip-path on desktop */}
+      <div
+        className="absolute inset-0 bg-linear-to-br from-[#8FA76B] to-[#405D46] z-20 flex items-center justify-center pointer-events-none"
+        style={isMobile
+          ? { opacity: isActive ? 1 : 0, transition: 'opacity 0.5s ease' }
+          : {
+            clipPath: isActive ? 'circle(150% at 50% 50%)' : 'circle(0% at 50% 50%)',
+            WebkitClipPath: isActive ? 'circle(150% at 50% 50%)' : 'circle(0% at 50% 50%)',
+            transition: 'clip-path 1s cubic-bezier(0.32,0.72,0,1), -webkit-clip-path 1s cubic-bezier(0.32,0.72,0,1)',
+          }
+        }
       >
         {renderCardContent(true)}
       </div>
-
-      {/* Subtle Texture (stays on top of everything) */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none mix-blend-overlay z-30" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }} />
     </div>
   );
 }
 
 export function FeaturesRopeSection() {
   const containerRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    // Refresh triggers when layout changes (images loading)
-    if (!containerRef.current) return;
-    
-    const resizeObserver = new ResizeObserver(() => {
-      ScrollTrigger.refresh();
-    });
-    
-    resizeObserver.observe(containerRef.current);
-    
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
 
   return (
     <section ref={containerRef} className="py-16 sm:py-24 md:py-32 relative bg-forest features-rope-container overflow-hidden">
@@ -163,10 +172,7 @@ export function FeaturesRopeSection() {
       <div className="max-w-7xl mx-auto relative z-10 px-4 md:px-8 lg:px-12">
         
         {/* Header section */}
-        <div className="text-center mb-12 sm:mb-20 md:mb-32 flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100/10 text-slate-50 font-semibold text-sm mb-8" data-parallax="-0.2">
-            <span>Core Ecosystem</span>
-          </div>
+        <div className="text-center mb-12 sm:mb-16 md:mb-20 flex flex-col items-center">
           <h2 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-slate-50 tracking-tighter mb-4 sm:mb-8 leading-[0.9]"  data-parallax="0.5">
             Intelligent by design.
           </h2>
@@ -176,7 +182,7 @@ export function FeaturesRopeSection() {
         </div>
 
         {/* Hero Anchor - Kept for rope math to match the anchors */}
-        <div className="flex justify-center mb-24 sm:mb-32 md:mb-48 relative z-20 w-full max-w-7xl mx-auto h-1 px-4 md:px-8 lg:px-12" data-rope-anchor>
+        <div className="flex justify-center mb-10 sm:mb-14 md:mb-18 relative z-20 w-full max-w-7xl mx-auto h-1 px-4 md:px-8 lg:px-12" data-rope-anchor>
         </div>
 
         {/* Features Timeline Cards with Rope Anchors */}
