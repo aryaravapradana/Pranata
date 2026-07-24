@@ -9,8 +9,11 @@ export const checkUsername = async (req: Request, res: Response) => {
   }
   
   try {
+    const cleanUsername = username.trim().toLowerCase();
     const existing = await prisma.profile.findFirst({ 
-      where: { username: { equals: username.trim(), mode: 'insensitive' } } 
+      where: { 
+        username: { equals: cleanUsername } 
+      } 
     });
     if (existing) {
       return res.json({ available: false });

@@ -5,7 +5,7 @@ import { checkUsername } from '../controllers/profile.controller';
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 500,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Terlalu banyak percobaan, coba lagi dalam 15 menit.' },

@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "commonjs",
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
@@ -10,6 +9,6 @@
     "outDir": "./dist",
     "rootDir": "./"
   },
-  "include": ["src/**/*", "prisma/**/*"],
+  "include": ["src/**/*", "api/**/*", "prisma/**/*"],
   "exclude": ["node_modules"]
 }

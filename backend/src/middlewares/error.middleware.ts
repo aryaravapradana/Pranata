@@ -20,8 +20,13 @@ export const globalErrorHandler = (
     ip: req.ip,
   });
 
+  const origin = req.headers.origin || 'https://veternity-frontend.vercel.app';
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+
   res.status(statusCode).json({
     error: message,
+    details: err.message,
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
   });
 };
