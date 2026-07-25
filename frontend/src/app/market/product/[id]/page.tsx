@@ -246,18 +246,18 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const GradeIconComponent = gradeStyle.icon;
 
   return (
-    <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E] font-sans pb-36 md:pb-12 overflow-x-clip selection:bg-[#B4C179]">
+    <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E] font-sans flex flex-col justify-between overflow-x-clip selection:bg-[#B4C179] w-full">
       
       {/* Desktop/Tablet Sticky Navbar */}
-      <div className="hidden md:block sticky top-0 z-50">
+      <div className="hidden md:block sticky top-0 z-50 w-full">
         <MarketplaceNavbar />
       </div>
 
       {/* ── MOBILE PRODUCT DETAIL PAGE (<768px) ── */}
-      <div className="md:hidden w-full">
+      <div className="md:hidden w-full flex-1">
         
         {/* Mobile Sticky Top Header Row */}
-        <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#E8E3D2] py-3 px-4 shadow-sm flex items-center justify-between">
+        <div className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-[#E8E3D2] py-3 px-4 shadow-sm flex items-center justify-between">
           <button 
             onClick={() => router.push("/market")}
             className="w-9 h-9 rounded-full bg-white border border-[#E8E3D2] flex items-center justify-center text-[#1C241E] hover:bg-[#F8F6F0] active:scale-95 transition-all shadow-sm"
@@ -406,22 +406,25 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </button>
             </div>
 
-            {/* Total Price & Add to Cart Pranata Green Gradient Action Button */}
-            <button
+            {/* Action Button with Micro-Interactions */}
+            <motion.button
+              whileHover={{ scale: maxQ > 0 ? 1.02 : 1 }}
+              whileTap={{ scale: maxQ > 0 ? 0.94 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
               onClick={handleAddToCart}
               disabled={maxQ === 0 || isSubmitting}
-              className={`flex-1 py-3.5 px-5 rounded-full font-black text-xs shadow-xl flex items-center justify-between transition-all ${
+              className={`flex-1 py-3 px-5 rounded-2xl font-black text-sm flex items-center justify-between shadow-lg transition-all ${
                 maxQ === 0 
                   ? 'bg-gray-400 opacity-60 text-white cursor-not-allowed'
                   : addedSuccess
-                  ? 'bg-[#1E362A] text-white'
-                  : 'bg-gradient-to-r from-[#2B4C3B] via-[#32452C] to-[#1E362A] hover:from-[#1E362A] hover:to-[#2B4C3B] text-white active:scale-95 shadow-[#2B4C3B]/20'
+                  ? 'bg-[#1E362A] text-white shadow-emerald-900/30 ring-2 ring-[#B4C179]'
+                  : 'bg-gradient-to-r from-[#2B4C3B] via-[#32452C] to-[#1E362A] hover:brightness-110 text-white shadow-[#2B4C3B]/30'
               }`}
             >
               <div className="flex flex-col text-left">
                 <span className="text-[9px] text-[#B4C179] font-extrabold uppercase tracking-wider">Total</span>
                 <span className="text-xs font-black text-white">
-                  {maxQ === 0 ? "Stok Habis" : `Rp ${totalPrice.toLocaleString()}`}
+                  {maxQ === 0 ? "Stok Habis" : `Rp ${totalPrice.toLocaleString('id-ID')}`}
                 </span>
               </div>
 
@@ -429,24 +432,23 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 {isSubmitting ? (
                   <Loader2 size={16} className="animate-spin text-white" />
                 ) : addedSuccess ? (
-                  <>
+                  <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="flex items-center gap-1">
                     <Check size={16} className="text-[#B4C179]" />
-                    <span className="text-white">Sukses!</span>
-                  </>
+                    <span className="text-white">Sukses Ditambahkan!</span>
+                  </motion.div>
                 ) : (
-                  <>
+                  <div className="flex items-center gap-1.5">
                     <ShoppingCart size={15} className="text-white" />
                     <span className="text-white">Tambah ke Keranjang</span>
-                  </>
+                  </div>
                 )}
               </div>
-            </button>
+            </motion.button>
           </div>
         </div>
 
       </div>
-
-      </div>
+    </div>
 
       {/* ── DESKTOP & TABLET LAYOUT (>=768px - 100% UNTOUCHED & COMPLETE) ── */}
       <div className="hidden md:block max-w-7xl mx-auto pt-8 pb-16 relative z-10 px-4 md:px-8 lg:px-12">
@@ -594,7 +596,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <button 
                   onClick={() => updateCartQuantityInBackend(quantity - 1)}
                   disabled={maxQ === 0 || quantity <= minQ}
-                  className="w-10 h-10 rounded-full bg-[#F8F6F0] text-[#1C241E] font-black text-lg flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all"
+                  className="w-10 h-10 rounded-full bg-[#F8F6F0] text-[#1C241E] font-black text-lg flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
                 >
                   -
                 </button>
@@ -606,24 +608,38 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <button 
                   onClick={() => updateCartQuantityInBackend(quantity + 1)}
                   disabled={maxQ === 0 || quantity >= maxQ}
-                  className="w-10 h-10 rounded-full bg-[#2B4C3B] text-white font-black text-lg flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all"
+                  className="w-10 h-10 rounded-full bg-[#2B4C3B] text-white font-black text-lg flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
                 >
                   +
                 </button>
               </div>
 
               <motion.button 
+                whileHover={{ scale: maxQ > 0 ? 1.025 : 1 }}
+                whileTap={{ scale: maxQ > 0 ? 0.94 : 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 onClick={handleAddToCart}
                 disabled={maxQ === 0 || isSubmitting}
-                className="flex-1 h-14 rounded-2xl font-black text-base bg-gradient-to-r from-[#2B4C3B] via-[#32452C] to-[#1E362A] text-white hover:brightness-110 shadow-lg flex items-center justify-center gap-2"
+                className={`flex-1 h-14 rounded-2xl font-black text-base shadow-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
+                  maxQ === 0 
+                    ? 'bg-gray-400 opacity-60 text-white cursor-not-allowed shadow-none' 
+                    : addedSuccess
+                    ? 'bg-[#1E362A] text-white shadow-emerald-900/30 ring-2 ring-[#B4C179]'
+                    : 'bg-gradient-to-r from-[#2B4C3B] via-[#32452C] to-[#1E362A] hover:brightness-110 text-white shadow-[#2B4C3B]/30'
+                }`}
               >
                 {isSubmitting ? (
                   <Loader2 size={20} className="animate-spin text-white" />
+                ) : addedSuccess ? (
+                  <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="flex items-center gap-2">
+                    <Check size={20} className="text-[#B4C179]" />
+                    <span className="text-white">Sukses Ditambahkan!</span>
+                  </motion.div>
                 ) : (
-                  <>
+                  <div className="flex items-center gap-2">
                     <ShoppingCart size={20} className="text-white" />
-                    <span className="text-white">{maxQ === 0 ? 'Stok Habis' : `Tambah ke Keranjang • Rp ${totalPrice.toLocaleString()}`}</span>
-                  </>
+                    <span className="text-white">{maxQ === 0 ? 'Stok Habis' : `Tambah ke Keranjang • Rp ${totalPrice.toLocaleString('id-ID')}`}</span>
+                  </div>
                 )}
               </motion.button>
             </div>
@@ -668,7 +684,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
   );
 }

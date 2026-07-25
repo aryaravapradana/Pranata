@@ -1,5 +1,6 @@
 "use client";
 import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
+import { Footer } from "@/components/layout/Footer";
 
 import React, { useState, useEffect } from "react";
 import { Search, Bell, Settings, Store, TrendingUp, CloudSun, Calendar, Package, ChevronRight, Droplets, Wind, MapPin, Sparkles, Loader2, Info } from "lucide-react";
@@ -173,10 +174,10 @@ export default function MainDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E]" >
-      <div className="w-full mx-auto px-4 md:px-8 pt-2 pb-4">
+      <div className="w-full mx-auto px-3.5 sm:px-6 md:px-8 pt-2 pb-6">
         {/* Greeting */}
         <div className="mb-4">
-          <h1 className="text-3xl md:text-[2.5rem] font-black text-[#1C241E] mb-1 tracking-tighter leading-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-[2.5rem] font-black text-[#1C241E] mb-1 tracking-tighter leading-tight">
             Hi, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2B4C3B] to-[#4A7C59]">{firstName}</span>! 
             <motion.span 
               animate={{ rotate: [0, 14, -8, 14, -4, 10, 0, 0] }} 
@@ -186,57 +187,53 @@ export default function MainDashboard() {
               👋
             </motion.span>
           </h1>
-          <p className="text-lg font-semibold text-[#5A635B]">
+          <p className="text-sm sm:text-base md:text-lg font-semibold text-[#5A635B]">
             Pusat kendali operasional harian Anda.
           </p>
         </div>
 
         {/* Widgets Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
               
           {/* Weather Widget */}
-          <div className="md:col-span-1 lg:col-span-1 order-1 bg-gradient-to-br from-[#4A7C59] via-[#3A6B49] to-[#2B4C3B] rounded-[2rem] p-6 sm:p-7 text-white shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[220px]">
-            <div className="absolute -right-6 -bottom-6 opacity-15 pointer-events-none">
-              <CloudSun size={220} />
-            </div>
+          <div className="md:col-span-1 lg:col-span-1 order-1 bg-gradient-to-br from-[#4A7C59] via-[#3A6B49] to-[#2B4C3B] rounded-3xl sm:rounded-[2rem] p-5 sm:p-7 text-white shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[200px] sm:min-h-[220px]">
             
-            <div className="relative z-10 flex justify-between items-center mb-4">
-              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-black tracking-wider uppercase">
-                <MapPin size={14} className="text-[#F5990D]" /> {locationName}
+            <div className="relative z-10 flex justify-between items-center mb-3 sm:mb-4">
+              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-black tracking-wider uppercase">
+                <MapPin size={13} className="text-white" /> {locationName}
               </div>
-              <span className="text-[11px] font-bold text-[#EEF2E6]/80 bg-black/20 px-2.5 py-1 rounded-full">Cuaca Real-time</span>
             </div>
 
             <div className="relative z-10 my-auto">
               {weather ? (
-                <div className="space-y-4">
-                  <div className="flex items-baseline justify-between gap-4">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-6xl lg:text-7xl font-black leading-none tracking-tight">{Math.round(weather.temperature_2m)}°</span>
-                      <span className="text-2xl font-black text-[#B4C179]">C</span>
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <div className="flex items-baseline gap-1.5 sm:gap-2">
+                      <span className="text-5xl sm:text-6xl lg:text-7xl font-black leading-none tracking-tight">{Math.round(weather.temperature_2m)}°</span>
+                      <span className="text-xl sm:text-2xl font-black text-[#B4C179]">C</span>
                     </div>
-                    <span className="text-sm font-black text-[#F5990D] bg-white/10 border border-white/20 px-3.5 py-1.5 rounded-full backdrop-blur-md">
+                    <span className="text-xs sm:text-sm font-black text-white bg-white/10 border border-white/20 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full backdrop-blur-md">
                       Cerah
                     </span>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div className="bg-black/20 backdrop-blur-md p-3 rounded-2xl border border-white/10 flex items-center gap-3">
-                      <div className="p-2 bg-[#4A7C59]/50 rounded-xl">
-                        <Droplets size={20} className="text-[#B4C179]" />
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-1 sm:pt-2">
+                    <div className="bg-black/20 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-white/10 flex items-center gap-2.5 sm:gap-3">
+                      <div className="p-1.5 sm:p-2 bg-[#4A7C59]/50 rounded-lg sm:rounded-xl shrink-0">
+                        <Droplets size={18} className="text-[#B4C179]" />
                       </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-[#A4C4A8] uppercase tracking-wider">Kelembapan</p>
-                        <p className="text-base font-black text-white">{weather.relative_humidity_2m}%</p>
+                      <div className="min-w-0">
+                        <p className="text-[9px] sm:text-[10px] font-bold text-[#A4C4A8] uppercase tracking-wider truncate">Kelembapan</p>
+                        <p className="text-sm sm:text-base font-black text-white">{weather.relative_humidity_2m}%</p>
                       </div>
                     </div>
-                    <div className="bg-black/20 backdrop-blur-md p-3 rounded-2xl border border-white/10 flex items-center gap-3">
-                      <div className="p-2 bg-[#4A7C59]/50 rounded-xl">
-                        <Wind size={20} className="text-[#B4C179]" />
+                    <div className="bg-black/20 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-white/10 flex items-center gap-2.5 sm:gap-3">
+                      <div className="p-1.5 sm:p-2 bg-[#4A7C59]/50 rounded-lg sm:rounded-xl shrink-0">
+                        <Wind size={18} className="text-[#B4C179]" />
                       </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-[#A4C4A8] uppercase tracking-wider">Angin</p>
-                        <p className="text-base font-black text-white">{weather.wind_speed_10m} <span className="text-xs font-normal">km/j</span></p>
+                      <div className="min-w-0">
+                        <p className="text-[9px] sm:text-[10px] font-bold text-[#A4C4A8] uppercase tracking-wider truncate">Angin</p>
+                        <p className="text-sm sm:text-base font-black text-white truncate">{weather.wind_speed_10m} <span className="text-[10px] sm:text-xs font-normal">km/j</span></p>
                       </div>
                     </div>
                   </div>
@@ -251,17 +248,17 @@ export default function MainDashboard() {
           </div>
 
               {/* Incoming Orders Tile */}
-              <div className="md:col-span-1 lg:col-span-1 order-3 lg:order-2 bg-gradient-to-br from-[#2B4C3B] to-[#4A7C59] rounded-[2rem] p-5 border border-[#4A7C59] shadow-lg text-white flex flex-col relative overflow-hidden min-h-[140px]">
+              <div className="md:col-span-1 lg:col-span-1 order-3 lg:order-2 bg-gradient-to-br from-[#2B4C3B] to-[#4A7C59] rounded-3xl sm:rounded-[2rem] p-4.5 sm:p-5 border border-[#4A7C59] shadow-lg text-white flex flex-col relative overflow-hidden min-h-[140px]">
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="flex items-center gap-2 text-white font-bold text-sm">
                     <Package className="text-[#A4C4A8]" size={16} /> Pesanan Aktif
                   </h3>
                 </div>
                 
-                <div className="flex-1 flex flex-col gap-3 mt-2 overflow-y-auto pr-1">
+                <div className="flex-1 flex flex-col gap-2.5 sm:gap-3 mt-2 overflow-y-auto pr-1">
                   {orders.filter(o => o.status !== 'COMPLETED').slice(0, 2).length > 0 ? (
                     orders.filter(o => o.status !== 'COMPLETED').slice(0, 2).map((order, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 transition-colors shadow-sm backdrop-blur-md">
+                      <div key={i} className="flex justify-between items-center p-2.5 sm:p-3 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 transition-colors shadow-sm backdrop-blur-md">
                         <div className="flex-1 min-w-0 pr-2">
                           <div className="flex items-center gap-1.5 mb-0.5">
                             <span className="font-black text-xs text-white truncate">{order.buyer?.fullName || order.buyer?.username || 'Pembeli'}</span>
@@ -281,7 +278,7 @@ export default function MainDashboard() {
                           }`}>
                             {order.status}
                           </span>
-                          <span className="font-black text-xs text-[#F5990D]">Rp {order.totalAmount.toLocaleString()}</span>
+                          <span className="font-black text-xs text-white">Rp {order.totalAmount.toLocaleString()}</span>
                         </div>
                       </div>
                     ))
@@ -294,37 +291,38 @@ export default function MainDashboard() {
                     </div>
                   )}
                 </div>
-                <div className="shrink-0 pt-3 flex justify-end border-t border-white/10 mt-1">
-                  <Link href="/hub/orders" className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2B4C3B] bg-white px-4 py-2 rounded-full hover:bg-[#EEF2E6] transition-colors shadow-md w-fit">
-                    Semua Pesanan <ChevronRight size={14} />
+                <div className="shrink-0 pt-2.5 sm:pt-3 flex justify-end border-t border-white/10 mt-1">
+                  <Link href="/hub/orders" className="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-extrabold text-[#2B4C3B] bg-white px-4 py-2 sm:px-6 sm:py-3 rounded-full hover:bg-[#EEF2E6] transition-all shadow-md hover:shadow-lg active:scale-95 w-fit">
+                    <span>Semua Pesanan</span>
+                    <ChevronRight size={15} />
                   </Link>
                 </div>
               </div>
 
             {/* Window Calendar Widget */}
-            <div className="md:col-span-2 lg:col-span-2 order-4 lg:order-4 bg-pranata rounded-[2rem] p-6 md:py-8 md:px-8 shadow-lg shadow-[#2B4C3B]/20 relative flex flex-col md:flex-row gap-4 lg:gap-6 md:min-h-[280px]">
+            <div className="md:col-span-2 lg:col-span-2 order-4 lg:order-4 bg-pranata rounded-3xl sm:rounded-[2rem] p-4.5 sm:p-6 md:py-8 md:px-8 shadow-lg shadow-[#2B4C3B]/20 relative flex flex-col md:flex-row gap-3 md:gap-6 md:min-h-[280px] overflow-hidden">
               
               {/* Left Side: Header & Event List */}
-              <div className="flex-1 flex flex-col h-[200px] md:h-full overflow-hidden">
-                <div className="shrink-0 mb-3">
-                  <h3 className="text-lg md:text-xl font-black text-white flex items-center gap-2 capitalize">
-                    <Calendar className="text-[#A4C4A8]" size={24} /> 
-                    {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              <div className="order-2 md:order-1 w-full md:flex-1 flex flex-col min-w-0 md:h-full pt-2 md:pt-0 border-t md:border-t-0 border-white/15 mt-1 md:mt-0">
+                <div className="shrink-0 mb-2 sm:mb-3">
+                  <h3 className="text-sm sm:text-lg md:text-xl font-black text-white flex items-center gap-2 capitalize">
+                    <Calendar className="text-[#A4C4A8] shrink-0" size={18} /> 
+                    <span className="truncate">{new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
                   </h3>
                 </div>
                 
                 {/* Event List (Kiri Bawah) */}
-                <div className="flex-1 overflow-y-auto min-h-0 pr-2 space-y-3 pb-4">
+                <div className="max-h-32 sm:max-h-36 md:max-h-none overflow-y-auto min-h-0 pr-1 sm:pr-2 space-y-2 pb-1 hide-scrollbar">
                   {events.length > 0 ? events.map((e, idx) => {
                     const d = new Date(e.eventDate);
                     return (
                       <div key={idx} className="flex items-start gap-2 bg-white/5 p-2 rounded-xl border border-white/10 transition-colors hover:bg-white/10">
-                         <div className={`w-10 h-10 rounded-xl flex flex-col items-center justify-center shrink-0 shadow-inner ${e.type === 'HARVEST' ? 'bg-[#C25939] text-white' : e.type === 'TASK' ? 'bg-[#F5990D] text-white' : 'bg-[#4A7C59] text-white'}`}>
-                           <span className="text-[9px] font-bold leading-none opacity-80 mb-0.5">{d.toLocaleDateString('id-ID', { month: 'short' })}</span>
-                           <span className="text-base font-black leading-none">{d.getDate()}</span>
+                         <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center shrink-0 shadow-inner ${e.type === 'HARVEST' ? 'bg-[#C25939] text-white' : e.type === 'TASK' ? 'bg-[#F5990D] text-white' : 'bg-[#4A7C59] text-white'}`}>
+                           <span className="text-[8px] sm:text-[9px] font-bold leading-none opacity-80 mb-0.5">{d.toLocaleDateString('id-ID', { month: 'short' })}</span>
+                           <span className="text-xs sm:text-base font-black leading-none">{d.getDate()}</span>
                          </div>
-                         <div className="flex-1">
-                           <h4 className="text-xs font-bold text-white leading-tight mb-0.5">{e.title}</h4>
+                         <div className="flex-1 min-w-0">
+                           <h4 className="text-xs font-bold text-white leading-tight mb-0.5 truncate">{e.title}</h4>
                            <div className="flex items-center justify-between">
                              <p className="text-[10px] font-bold text-[#84B0A5]">{d.toLocaleDateString('id-ID', { weekday: 'long' })}</p>
                              <p className="text-[9px] font-black tracking-wider uppercase text-white/50">{e.type}</p>
@@ -333,14 +331,21 @@ export default function MainDashboard() {
                       </div>
                     )
                   }) : (
-                    <div className="text-sm font-semibold text-[#84B0A5] h-full flex items-center">Belum ada jadwal mendatang.</div>
+                    <div className="text-xs sm:text-sm font-semibold text-[#84B0A5] py-1 md:py-0 md:h-full flex items-center">Belum ada jadwal mendatang.</div>
                   )}
                 </div>
 
+                {/* Mobile Button: Bottom Right of Card */}
+                <div className="shrink-0 pt-2.5 flex justify-end mt-2 border-t border-white/10 md:hidden">
+                  <Link href="/hub/calendar" className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#2B4C3B] bg-white px-4 py-2 rounded-full hover:bg-[#EEF2E6] transition-all shadow-md active:scale-95 w-fit">
+                    <span>Buka Kalender Penuh</span>
+                    <ChevronRight size={15} />
+                  </Link>
+                </div>
               </div>
 
               {/* Right Side: Month Grid */}
-              <div className="md:w-[320px] shrink-0 flex flex-col justify-center h-full pb-2">
+              <div className="order-1 md:order-2 w-full md:w-[320px] shrink-0 flex flex-col justify-center md:h-full pb-1 pt-1 md:pt-0">
                 <div className="grid grid-cols-7 gap-1 mb-1 text-center text-[10px] font-bold text-[#84B0A5]">
                   {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(d => (
                     <div key={d}>{d}</div>
@@ -357,7 +362,7 @@ export default function MainDashboard() {
                     
                     const cells = [];
                     for (let i = 0; i < firstDay; i++) {
-                      cells.push(<div key={`empty-${i}`} className="h-7 md:h-8 rounded-lg opacity-10 bg-white/5"></div>);
+                      cells.push(<div key={`empty-${i}`} className="h-7 sm:h-8 rounded-lg opacity-10 bg-white/5"></div>);
                     }
                     
                     for (let d = 1; d <= daysInMonth; d++) {
@@ -381,7 +386,7 @@ export default function MainDashboard() {
                       }
                       
                       cells.push(
-                        <Link href="/hub/calendar" key={d} className={`h-7 md:h-8 rounded-lg flex flex-col items-center justify-center text-[10px] font-bold transition-all relative ${bgClass}`}>
+                        <Link href="/hub/calendar" key={d} className={`h-7 sm:h-8 rounded-lg flex flex-col items-center justify-center text-[10px] font-bold transition-all relative ${bgClass}`}>
                           {d}
                           {hasEvent && !isToday && (
                              <span className={`absolute bottom-0.5 w-1 h-1 rounded-full ${hasHarvest ? 'bg-[#C25939]' : 'bg-white'}`}></span>
@@ -392,52 +397,53 @@ export default function MainDashboard() {
                     return cells;
                   })()}
                 </div>
-                <div className="shrink-0 pt-2 flex justify-end mt-2">
-                  <Link href="/hub/calendar" className="inline-flex justify-center items-center gap-1.5 text-[10px] font-bold text-[#2B4C3B] bg-white px-3 py-1.5 rounded-full hover:bg-[#EEF2E6] transition-colors shadow-md w-fit">
-                    Buka Kalender Penuh <ChevronRight size={14} />
+                {/* Desktop Button: Bottom Right of Card */}
+                <div className="shrink-0 pt-3 hidden md:flex justify-end mt-2 border-t border-white/10">
+                  <Link href="/hub/calendar" className="inline-flex items-center gap-2 text-sm font-extrabold text-[#2B4C3B] bg-white px-6 py-3 rounded-full hover:bg-[#EEF2E6] transition-all shadow-md hover:shadow-lg active:scale-95 w-fit">
+                    <span>Buka Kalender Penuh</span>
+                    <ChevronRight size={16} />
                   </Link>
                 </div>
               </div>
             </div>
 
           {/* Pranata Intelligence Insight Card */}
-          <div className="md:col-span-1 lg:col-span-1 md:col-start-2 lg:col-start-auto md:row-start-1 lg:row-start-auto md:row-span-2 lg:row-span-2 order-2 lg:order-3 bg-gradient-to-br from-[#2B4C3B] to-[#4A7C59] rounded-[2rem] border border-[#4A7C59] shadow-xl flex flex-col overflow-hidden h-full min-h-[296px] relative">
+          <div className="md:col-span-1 lg:col-span-1 md:col-start-2 lg:col-start-auto md:row-start-1 lg:row-start-auto md:row-span-2 lg:row-span-2 order-2 lg:order-3 bg-gradient-to-br from-[#2B4C3B] to-[#4A7C59] rounded-3xl sm:rounded-[2rem] border border-[#4A7C59] shadow-xl flex flex-col overflow-hidden h-full min-h-[260px] sm:min-h-[296px] relative">
               
               {/* Decorative elements */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#F5990D] opacity-20 blur-[100px] rounded-full pointer-events-none" />
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-300 opacity-20 blur-[80px] rounded-full pointer-events-none" />
 
-              <div className="p-5 relative z-10 flex flex-col h-full">
-                <img src="/logos/intelligence/intelligence-white.webp" alt="Pranata Intelligence" className="h-7 sm:h-8 w-auto object-contain mb-2 drop-shadow-md origin-left self-start"  loading="lazy" decoding="async" />
+              <div className="p-4.5 sm:p-5 relative z-10 flex flex-col h-full">
+                <img src="/logos/intelligence/intelligence-white.webp" alt="Pranata Intelligence" className="h-6 sm:h-8 w-auto object-contain mb-2 drop-shadow-md origin-left self-start" loading="lazy" decoding="async" />
                 
-                <h3 className="text-lg font-black text-white mb-1 leading-tight">
+                <h3 className="text-base sm:text-lg font-black text-white mb-1 leading-tight">
                   Business Insight
                 </h3>
 
                 <div className="flex-1 flex flex-col mt-1 overflow-hidden">
                   {profile && products.length === 0 && orders.length === 0 && events.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center bg-white/5 rounded-3xl border border-white/10 p-6 text-center backdrop-blur-md">
-                      <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-3">
-                        <Info size={24} className="text-[#A4C4A8]" />
+                    <div className="flex-1 flex flex-col items-center justify-center bg-white/5 rounded-3xl border border-white/10 p-5 text-center backdrop-blur-md">
+                      <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mb-2">
+                        <Info size={20} className="text-[#A4C4A8]" />
                       </div>
-                      <h4 className="font-bold text-white text-base mb-1">Belum Ada Data</h4>
-                      <p className="text-xs text-[#84B0A5] leading-relaxed">
+                      <h4 className="font-bold text-white text-sm sm:text-base mb-1">Belum Ada Data</h4>
+                      <p className="text-[11px] sm:text-xs text-[#84B0A5] leading-relaxed">
                         Agen intelijen membutuhkan riwayat produk, pesanan, atau kalender untuk memberikan analisis. Yuk, mulai aktivitas pertamamu!
                       </p>
                     </div>
                   ) : (!hasTriggeredInsight.current || isLoading) ? (
-                    <div className="flex-1 flex flex-col items-center justify-center bg-black/10 rounded-3xl border border-white/10 p-6 text-center backdrop-blur-md shadow-inner">
-                      <Loader2 size={32} className="text-[#F5990D] animate-spin mb-4" />
-                      <h4 className="font-black text-white text-lg mb-2">Menganalisis Data</h4>
-                      <p className="text-xs text-[#DDE2D6] font-medium leading-relaxed max-w-[200px]">
+                    <div className="flex-1 flex flex-col items-center justify-center bg-black/10 rounded-3xl border border-white/10 p-5 text-center backdrop-blur-md shadow-inner">
+                      <Loader2 size={28} className="text-[#F5990D] animate-spin mb-3" />
+                      <h4 className="font-black text-white text-base sm:text-lg mb-1">Menganalisis Data</h4>
+                      <p className="text-[11px] sm:text-xs text-[#DDE2D6] font-medium leading-relaxed max-w-[200px]">
                         Menyinkronkan data toko dan pesanan secara real-time...
                       </p>
                     </div>
                   ) : (
                     <div className="flex-1 flex flex-col relative overflow-hidden">
-                      {/* Label removed */}
                       
-                      <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1 hide-scrollbar">
+                      <div className="flex flex-col gap-2.5 sm:gap-3 flex-1 overflow-y-auto pr-1 hide-scrollbar">
                         {(() => {
                           const content = messages.filter(m => m.role === 'assistant').pop()?.content || "";
                           const rawCards = content.split('---').map(c => c.trim()).filter(c => c);
@@ -459,11 +465,11 @@ export default function MainDashboard() {
                             const ctaUrl = ctaUrlMatch ? ctaUrlMatch[1].replace(/\*/g, '') : '/hub/intelligence';
 
                             return (
-                              <div key={idx} className="bg-white/10 rounded-xl border border-white/20 p-3 backdrop-blur-md shadow-sm flex flex-col hover:bg-white/15 transition-colors group">
+                              <div key={idx} className="bg-white/10 rounded-xl border border-white/20 p-2.5 sm:p-3 backdrop-blur-md shadow-sm flex flex-col hover:bg-white/15 transition-colors group">
                                 <div className="flex flex-col mb-1.5">
                                   <div className="mb-0.5">
                                     <h4 className="text-[9px] font-black text-[#A4C4A8] uppercase tracking-wider mb-0.5">{title}</h4>
-                                    <div className="text-xl font-black text-white leading-tight break-words">{val}</div>
+                                    <div className="text-lg sm:text-xl font-black text-white leading-tight break-words">{val}</div>
                                   </div>
                                   <p className="text-[10px] font-medium text-white/90 leading-snug">
                                     {desc}
@@ -471,7 +477,7 @@ export default function MainDashboard() {
                                 </div>
                                 {!isLoading && ctaUrl !== '/hub/intelligence' && (
                                   <div className="flex justify-end border-t border-white/10 pt-2 mt-auto">
-                                    <Link href={ctaUrl} className="inline-flex items-center gap-1 text-[9px] font-bold bg-[#F5990D] text-white px-3 py-1 rounded-full hover:bg-[#C25939] transition-colors shadow-sm group-hover:scale-105 origin-right">
+                                    <Link href={ctaUrl} className="inline-flex items-center gap-1 text-[10px] font-extrabold bg-white text-[#2B4C3B] px-3 py-1 rounded-full hover:bg-[#EEF2E6] transition-colors shadow-sm group-hover:scale-105 origin-right">
                                       {ctaText} <ChevronRight size={10} />
                                     </Link>
                                   </div>
@@ -482,9 +488,13 @@ export default function MainDashboard() {
                         })()}
                       </div>
                       
-                      <Link href="/hub/intelligence" className="mt-4 inline-flex items-center gap-2 text-[10px] font-black text-[#F5990D] hover:text-white transition-colors uppercase tracking-widest w-fit bg-black/20 px-3 py-1.5 rounded-full">
-                        BUKA Pranata Intelligence <ChevronRight size={12} />
-                      </Link>
+                      <div className="shrink-0 pt-2.5 sm:pt-3 flex justify-end border-t border-white/10 mt-2.5 sm:mt-3">
+                        <Link href="/hub/intelligence" className="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-extrabold text-[#2B4C3B] bg-white px-4 py-2 sm:px-6 sm:py-3 rounded-full hover:bg-[#EEF2E6] transition-all shadow-md hover:shadow-lg active:scale-95 w-fit">
+                          <span>Buka</span>
+                          <img src="/logos/intelligence/intelligence-black.webp" alt="Pranata Intelligence" className="h-4.5 sm:h-6 w-auto object-contain my-0.5" loading="lazy" decoding="async" />
+                          <ChevronRight size={15} />
+                        </Link>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -492,6 +502,10 @@ export default function MainDashboard() {
             </div>
 
         </div>
+      </div>
+
+      <div className="mt-16">
+        <Footer />
       </div>
     </div>
   );

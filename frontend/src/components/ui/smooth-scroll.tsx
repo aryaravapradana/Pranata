@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { usePathname } from "next/navigation"
 import Lenis from "lenis"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
@@ -8,16 +9,19 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 gsap.registerPlugin(ScrollTrigger)
 
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
   useEffect(() => {
     const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 
     if (isTouchDevice) {
-      // Native scroll on touch — no lerp needed, compositor already handles it
+      // Native scroll on touch — compositor already handles it
       const onScroll = () => ScrollTrigger.update();
       window.addEventListener("scroll", onScroll, { passive: true });
       return () => window.removeEventListener("scroll", onScroll);
     }
 
+    // Lenis active universally across ALL pages
     const lenis = new Lenis({
       lerp: 0.1,
       orientation: "vertical",
@@ -58,7 +62,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       gsap.ticker.remove(update);
       lenis.destroy();
     };
-  }, []);
+  }, [pathname]);
 
   return <>{children}</>;
 }

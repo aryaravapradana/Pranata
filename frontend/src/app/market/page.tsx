@@ -1,5 +1,6 @@
 "use client";
 import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
+import { Footer } from "@/components/layout/Footer";
 
 import { useState, useEffect, memo, useRef, useMemo, useCallback } from "react";
 import { 
@@ -452,12 +453,12 @@ export default function MarketplacePage() {
             {/* Hero Copywriting - Left ~55% container */}
             <div className="relative z-10 flex-1 max-w-[55%] min-[380px]:max-w-[58%] sm:max-w-md lg:max-w-xl pr-2 sm:pr-4">
               <h1 className="text-[1.25rem] min-[360px]:text-[1.35rem] min-[400px]:text-[1.45rem] sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight sm:leading-[1.1] tracking-tight">
-                Hasil panen segar <br className="hidden sm:inline" />
-                <span>langsung ke pintu Anda</span>
+                Hasil Ternak Segar, <br className="hidden sm:inline" />
+                <span>Langsung dari Peternak.</span>
               </h1>
 
               <p className="text-white text-[10.5px] min-[360px]:text-xs sm:text-base font-medium max-w-md leading-relaxed line-clamp-2 sm:line-clamp-none mt-1.5 sm:mt-3">
-                Dapatkan produk organik dan kebutuhan harian bersumber dari petani lokal.
+                Nikmati daging, susu, telur, dan produk peternakan berkualitas yang dikirim langsung dari peternak lokal Indonesia.
               </p>
             </div>
 
@@ -465,7 +466,7 @@ export default function MarketplacePage() {
             <div className="absolute right-0 bottom-0 pointer-events-none z-10 translate-x-1 sm:translate-x-3 translate-y-4 min-[360px]:translate-y-6 sm:translate-y-12 md:translate-y-16 lg:translate-y-20">
               <img 
                 src="/images/market_hero.webp" 
-                alt="Hasil Panen Segar Pranata Market"
+                alt="Hasil Ternak Segar Pranata Market"
                 fetchPriority="high"
                 decoding="async"
                 className="w-48 min-[360px]:w-56 min-[400px]:w-64 sm:w-[24rem] md:w-[30rem] lg:w-[34rem] h-auto object-contain pointer-events-none origin-bottom-right"
@@ -631,44 +632,9 @@ export default function MarketplacePage() {
       ))}
 
       {/* Footer */}
-      <footer className="bg-[#1C241E] text-white pt-16 pb-8 rounded-t-[3rem] mt-12 relative z-20 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12 px-4 sm:px-6 md:px-8 lg:px-12">
-          <div>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-pranata rounded-xl flex items-center justify-center">
-                <Store size={20} className="text-[#F5990D]" />
-              </div>
-              <h2 className="font-black text-white text-2xl m-0 leading-none">Pranata</h2>
-            </div>
-            <p className="text-[#A4C4A8] text-sm font-medium leading-relaxed max-w-sm">
-              Platform jual beli hasil pertanian langsung dari petani lokal. Mendorong kesejahteraan petani dengan harga yang lebih adil dan transparan.
-            </p>
-          </div>
-          <div>
-            <h4 className="font-black text-lg mb-6 text-white">Layanan Kami</h4>
-            <ul className="space-y-3 text-sm font-medium text-[#A4C4A8]">
-              <li><Link href="#" className="hover:text-white transition-colors">Bantuan & FAQ</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Cara Berjualan</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Kebijakan Privasi</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Syarat & Ketentuan</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-black text-lg mb-6 text-white">Hubungi Kami</h4>
-            <ul className="space-y-3 text-sm font-medium text-[#A4C4A8]">
-              <li>Jl. Pertanian Raya No. 42, Sleman, DI Yogyakarta</li>
-              <li>Email: halo@pasartani.id</li>
-              <li>Telepon: 0812-3456-7890</li>
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-semibold text-[#A4C4A8] px-4 sm:px-6 md:px-8 lg:px-12">
-          <p>© 2026 Pranata. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <span>Dibuat dengan ❤️ di Yogyakarta</span>
-          </div>
-        </div>
-      </footer>
+      <div className="mt-16">
+        <Footer />
+      </div>
 
       <style jsx global>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }

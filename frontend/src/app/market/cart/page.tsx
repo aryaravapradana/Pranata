@@ -1,5 +1,6 @@
 "use client";
 import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
+import { Footer } from "@/components/layout/Footer";
 
 import React, { useState, useEffect, Suspense } from "react";
 import { Search, ShoppingCart, Menu, Zap, Trash2, Package, ChevronLeft, Clock, CheckCircle, Truck, Store, MapPin } from "lucide-react";
@@ -174,7 +175,7 @@ function ActivityContent() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E] font-sans pb-24 lg:pb-12" >
+    <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E] font-sans flex flex-col justify-between overflow-x-clip w-full">
       
       {/* Segmented Control in Navbar Center */}
       <MarketplaceNavbar 
@@ -207,7 +208,7 @@ function ActivityContent() {
       />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto pt-6 md:pt-8 px-4 md:px-8 lg:px-12">
+      <main className="max-w-7xl mx-auto pt-6 md:pt-8 px-3.5 sm:px-6 md:px-8 lg:px-12 flex-1 w-full pb-16">
         
         <div className="mb-6 hidden sm:block">
           <button onClick={() => router.push("/market")} className="inline-flex items-center gap-2 bg-white border border-[#E8E3D2] hover:bg-[#F8F6F0] text-[#1C241E] hover:text-[#2B4C3B] font-bold text-sm px-4 py-2 rounded-full transition-colors shadow-sm">
@@ -470,6 +471,10 @@ function ActivityContent() {
           )}
         </AnimatePresence>
       </main>
+
+      <div className="mt-16 w-full">
+        <Footer />
+      </div>
     </div>
   );
 }

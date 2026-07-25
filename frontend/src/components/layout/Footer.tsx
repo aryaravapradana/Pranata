@@ -2,6 +2,6 @@
 
 import { FooterCommunityWave } from "@/components/ui/footer-community-wave";
 
-export function Footer() {
-  return <FooterCommunityWave />;
+export function Footer({ variant = "light" }: { variant?: "light" | "dark" }) {
+  return <FooterCommunityWave variant={variant} />;
 }

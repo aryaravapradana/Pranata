@@ -1,5 +1,6 @@
 "use client";
 import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
+import { Footer } from "@/components/layout/Footer";
 
 import { useState, useEffect } from "react";
 import { ChevronLeft, Package, Clock, User, ChevronRight, CheckCircle, Truck, MapPin, Search, Filter, Calendar, Loader2 } from "lucide-react";
@@ -299,6 +300,10 @@ export default function SellerOrdersPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <div className="mt-16">
+        <Footer />
+      </div>
     </div>
   );
 }

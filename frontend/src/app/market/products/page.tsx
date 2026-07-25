@@ -1,5 +1,6 @@
 "use client";
 import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
+import { Footer } from "@/components/layout/Footer";
 
 import { useState, useEffect, memo, useMemo, useRef, Suspense, useCallback } from "react";
 import { 
@@ -560,6 +561,10 @@ function MarketplaceProductsContent() {
           </>
         )}
       </main>
+
+      <div className="mt-16">
+        <Footer />
+      </div>
 
       {/* Fly to Cart Animations */}
       {animations.map(anim => (

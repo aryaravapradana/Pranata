@@ -150,7 +150,7 @@ export default function LandingPage() {
 
       
       {/* Responsive Pranata Footer */}
-      <Footer />
+      <Footer variant="dark" />
     </div>
   );
 }

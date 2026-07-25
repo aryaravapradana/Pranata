@@ -233,12 +233,12 @@ export default function MobileTestPage() {
           <div className="relative z-10 grid grid-cols-12 items-end pt-1 pb-3 px-1">
             <div className="col-span-7 space-y-2 z-10 pr-1">
               <h1 className="text-2xl sm:text-3xl font-black text-white leading-[1.15] tracking-tight">
-                Hasil panen segar <br />
-                <span className="text-[#B4C179]">langsung ke pintu Anda</span>
+                Hasil Ternak Segar, <br />
+                <span className="text-[#B4C179]">Langsung dari Peternak.</span>
               </h1>
               
               <p className="text-[#A4C4A8] text-xs leading-relaxed font-medium line-clamp-3">
-                Dapatkan produk organik dan kebutuhan harian yang bersumber dari petani lokal dengan potongan harga hingga 40%.
+                Nikmati daging, susu, telur, dan produk peternakan berkualitas yang dikirim langsung dari peternak lokal Indonesia.
               </p>
             </div>
 
@@ -247,7 +247,7 @@ export default function MobileTestPage() {
                 <div className="absolute inset-0 bg-[#B4C179]/30 rounded-full blur-xl transform translate-y-3 pointer-events-none"></div>
                 <img 
                   src="/mocks/mock_sayuran_1784287377280.webp" 
-                  alt="Hasil Panen Segar"
+                  alt="Hasil Ternak Segar"
                   className="w-full h-full object-contain drop-shadow-[0_15px_20px_rgba(0,0,0,0.35)] transform hover:scale-105 transition-transform duration-300 pointer-events-none mix-blend-normal"
                 />
               </div>
