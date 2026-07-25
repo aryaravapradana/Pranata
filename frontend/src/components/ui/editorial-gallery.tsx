@@ -188,14 +188,13 @@ function MobileTestimoniCarousel() {
   );
 }
 
-// ─── Desktop Gallery (full GSAP pin+scrub+clip-path) ───
+// ─── Desktop Gallery (GSAP pin + scrub + clip-path) ───
 function DesktopEditorialGallery() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useGSAP(() => {
-    const panels = gsap.utils.toArray('.panel') as HTMLElement[]
+    const panels = gsap.utils.toArray<HTMLElement>('.panel', containerRef.current ?? undefined)
     if (!panels.length) return;
-    const isMobileBrowser = window.innerWidth < 640;
 
     // Initially hide panel contents except panel 0
     panels.forEach((panel, i) => {
@@ -205,36 +204,43 @@ function DesktopEditorialGallery() {
       }
     })
 
+    // Set initial clip states for panels 1+
+    panels.forEach((panel, i) => {
+      if (i === 0) return;
+      const config = TESTIMONIAL_PANELS[i];
+      const isCircle = config?.maskType === "circle";
+      if (isCircle) {
+        gsap.set(panel, { clipPath: "circle(0% at 50% 50%)", WebkitClipPath: "circle(0% at 50% 50%)" });
+      } else {
+        gsap.set(panel, { clipPath: "inset(100% 0 0 0)", WebkitClipPath: "inset(100% 0 0 0)" });
+      }
+    });
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
         start: "top top",
-        end: `+=${(panels.length + 0.5) * 100}%`,
-        scrub: 0.5,
+        end: `+=${panels.length * 100}%`,
+        scrub: 1,
         pin: true,
+        pinSpacing: true,
         anticipatePin: 0,
-        fastScrollEnd: true,
         preventOverlaps: true,
-        invalidateOnRefresh: true
+        invalidateOnRefresh: true,
+        fastScrollEnd: true,
       }
     })
 
-    // Initial scroll hold buffer: Keep Card 1 static and readable upon arrival before triggering Card 2 mask
-    tl.to({}, { duration: 0.6 });
+    tl.to({}, { duration: 0.4 });
 
     panels.forEach((panel, i) => {
       if (i === 0) return;
-      
       const config = TESTIMONIAL_PANELS[i];
-      const isCircle = config ? config.maskType === "circle" : i % 2 !== 0;
+      const isCircle = config?.maskType === "circle";
       const content = panel.querySelector('.panel-content');
-      const img = panel.querySelector('.parallax-img');
+      const img = panel.querySelector<HTMLElement>('.parallax-img');
 
       if (isCircle) {
-        gsap.set(panel, { 
-          clipPath: "circle(0% at 50% 50%)",
-          WebkitClipPath: "circle(0% at 50% 50%)" 
-        });
         tl.to(panel, {
           clipPath: "circle(150% at 50% 50%)",
           WebkitClipPath: "circle(150% at 50% 50%)",
@@ -242,10 +248,6 @@ function DesktopEditorialGallery() {
           duration: 1
         });
       } else {
-        gsap.set(panel, { 
-          clipPath: "inset(100% 0 0 0)",
-          WebkitClipPath: "inset(100% 0 0 0)" 
-        });
         tl.to(panel, {
           clipPath: "inset(0% 0 0 0)",
           WebkitClipPath: "inset(0% 0 0 0)",
@@ -254,72 +256,66 @@ function DesktopEditorialGallery() {
         });
       }
 
-      // Parallax image within the panel (desktop only — skip on mobile)
-      if (img && !isMobileBrowser) {
-        tl.fromTo(img, 
-          { scale: 1.12, y: isCircle ? -20 : 30 }, 
-          { scale: 1, y: 0, ease: "none", duration: 1 }, 
+      if (img) {
+        tl.fromTo(img,
+          { scale: 1.06, y: isCircle ? -10 : 15 },
+          { scale: 1, y: 0, ease: "none", duration: 1 },
           "<"
         );
       }
 
-      // Smooth scrubbed content reveal
       if (content) {
         tl.fromTo(content,
-          { opacity: 0, y: 20 },
+          { opacity: 0, y: 15 },
           { opacity: 1, y: 0, ease: "power1.out", duration: 1 },
           "<+=0.1"
         );
       }
 
-      // Hold buffer for subsequent cards before transitioning
-      tl.to({}, { duration: 0.4 });
+      tl.to({}, { duration: 0.3 });
     });
 
-    const resizeObserver = new ResizeObserver(() => {
-      ScrollTrigger.refresh();
-    });
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
-
-    return () => {
-      resizeObserver.disconnect();
-    };
+    // Refresh ScrollTrigger and sync Lenis bounds on mount
+    ScrollTrigger.refresh();
   }, { scope: containerRef })
 
   return (
-    <div ref={containerRef} className="relative h-screen min-h-screen w-full bg-[#32452C] editorial-gallery-container overflow-hidden">
-      
+    <div
+      ref={containerRef}
+      className="relative h-screen min-h-screen w-full bg-[#32452C] editorial-gallery-container overflow-hidden transform-gpu"
+      style={{ willChange: "transform" }}
+    >
       {TESTIMONIAL_PANELS.map((item, index) => {
         const isCircle = item.maskType === "circle";
-        const initialClip = index === 0 
-          ? "none" 
-          : isCircle 
-          ? "circle(0% at 50% 50%)" 
+        const initialClip = index === 0
+          ? "none"
+          : isCircle
+          ? "circle(0% at 50% 50%)"
           : "inset(100% 0 0 0)";
 
         return (
-          <div 
-            key={`testimony-panel-${item.id}`} 
-            className="panel absolute inset-0 w-full h-full bg-[#32452C] overflow-hidden transform-gpu" 
-            style={{ 
+          <div
+            key={`testimony-panel-${item.id}`}
+            className="panel absolute inset-0 w-full h-full bg-[#32452C] overflow-hidden transform-gpu"
+            style={{
               zIndex: (index + 1) * 10,
               clipPath: initialClip,
-              WebkitClipPath: initialClip
+              WebkitClipPath: initialClip,
+              willChange: "clip-path, transform"
             }}
           >
             {/* Background Image */}
             <div className="absolute inset-0 z-0 parallax-img opacity-100 transform-gpu">
-              <img 
-                src={item.image} 
-                alt={item.alt} 
-                className="w-full h-full object-cover object-center"  
-                loading="lazy" 
-                decoding="async" 
+              <img
+                src={item.image}
+                alt={item.alt}
+                className="w-full h-full object-cover object-center"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
               />
             </div>
-            
+
             {/* Top Transition Gradient */}
             {item.topGradient && (
               <div className="absolute top-0 left-0 right-0 z-10 bg-linear-to-b from-[#32452C] via-[#32452C]/70 to-transparent w-full h-48 sm:h-64 md:h-80 pointer-events-none" />
@@ -329,24 +325,24 @@ function DesktopEditorialGallery() {
             {item.bottomGradient && (
               <div className="absolute bottom-0 left-0 right-0 z-10 bg-linear-to-t from-[#32452C] via-[#32452C] via-25% to-transparent w-full h-64 sm:h-96 md:h-[500px] pointer-events-none" />
             )}
-            
-            {/* Panel Content (Granular Positioning Container) */}
+
+            {/* Panel Content */}
             <div className={`panel-content absolute inset-0 z-20 flex flex-col p-4 sm:p-8 md:p-20 ${item.containerAlign}`}>
               <div className={`${item.maxWidth} w-full flex flex-col ${item.bubbleAlign}`}>
-                
-                {/* Compact Speech Bubble Container (White Glassmorphism) */}
-                <div 
-                  className={`w-full relative bg-white/95 sm:backdrop-blur-sm border border-white/60 p-4 sm:p-5 md:p-7 rounded-2xl sm:rounded-3xl shadow-xl mb-4 sm:mb-6 ${item.textAlign} after:content-[''] after:absolute after:top-full ${item.tailPosition} after:border-x-[14px] sm:after:border-x-[18px] after:border-t-[18px] sm:after:border-t-[22px] after:border-x-transparent after:border-b-transparent after:border-t-white/95 drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)]`}
+
+                {/* Speech Bubble */}
+                <div
+                  className={`w-full relative bg-white/95 border border-white/60 p-4 sm:p-5 md:p-7 rounded-2xl sm:rounded-3xl shadow-xl mb-4 sm:mb-6 ${item.textAlign} after:content-[''] after:absolute after:top-full ${item.tailPosition} after:border-x-[14px] sm:after:border-x-[18px] after:border-t-[18px] sm:after:border-t-[22px] after:border-x-transparent after:border-b-transparent after:border-t-white/95 drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)]`}
                 >
-                  <h2 
-                    className="text-xs sm:text-sm md:text-lg font-bold font-rustic text-transparent bg-clip-text bg-linear-to-r from-[#1C241E] via-[#32452C] to-[#2B4C3B] leading-[1.4] tracking-wide" 
+                  <h2
+                    className="text-xs sm:text-sm md:text-lg font-bold font-rustic text-transparent bg-clip-text bg-linear-to-r from-[#1C241E] via-[#32452C] to-[#2B4C3B] leading-[1.4] tracking-wide"
                     style={{ fontFamily: "'Rustic Delight', serif" }}
                   >
-                    "Melalui <img src={item.logo} alt={item.title} className="inline-block h-4 sm:h-5 md:h-6 w-auto align-middle mx-1 object-contain -translate-y-0.5 sm:-translate-y-1 relative" decoding="async" />, {item.quote}"
+                    &quot;Melalui <img src={item.logo} alt={item.title} className="inline-block h-4 sm:h-5 md:h-6 w-auto align-middle mx-1 object-contain -translate-y-0.5 sm:-translate-y-1 relative" decoding="async" />, {item.quote}&quot;
                   </h2>
                 </div>
 
-                {/* Author & Location (GPU-Accelerated Text Shadow) */}
+                {/* Author */}
                 <div className={`flex flex-col gap-0.5 ${item.authorAlign}`}>
                   <p className="text-white font-black tracking-wider uppercase text-xs sm:text-sm md:text-base [text-shadow:0_2px_4px_#000,0_4px_12px_#000,0_8px_20px_rgba(0,0,0,0.95)]">
                     {item.author}
@@ -361,7 +357,6 @@ function DesktopEditorialGallery() {
           </div>
         );
       })}
-
     </div>
   )
 }

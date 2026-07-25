@@ -9,44 +9,56 @@ gsap.registerPlugin(ScrollTrigger)
 
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Mobile/touch devices use native compositor-thread scroll which is already
-    // buttery smooth. Lenis on touch intercepts native events and forces a
-    // JS main-thread scroll loop — combined with GSAP ScrollTrigger callbacks
-    // this is the primary cause of stutter. Disable on touch devices entirely.
     const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+
     if (isTouchDevice) {
-      // Sync GSAP ScrollTrigger with native scroll directly (passive listener)
-      window.addEventListener("scroll", () => ScrollTrigger.update(), { passive: true });
-      return () => {
-        window.removeEventListener("scroll", () => ScrollTrigger.update());
-      };
+      // Native scroll on touch — no lerp needed, compositor already handles it
+      const onScroll = () => ScrollTrigger.update();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      return () => window.removeEventListener("scroll", onScroll);
     }
 
     const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      lerp: 0.1,
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
       wheelMultiplier: 1,
-      touchMultiplier: 1,
-    })
+    });
 
-    lenis.on("scroll", ScrollTrigger.update)
+    // KEY FIX: Whenever ScrollTrigger refreshes (e.g. after adding a pin spacer),
+    // tell Lenis to recalculate its scroll limits so it knows about the new height.
+    ScrollTrigger.addEventListener("refresh", () => lenis.resize());
 
-    // Synchronize Lenis raf loop directly with GSAP's high-precision ticker
-    const update = (time: number) => {
-      lenis.raf(time * 1000)
+    // Continuous Height & Layout Sync Observer
+    const resizeObserver = new ResizeObserver(() => {
+      lenis.resize();
+      ScrollTrigger.refresh();
+    });
+    if (document.body) {
+      resizeObserver.observe(document.body);
     }
 
-    gsap.ticker.add(update)
-    gsap.ticker.lagSmoothing(0)
+    // Sync GSAP ticker with Lenis RAF loop (Lenis docs standard integration)
+    lenis.on("scroll", ScrollTrigger.update);
+    const update = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(update);
+    gsap.ticker.lagSmoothing(0); // Must be 0 when using Lenis — per Lenis docs
+
+    // Force a refresh so Lenis immediately knows about all pin spacers and section heights
+    setTimeout(() => {
+      lenis.resize();
+      ScrollTrigger.refresh();
+    }, 100);
 
     return () => {
-      gsap.ticker.remove(update)
-      lenis.destroy()
-    }
-  }, [])
+      if (document.body) resizeObserver.unobserve(document.body);
+      resizeObserver.disconnect();
+      ScrollTrigger.removeEventListener("refresh", () => lenis.resize());
+      gsap.ticker.remove(update);
+      lenis.destroy();
+    };
+  }, []);
 
-  return <>{children}</>
+  return <>{children}</>;
 }
