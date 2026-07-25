@@ -100,7 +100,7 @@ export default function LandingPage() {
                       whileTap={{ scale: 0.98 }}
                       className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-2 group transform-gpu cursor-pointer"
                     >
-                      Create Account
+                      Daftar Akun
                       <ArrowRight size={16} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
                     </motion.button>
                   </Link>
@@ -110,7 +110,7 @@ export default function LandingPage() {
                       whileTap={{ scale: 0.98 }}
                       className="w-full sm:w-auto bg-white/50 text-[#3F4841] border border-[#D5D0C5] backdrop-blur-sm px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors shadow-sm transform-gpu cursor-pointer"
                     >
-                      Log In
+                      Masuk
                     </motion.button>
                   </Link>
                 </>

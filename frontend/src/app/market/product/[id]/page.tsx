@@ -306,51 +306,64 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           />
         </div>
 
-        {/* 2-Column Product Specs & Seller Cards */}
-        <div className="grid grid-cols-12 gap-3 pt-1">
-          {/* Left Spec Card (7 cols) */}
-          <div className="col-span-7 bg-white border border-[#E8E3D2] rounded-3xl p-3.5 space-y-2.5 shadow-sm flex flex-col justify-between">
-            <div>
-              <span className="text-[9px] font-black uppercase text-[#2B4C3B] tracking-wider block mb-1">Informasi Produk</span>
-              <p className="text-[11px] text-[#5A635B] leading-relaxed line-clamp-3">
-                {product.description || "Hasil panen berkualitas dari petani lokal binaan Pranata Market."}
-              </p>
-            </div>
-
-            <div className="pt-2 border-t border-[#F8F6F0] grid grid-cols-2 gap-2 text-[9px]">
-              <div>
-                <span className="text-gray-400 font-bold block uppercase">Min. Order</span>
-                <strong className="text-[#1C241E] font-black">{product.minOrder || 1} {product.unit}</strong>
-              </div>
-              <div>
-                <span className="text-gray-400 font-bold block uppercase">Sisa Stok</span>
-                <strong className="text-[#2B4C3B] font-black">{product.stock} {product.unit}</strong>
-              </div>
-            </div>
+        {/* 1. Harga Card */}
+        <div className="bg-white border border-[#E8E3D2] rounded-2xl p-3.5 shadow-sm flex items-center justify-between">
+          <div>
+            <span className="text-[10px] font-extrabold text-[#7A8678] uppercase tracking-wider block">Harga Satuan</span>
+            <p className="text-xl font-black text-[#C25939] leading-tight mt-0.5">
+              Rp {product.price?.toLocaleString('id-ID')} <span className="text-xs text-[#5A635B] font-bold">/ {product.unit}</span>
+            </p>
           </div>
+          <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-[#EEF2E6] text-[#2B4C3B]">
+            Stok {product.stock} {product.unit}
+          </span>
+        </div>
 
-          {/* Right Seller & Pricing Card (5 cols) */}
-          <div className="col-span-5 bg-white border border-[#E8E3D2] rounded-3xl p-3.5 flex flex-col justify-between shadow-sm">
-            <div>
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Mitra Toko</span>
-              <Link href={seller ? `/market/seller/${seller.id}` : "#"} className="group block mt-1">
-                <h4 className="text-xs font-black text-[#1C241E] line-clamp-1 group-hover:text-[#2B4C3B] transition-colors">
-                  {seller?.farmName || seller?.fullName || "Petani Sleman"}
-                </h4>
-                {seller?.location && (
-                  <p className="text-[9px] font-bold text-[#7A8678] flex items-center gap-0.5 mt-0.5 truncate">
-                    <MapPin size={10} className="text-[#C25939] shrink-0" />
-                    <span className="truncate">{seller.location}</span>
-                  </p>
-                )}
-              </Link>
+        {/* 2. Mitra Toko Card (dengan PFP Avatar) */}
+        <Link href={seller ? `/market/seller/${seller.id}` : "#"} className="flex items-center gap-3 bg-white border border-[#E8E3D2] rounded-2xl p-3.5 shadow-sm active:scale-98 transition-all group">
+          <div className="w-11 h-11 rounded-full bg-[#2B4C3B] text-white flex items-center justify-center font-black text-lg overflow-hidden shrink-0 border border-[#E8E3D2] shadow-xs">
+            {seller?.avatarUrl ? (
+              <img src={seller.avatarUrl} alt={seller.farmName || seller.fullName} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+            ) : (
+              <span>{(seller?.farmName || seller?.fullName || seller?.username || "?").charAt(0).toUpperCase()}</span>
+            )}
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-extrabold text-[#7A8678] uppercase tracking-wider">Mitra Toko</span>
+              <span className="bg-[#EEF2E6] text-[#2B4C3B] text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                <ShieldCheck size={10} /> Terverifikasi
+              </span>
             </div>
-
-            <div className="pt-2 border-t border-[#F8F6F0]">
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Harga Satuan</span>
-              <p className="text-xs font-black text-[#C25939] mt-0.5">
-                Rp {product.price?.toLocaleString()} <span className="text-[9px] text-[#5A635B] font-bold">/ {product.unit}</span>
+            <h4 className="text-xs font-black text-[#1C241E] truncate group-hover:text-[#2B4C3B] transition-colors mt-0.5">
+              {seller?.farmName || seller?.fullName || "Petani Sleman"}
+            </h4>
+            {seller?.location && (
+              <p className="text-[10px] text-[#7A8678] font-semibold flex items-center gap-1 mt-0.5 truncate">
+                <MapPin size={11} className="text-[#C25939] shrink-0" />
+                <span className="truncate">{seller.location}</span>
               </p>
+            )}
+          </div>
+          
+          <ChevronRight size={16} className="text-[#7A8678] shrink-0 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+
+        {/* 3. Informasi Produk Card */}
+        <div className="bg-white border border-[#E8E3D2] rounded-2xl p-4 shadow-sm space-y-3">
+          <h4 className="text-xs font-black text-[#2B4C3B] uppercase tracking-wider">Informasi Produk</h4>
+          <p className="text-xs text-[#5A635B] leading-relaxed">
+            {product.description || "Hasil panen dan produk ternak berkualitas tinggi dari mitra petani lokal binaan Pranata Market."}
+          </p>
+          <div className="pt-2.5 border-t border-[#F8F6F0] grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <span className="text-gray-400 font-bold block uppercase text-[10px]">Min. Order</span>
+              <strong className="text-[#1C241E] font-black">{product.minOrder || 1} {product.unit}</strong>
+            </div>
+            <div>
+              <span className="text-gray-400 font-bold block uppercase text-[10px]">Sisa Stok</span>
+              <strong className="text-[#2B4C3B] font-black">{product.stock} {product.unit}</strong>
             </div>
           </div>
         </div>
@@ -361,7 +374,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             <div className="flex items-center justify-between mb-1.5">
               <h3 className={`text-xs font-black flex items-center gap-1.5 ${gradeStyle.text}`}>
                 <ShieldCheck size={15} />
-                AI Quality Grading
+                Quality Grading
               </h3>
               <span className={`text-[10px] font-black uppercase ${gradeStyle.badgeBg} ${gradeStyle.badgeText} px-2.5 py-0.5 rounded-full shadow-sm flex items-center gap-1`}>
                 <GradeIconComponent size={10} fill="currentColor" /> {product.grade || "Grade A"}
@@ -380,40 +393,40 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         </div>
 
         {/* Fully Functional Mobile Sticky Bottom Bar (Connected Realtime to Backend) */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#F8F6F0]/95 backdrop-blur-xl border-t border-[#E8E3D2] p-3.5 shadow-2xl">
-          <div className="max-w-md mx-auto flex items-center justify-between gap-3">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#F8F6F0]/95 backdrop-blur-xl border-t border-[#E8E3D2] px-3.5 py-3 shadow-2xl">
+          <div className="max-w-md mx-auto flex items-center gap-2.5">
             
-            {/* Quantity Stepper Buttons connected to backend API */}
-            <div className="flex items-center space-x-2 bg-white border border-[#E8E3D2] rounded-full p-1 shadow-sm shrink-0">
+            {/* Quantity Stepper */}
+            <div className="flex items-center space-x-1.5 bg-white border border-[#E8E3D2] rounded-full p-1 shadow-sm shrink-0">
               <button 
                 onClick={() => updateCartQuantityInBackend(quantity - 1)}
                 disabled={maxQ === 0 || quantity <= minQ}
-                className="w-9 h-9 rounded-full bg-[#F8F6F0] text-[#1C241E] font-black text-sm flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all"
+                className="w-8 h-8 rounded-full bg-[#F8F6F0] text-[#1C241E] font-black text-sm flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
               >
                 -
               </button>
 
-              <span className="text-xs font-black text-[#1C241E] w-6 text-center">
+              <span className="text-xs font-black text-[#1C241E] w-5 text-center">
                 {maxQ === 0 ? 0 : quantity}
               </span>
 
               <button 
                 onClick={() => updateCartQuantityInBackend(quantity + 1)}
                 disabled={maxQ === 0 || quantity >= maxQ}
-                className="w-9 h-9 rounded-full bg-[#2B4C3B] text-white font-black text-sm flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all"
+                className="w-8 h-8 rounded-full bg-[#2B4C3B] text-white font-black text-sm flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
               >
                 +
               </button>
             </div>
 
-            {/* Action Button with Micro-Interactions */}
+            {/* Action Button - Strictly 1 Line */}
             <motion.button
               whileHover={{ scale: maxQ > 0 ? 1.02 : 1 }}
               whileTap={{ scale: maxQ > 0 ? 0.94 : 1 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
               onClick={handleAddToCart}
               disabled={maxQ === 0 || isSubmitting}
-              className={`flex-1 py-3 px-5 rounded-2xl font-black text-sm flex items-center justify-between shadow-lg transition-all ${
+              className={`flex-1 h-11 px-3.5 sm:px-4 rounded-full font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-md transition-all whitespace-nowrap active:scale-95 cursor-pointer ${
                 maxQ === 0 
                   ? 'bg-gray-400 opacity-60 text-white cursor-not-allowed'
                   : addedSuccess
@@ -421,28 +434,24 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   : 'bg-gradient-to-r from-[#2B4C3B] via-[#32452C] to-[#1E362A] hover:brightness-110 text-white shadow-[#2B4C3B]/30'
               }`}
             >
-              <div className="flex flex-col text-left">
-                <span className="text-[9px] text-[#B4C179] font-extrabold uppercase tracking-wider">Total</span>
-                <span className="text-xs font-black text-white">
-                  {maxQ === 0 ? "Stok Habis" : `Rp ${totalPrice.toLocaleString('id-ID')}`}
-                </span>
-              </div>
-
-              <div className="flex items-center space-x-1.5 font-black text-white">
-                {isSubmitting ? (
-                  <Loader2 size={16} className="animate-spin text-white" />
-                ) : addedSuccess ? (
-                  <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="flex items-center gap-1">
-                    <Check size={16} className="text-[#B4C179]" />
-                    <span className="text-white">Sukses Ditambahkan!</span>
-                  </motion.div>
-                ) : (
-                  <div className="flex items-center gap-1.5">
-                    <ShoppingCart size={15} className="text-white" />
-                    <span className="text-white">Tambah ke Keranjang</span>
-                  </div>
-                )}
-              </div>
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={15} className="animate-spin shrink-0 text-white" />
+                  <span className="whitespace-nowrap text-white">Menyimpan...</span>
+                </>
+              ) : addedSuccess ? (
+                <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex items-center gap-1.5">
+                  <Check size={15} className="shrink-0 text-[#B4C179]" />
+                  <span className="whitespace-nowrap text-white">Berhasil!</span>
+                </motion.div>
+              ) : (
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
+                  <ShoppingCart size={15} className="shrink-0 text-white" />
+                  <span className="whitespace-nowrap text-white">
+                    {maxQ === 0 ? "Stok Habis" : "Tambah ke Keranjang"}
+                  </span>
+                </div>
+              )}
             </motion.button>
           </div>
         </div>
@@ -534,6 +543,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     </div>
                   )}
                   <div className="flex-1">
+                    <span className="text-[10px] font-extrabold text-[#7A8678] uppercase tracking-wider block mb-0.5">Mitra Toko</span>
                     <h3 className="text-sm font-black text-[#1C241E] flex items-center gap-1.5 mb-0.5">
                       {seller.farmName || seller.fullName}
                       <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
@@ -571,7 +581,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   <div className="flex items-center justify-between mb-2">
                     <h3 className={`text-sm font-black flex items-center gap-1.5 ${gradeStyle.text}`}>
                       <ShieldCheck size={18} />
-                      Hasil Penilaian Kualitas (AI Quality Grading)
+                      Quality Grading
                     </h3>
                     <span className={`text-xs font-black uppercase ${gradeStyle.badgeBg} ${gradeStyle.badgeText} px-3 py-1 rounded-full shadow-sm flex items-center gap-1`}>
                       <GradeIconComponent size={12} fill="currentColor" /> {product.grade || "Grade A"}
@@ -638,7 +648,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 ) : (
                   <div className="flex items-center gap-2">
                     <ShoppingCart size={20} className="text-white" />
-                    <span className="text-white">{maxQ === 0 ? 'Stok Habis' : `Tambah ke Keranjang • Rp ${totalPrice.toLocaleString('id-ID')}`}</span>
+                    <span className="text-white">{maxQ === 0 ? 'Stok Habis' : 'Tambah ke Keranjang'}</span>
                   </div>
                 )}
               </motion.button>

@@ -542,7 +542,7 @@ export default function AccountSettingsPage() {
           className="lg:col-span-3 border-2 border-dashed border-[#E11D48]/30 bg-[#FFF1F2] rounded-[2.5rem] p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6"
         >
           <div>
-            <h3 className="font-black text-[#E11D48] text-lg mb-2">Logout dari Perangkat</h3>
+            <h3 className="font-black text-[#E11D48] text-lg mb-2">Keluar dari Perangkat</h3>
             <p className="text-sm font-semibold text-[#E11D48]/70">Akhiri sesi di perangkat ini untuk menjaga keamanan akun Anda.</p>
           </div>
           <motion.button 
@@ -554,7 +554,7 @@ export default function AccountSettingsPage() {
             }}
             className="px-8 py-3.5 bg-white text-[#E11D48] font-black rounded-2xl border border-[#E11D48]/20 hover:bg-[#E11D48] hover:text-white transition-colors shadow-sm"
           >
-            Keluar (Logout)
+            Keluar dari Akun
           </motion.button>
         </motion.div>
         </div>

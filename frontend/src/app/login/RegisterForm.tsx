@@ -302,7 +302,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: { onSuccess: () => 
                   onClick={onSwitchToLogin} 
                   className="text-[#C25939] font-extrabold hover:underline cursor-pointer"
                 >
-                  Log In
+                  Masuk
                 </button>
               </div>
             </motion.form>

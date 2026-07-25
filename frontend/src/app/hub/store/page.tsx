@@ -16,10 +16,8 @@ const getGradeStyle = (gradeStr: string) => {
     return { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-300", icon: Star, iconColor: "text-emerald-500" };
   } else if (g === "grade b" || g === "b" || g.endsWith(" b")) {
     return { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-300", icon: CheckCircle, iconColor: "text-blue-500" };
-  } else if (g === "grade c" || g === "c" || g.endsWith(" c") || g.includes("tidak layak")) {
-    return { bg: "bg-red-50", text: "text-red-700", border: "border-red-300", icon: AlertTriangle, iconColor: "text-red-500" };
   }
-  return null;
+  return { bg: "bg-red-50", text: "text-red-700", border: "border-red-300", icon: AlertTriangle, iconColor: "text-red-500" };
 };
 
 export default function StoreDashboardPage() {
@@ -178,15 +176,19 @@ export default function StoreDashboardPage() {
                       
                       <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                         <div className="bg-[#F8F6F0] px-2 py-0.5 sm:py-1 rounded-lg">
-                          <span className="text-[10px] font-bold text-[#5A635B] uppercase tracking-wider">{p.category || "Produk"}</span>
+                          <span className="text-[9px] sm:text-[10px] font-bold text-[#5A635B] uppercase tracking-wider">{p.category || "Produk"}</span>
                         </div>
                         {p.grade && (() => {
-                          const style = getGradeStyle(p.grade);
-                          if (!style) return null;
+                          const g = (p.grade || "").toLowerCase().trim();
+                          let style = { bg: "bg-red-50", text: "text-red-700", border: "border-red-300", icon: AlertTriangle, iconColor: "text-red-500" };
+                          if (g === "premium") style = { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-300", icon: Crown, iconColor: "text-[#F5990D]" };
+                          else if (g === "grade a" || g === "a" || g.endsWith(" a")) style = { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-300", icon: Star, iconColor: "text-emerald-500" };
+                          else if (g === "grade b" || g === "b" || g.endsWith(" b")) style = { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-300", icon: CheckCircle, iconColor: "text-blue-500" };
+                          else if (g === "grade c" || g === "c" || g.endsWith(" c") || g.includes("tidak layak")) style = { bg: "bg-red-50", text: "text-red-700", border: "border-red-300", icon: AlertTriangle, iconColor: "text-red-500" };
                           const GradeIcon = style.icon;
                           return (
-                            <span className={`${style.bg} ${style.text} border ${style.border} px-2 py-0.5 sm:py-1 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs`}>
-                              <GradeIcon size={10} className={(style as any).iconColor} fill="currentColor" />
+                            <span className={`${style.bg} ${style.text} border ${style.border} px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs`}>
+                              <GradeIcon size={10} className={style.iconColor} fill="currentColor" />
                               {p.grade}
                             </span>
                           );

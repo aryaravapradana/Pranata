@@ -1,10 +1,54 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Sparkles, X, Image as ImageIcon, Crown, Star, CheckCircle, Info, Loader2, XCircle, Minus, Plus } from "lucide-react";
+import { ArrowLeft, Sparkles, X, Image as ImageIcon, Crown, Star, CheckCircle, Info, Loader2, XCircle, Minus, Plus, ShieldCheck, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
 import { uploadImage } from "@/lib/supabaseStorage";
+
+const getGradeStyle = (gradeStr: string) => {
+  const g = (gradeStr || "").toLowerCase().trim();
+  if (g === "premium") {
+    return {
+      bg: "bg-amber-50",
+      border: "border-amber-300",
+      text: "text-amber-700",
+      badgeBg: "bg-amber-500",
+      badgeText: "text-white",
+      icon: Crown,
+      iconColor: "text-[#F5990D]",
+    };
+  } else if (g === "grade a" || g === "a" || g.endsWith(" a")) {
+    return {
+      bg: "bg-emerald-50",
+      border: "border-emerald-300",
+      text: "text-emerald-700",
+      badgeBg: "bg-emerald-600",
+      badgeText: "text-white",
+      icon: Star,
+      iconColor: "text-emerald-500",
+    };
+  } else if (g === "grade b" || g === "b" || g.endsWith(" b")) {
+    return {
+      bg: "bg-blue-50",
+      border: "border-blue-300",
+      text: "text-blue-700",
+      badgeBg: "bg-blue-600",
+      badgeText: "text-white",
+      icon: CheckCircle,
+      iconColor: "text-blue-500",
+    };
+  }
+  return {
+    bg: "bg-red-50",
+    border: "border-red-300",
+    text: "text-red-700",
+    badgeBg: "bg-red-600",
+    badgeText: "text-white",
+    icon: AlertTriangle,
+    iconColor: "text-red-500",
+  };
+};
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -245,50 +289,33 @@ export default function NewProductPage() {
                                       aiAnalysisResult.grade?.toLowerCase().includes("tidak layak") || 
                                       aiAnalysisResult.grade?.toLowerCase().includes("bukan daging");
 
+                      const gradeStyle = getGradeStyle(aiAnalysisResult.grade);
+                      const GradeIconComponent = gradeStyle.icon;
                       return (
-                        <motion.div 
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className={`mt-4 w-full p-4 rounded-2xl border-2 shadow-sm ${
-                            isUnfit ? "bg-red-50 border-red-400" :
-                            aiAnalysisResult.grade === "Premium" ? "bg-[#FFF9E6] border-[#F5990D]" :
-                            aiAnalysisResult.grade.includes("A") ? "bg-emerald-50 border-emerald-400" :
-                            aiAnalysisResult.grade.includes("B") ? "bg-cyan-50 border-cyan-400" :
-                            "bg-amber-50 border-amber-400"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3 mb-2 pb-2 border-b border-black/5">
-                            <div className={`p-1.5 rounded-full ${
-                              isUnfit ? "bg-red-100 text-red-600" :
-                              aiAnalysisResult.grade === "Premium" ? "bg-[#F5990D]/20 text-[#F5990D]" :
-                              aiAnalysisResult.grade.includes("A") ? "bg-emerald-100 text-emerald-600" :
-                              aiAnalysisResult.grade.includes("B") ? "bg-cyan-100 text-cyan-600" :
-                              "bg-amber-100 text-amber-600"
-                            }`}>
-                              {isUnfit && <XCircle size={18} />}
-                              {!isUnfit && aiAnalysisResult.grade === "Premium" && <Crown size={18} />}
-                              {!isUnfit && aiAnalysisResult.grade.includes("A") && <Star size={18} />}
-                              {!isUnfit && aiAnalysisResult.grade.includes("B") && <CheckCircle size={18} />}
-                              {!isUnfit && aiAnalysisResult.grade.includes("C") && <Info size={18} />}
-                            </div>
-                            <h4 className={`text-base font-black ${
-                              isUnfit ? "text-red-700" :
-                              aiAnalysisResult.grade === "Premium" ? "text-[#F5990D]" :
-                              aiAnalysisResult.grade.includes("A") ? "text-emerald-700" :
-                              aiAnalysisResult.grade.includes("B") ? "text-cyan-700" :
-                              "text-amber-700"
-                            }`}>{aiAnalysisResult.grade}</h4>
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className={`mt-4 p-4 rounded-2xl overflow-hidden shadow-sm border-2 ${isUnfit ? "bg-red-50 border-red-400" : `${gradeStyle.bg} ${gradeStyle.border}`}`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className={`text-xs sm:text-sm font-black flex items-center gap-1.5 ${isUnfit ? "text-red-700" : gradeStyle.text}`}>
+                              <ShieldCheck size={16} />
+                              Quality Grading
+                            </h3>
+                            <span className={`text-[10px] sm:text-xs font-black uppercase ${isUnfit ? "bg-red-600 text-white" : `${gradeStyle.badgeBg} ${gradeStyle.badgeText}`} px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-sm flex items-center gap-1`}>
+                              {isUnfit ? <XCircle size={12} fill="currentColor" /> : <GradeIconComponent size={12} fill="currentColor" />} {aiAnalysisResult.grade}
+                            </span>
                           </div>
-                          <p className="text-xs font-semibold text-[#5A635B] leading-relaxed">{aiAnalysisResult.analysis}</p>
+
+                          <p className="text-xs font-semibold text-[#5A635B] leading-relaxed">
+                            {aiAnalysisResult.analysis || "Produk ini telah melalui proses penilaian otomatis kualitas dan kesegaran berbasis visi AI."}
+                          </p>
                           {isUnfit && (
                             <div className="mt-3 p-3 bg-red-100/80 border border-red-300 rounded-xl text-red-800 text-xs font-bold flex items-center gap-2">
                               <XCircle size={16} className="shrink-0 text-red-600" />
                               <span>Produk tidak dapat dipublish karena kualitas daging dinilai 'Tidak Layak' / 'Bukan Daging'.</span>
                             </div>
                           )}
-                          <div className="flex items-center gap-1.5 mt-4 justify-start">
+
+                          <div className="flex items-center gap-1.5 mt-3 pt-2 border-t border-black/5 justify-start">
                             <span className="text-[10px] font-light tracking-tight text-[#2B4C3B] uppercase">Powered By</span>
-                            <img src="/logos/intelligence/intelligence-black.webp" alt="Pranata Intelligence" className="h-6 drop-shadow-sm" loading="lazy" decoding="async" />
+                            <img src="/logos/intelligence/intelligence-black.webp" alt="Pranata Intelligence" className="h-5 drop-shadow-sm" loading="lazy" decoding="async" />
                           </div>
                         </motion.div>
                       );

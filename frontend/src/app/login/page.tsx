@@ -118,7 +118,7 @@ function AuthContent() {
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
               />
             )}
-            <span className="relative z-10">Log In</span>
+            <span className="relative z-10">Masuk</span>
           </button>
 
           <button
@@ -135,7 +135,7 @@ function AuthContent() {
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
               />
             )}
-            <span className="relative z-10">Register</span>
+            <span className="relative z-10">Daftar</span>
           </button>
         </div>
 
@@ -199,10 +199,10 @@ function AuthContent() {
                   {loading ? (
                     <>
                       <Loader2 size={18} className="animate-spin" />
-                      <span>Memproses Log In...</span>
+                      <span>Memproses Masuk...</span>
                     </>
                   ) : (
-                    "Log In"
+                    "Masuk"
                   )}
                 </button>
 

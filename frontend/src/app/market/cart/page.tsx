@@ -211,8 +211,8 @@ function ActivityContent() {
       <main className="max-w-7xl mx-auto pt-6 md:pt-8 px-3.5 sm:px-6 md:px-8 lg:px-12 flex-1 w-full pb-16">
         
         <div className="mb-6 hidden sm:block">
-          <button onClick={() => router.push("/market")} className="inline-flex items-center gap-2 bg-white border border-[#E8E3D2] hover:bg-[#F8F6F0] text-[#1C241E] hover:text-[#2B4C3B] font-bold text-sm px-4 py-2 rounded-full transition-colors shadow-sm">
-            <ChevronLeft size={18} /> Back
+          <button onClick={() => router.push("/market")} className="inline-flex items-center gap-2 bg-white border border-[#E8E3D2] hover:bg-[#F8F6F0] text-[#1C241E] hover:text-[#2B4C3B] font-bold text-sm px-4 py-2 rounded-full transition-colors shadow-sm active:scale-95">
+            <ChevronLeft size={18} /> Kembali
           </button>
         </div>
 

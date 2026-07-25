@@ -206,7 +206,7 @@ export default function CheckoutPage() {
           <div className="col-span-1 flex flex-col gap-6">
             <div className="mb-2">
               <button onClick={() => router.push("/market/cart")} className="inline-flex items-center gap-2 bg-white border border-[#E8E3D2] hover:bg-[#F8F6F0] text-[#1C241E] hover:text-[#2B4C3B] font-bold text-sm px-4 py-2 rounded-full transition-colors shadow-sm">
-                <ChevronLeft size={18} /> Back
+                <ChevronLeft size={18} /> Kembali
               </button>
             </div>
 
