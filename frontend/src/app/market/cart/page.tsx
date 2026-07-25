@@ -179,28 +179,28 @@ function ActivityContent() {
       {/* Segmented Control in Navbar Center */}
       <MarketplaceNavbar 
         centerContent={
-          <div className="bg-black/20 p-1 rounded-full flex gap-1 relative overflow-hidden backdrop-blur-md">
+          <div className="bg-[#E8E3D2]/80 p-1 rounded-full flex items-center gap-0.5 sm:gap-1 relative shadow-inner border border-[#E8E3D2] shrink-0">
             <button 
               onClick={() => handleTabChange('cart')} 
-              className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 relative z-10 ${
-                activeTab === 'cart' ? 'text-[#2B4C3B]' : 'text-[#EEF2E6] hover:bg-white/10'
+              className={`px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[11px] sm:text-sm font-extrabold transition-all duration-300 relative z-10 whitespace-nowrap ${
+                activeTab === 'cart' ? 'text-[#2B4C3B]' : 'text-[#7A8678] hover:text-[#1C241E]'
               }`}
             >
               {activeTab === 'cart' && (
-                <motion.div layoutId="nav-pill" className="absolute inset-0 bg-white rounded-full -z-10 shadow-sm" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
+                <motion.div layoutId="nav-pill" className="absolute inset-0 bg-white rounded-full -z-10 shadow-xs" transition={{ type: "spring", bounce: 0.2, duration: 0.4 }} />
               )}
-              Keranjang
+              <span>Keranjang</span>
             </button>
             <button 
               onClick={() => handleTabChange('orders')} 
-              className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 relative z-10 ${
-                activeTab === 'orders' ? 'text-[#2B4C3B]' : 'text-[#EEF2E6] hover:bg-white/10'
+              className={`px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[11px] sm:text-sm font-extrabold transition-all duration-300 relative z-10 whitespace-nowrap ${
+                activeTab === 'orders' ? 'text-[#2B4C3B]' : 'text-[#7A8678] hover:text-[#1C241E]'
               }`}
             >
               {activeTab === 'orders' && (
-                <motion.div layoutId="nav-pill" className="absolute inset-0 bg-white rounded-full -z-10 shadow-sm" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
+                <motion.div layoutId="nav-pill" className="absolute inset-0 bg-white rounded-full -z-10 shadow-xs" transition={{ type: "spring", bounce: 0.2, duration: 0.4 }} />
               )}
-              Pesanan Saya
+              <span><span className="hidden sm:inline">Pesanan Saya</span><span className="sm:hidden">Pesanan</span></span>
             </button>
           </div>
         }

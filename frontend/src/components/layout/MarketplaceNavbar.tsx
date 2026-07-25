@@ -66,9 +66,9 @@ export default function MarketplaceNavbar({
         </div>
       )}
 
-      {/* Center: Search Bar (Always visible & scales fluidly down to 320px) */}
+      {/* Center: Search Bar or Custom Content (Always responsive & flex centered) */}
       {centerContent ? (
-        <div className="flex-1 flex justify-center mx-1 min-[380px]:mx-2 sm:mx-4">{centerContent}</div>
+        <div className="flex-1 flex justify-center items-center mx-0.5 sm:mx-4">{centerContent}</div>
       ) : setSearchQuery !== undefined ? (
         <div className="flex-1 max-w-xl mx-1 min-[380px]:mx-2 sm:mx-4 relative">
           <input 
@@ -81,9 +81,7 @@ export default function MarketplaceNavbar({
           />
           <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 absolute right-2.5 sm:right-4 top-1/2 -translate-y-1/2 text-[#5A635B]" />
         </div>
-      ) : (
-        <div className="flex-1 items-center justify-center gap-8 text-sm font-semibold text-[#84B0A5]" />
-      )}
+      ) : null}
 
       {/* Right: Cart & Profile */}
       <div className="flex items-center gap-1 min-[380px]:gap-2.5 sm:gap-4 shrink-0">
