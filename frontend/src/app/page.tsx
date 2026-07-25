@@ -77,7 +77,7 @@ export default function LandingPage() {
                           {(session?.fullName || session?.name || session?.username || 'U').charAt(0).toUpperCase()}
                         </div>
                       )}
-                      <span>Lanjut sebagai {session?.name?.split(" ")[0] || session?.fullName?.split(" ")[0] || session?.username}</span>
+                      <span>Lanjut sebagai {session?.username || session?.name?.split(" ")[0] || session?.fullName?.split(" ")[0]}</span>
                       <ArrowRight size={16} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
                     </motion.button>
                   </Link>
