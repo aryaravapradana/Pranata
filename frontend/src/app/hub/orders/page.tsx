@@ -2,7 +2,8 @@
 import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, Package, Clock, User, ChevronRight, CheckCircle, Truck, MapPin, Search, Filter, Calendar } from "lucide-react";
+import { ChevronLeft, Package, Clock, User, ChevronRight, CheckCircle, Truck, MapPin, Search, Filter, Calendar, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoading } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
 
@@ -28,14 +29,18 @@ export default function SellerOrdersPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<any[]>([]);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   usePageLoading(loading);
 
   useEffect(() => {
-    const sessionStr = localStorage.getItem("farmpro_session");
-    if (!sessionStr) { router.push("/login"); return; }
-    
     const fetchOrders = async () => {
       try {
+        const sessionStr = localStorage.getItem("farmpro_session");
+        if (!sessionStr) {
+          router.push("/login");
+          return;
+        }
         const parsedSession = JSON.parse(sessionStr);
         
         // If not a PRODUCER, they shouldn't be here
@@ -56,6 +61,7 @@ export default function SellerOrdersPage() {
   }, [router]);
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    setUpdatingId(orderId);
     try {
       const res = await fetchApi(`${API_BASE}/api/orders/${orderId}/status`, {
         method: "PUT",
@@ -64,9 +70,14 @@ export default function SellerOrdersPage() {
       });
       if (res.ok) {
         setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+        const statusText = newStatus === 'SHIPPED' ? 'Pesanan berhasil dikirim!' : newStatus === 'COMPLETED' ? 'Pesanan telah diselesaikan!' : 'Status pesanan berhasil diperbarui!';
+        setToastMessage(statusText);
+        setTimeout(() => setToastMessage(null), 3000);
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -201,27 +212,71 @@ export default function SellerOrdersPage() {
                 </div>
                 
                 {/* Action Buttons for Seller */}
-                <div className="mt-4 pt-4 border-t border-[#F8F6F0] flex gap-2 justify-end">
+                <div className="mt-4 pt-4 border-t border-[#F8F6F0] flex gap-2 justify-end items-center">
                   {o.status === "PENDING" && (
-                    <button onClick={() => updateOrderStatus(o.id, 'CANCELLED')} className="px-4 py-2.5 bg-[#F8F6F0] text-[#5A635B] text-xs font-bold rounded-xl hover:bg-gray-200 transition-colors">
-                      Batalkan Pesanan
-                    </button>
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.95 }}
+                      disabled={updatingId === o.id}
+                      onClick={() => updateOrderStatus(o.id, 'CANCELLED')} 
+                      className="px-4 py-2.5 bg-[#F8F6F0] text-[#5A635B] text-xs font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      {updatingId === o.id ? <Loader2 size={14} className="animate-spin text-[#5A635B]" /> : null}
+                      <span>Batalkan Pesanan</span>
+                    </motion.button>
                   )}
+
                   {o.status === "PAID" && (
-                    <button onClick={() => updateOrderStatus(o.id, 'SHIPPED')} className="px-5 py-2.5 bg-pranata text-white text-xs font-black rounded-xl hover:bg-[#1E362A] transition-all flex items-center gap-2 shadow-lg shadow-[#2B4C3B]/20">
-                      <Truck size={14} /> Kirim Pesanan
-                    </button>
+                    <motion.button 
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.95 }}
+                      disabled={updatingId === o.id}
+                      onClick={() => updateOrderStatus(o.id, 'SHIPPED')} 
+                      className="px-5 py-2.5 bg-pranata text-white text-xs font-black rounded-xl hover:bg-[#1E362A] transition-all flex items-center gap-2 shadow-lg shadow-[#2B4C3B]/20 disabled:opacity-60 cursor-pointer"
+                    >
+                      {updatingId === o.id ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin text-white" />
+                          <span>Mengirim Pesanan...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Truck size={14} />
+                          <span>Kirim Pesanan</span>
+                        </>
+                      )}
+                    </motion.button>
                   )}
+
                   {o.status === "SHIPPED" && (
-                    <button onClick={() => updateOrderStatus(o.id, 'COMPLETED')} className="px-5 py-2.5 bg-[#F5990D] text-white text-xs font-black rounded-xl hover:bg-[#C25939] transition-all flex items-center gap-2 shadow-lg shadow-[#F5990D]/20">
-                      <CheckCircle size={14} /> Selesaikan
-                    </button>
+                    <motion.button 
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.95 }}
+                      disabled={updatingId === o.id}
+                      onClick={() => updateOrderStatus(o.id, 'COMPLETED')} 
+                      className="px-5 py-2.5 bg-[#F5990D] text-white text-xs font-black rounded-xl hover:bg-[#C25939] transition-all flex items-center gap-2 shadow-lg shadow-[#F5990D]/20 disabled:opacity-60 cursor-pointer"
+                    >
+                      {updatingId === o.id ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin text-white" />
+                          <span>Memproses...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle size={14} />
+                          <span>Selesaikan</span>
+                        </>
+                      )}
+                    </motion.button>
                   )}
+
                   {o.status === "CANCELLED" && (
                     <span className="text-xs font-bold text-gray-400 py-2">Pesanan Dibatalkan</span>
                   )}
                   {o.status === "COMPLETED" && (
-                    <span className="text-xs font-bold text-[#4A7C59] py-2">Pesanan Selesai</span>
+                    <span className="text-xs font-bold text-[#4A7C59] py-2 flex items-center gap-1">
+                      <CheckCircle size={14} className="text-[#4A7C59]" /> Pesanan Selesai
+                    </span>
                   )}
                 </div>
               </div>
@@ -229,6 +284,21 @@ export default function SellerOrdersPage() {
           </div>
         )}
       </main>
+
+      {/* Toast Floating Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            className="fixed bottom-6 right-6 z-50 bg-[#2B4C3B] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-bold text-sm border border-[#B4C179]/30"
+          >
+            <CheckCircle size={18} className="text-[#B4C179]" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

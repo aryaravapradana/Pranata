@@ -19,7 +19,13 @@ import {
   ChevronLeft, 
   TrendingDown, 
   TrendingUp, 
-  ShoppingCart
+  ShoppingCart,
+  Sparkles,
+  Award,
+  ShieldCheck,
+  Tag,
+  Layers,
+  AlertTriangle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoading } from "@/components/shared/loading-context";
@@ -107,16 +113,16 @@ const ProductCard = memo(function ProductCard({ p, index, onClick, cartQty, onUp
             </span>
           </div>
           {p.grade && (() => {
-            const g = p.grade.toLowerCase();
-            let style = { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-300", icon: Info };
-            if (g === "premium") style = { bg: "bg-gradient-to-r from-amber-200 to-yellow-400", text: "text-amber-900", border: "border-amber-300", icon: Crown };
-            else if (g.includes("a")) style = { bg: "bg-gradient-to-r from-emerald-100 to-emerald-300", text: "text-emerald-900", border: "border-emerald-400", icon: Star };
-            else if (g.includes("b")) style = { bg: "bg-gradient-to-r from-cyan-100 to-cyan-300", text: "text-cyan-900", border: "border-cyan-400", icon: CheckCircle };
-            else if (g.includes("c")) style = { bg: "bg-gradient-to-r from-orange-100 to-orange-300", text: "text-orange-900", border: "border-orange-400", icon: Info };
+            const g = (p.grade || "").toLowerCase().trim();
+            let style = { bg: "bg-red-50", text: "text-red-700", border: "border-red-300", icon: AlertTriangle, iconColor: "text-red-500" };
+            if (g === "premium") style = { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-300", icon: Crown, iconColor: "text-[#F5990D]" };
+            else if (g === "grade a" || g === "a" || g.endsWith(" a")) style = { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-300", icon: Star, iconColor: "text-emerald-500" };
+            else if (g === "grade b" || g === "b" || g.endsWith(" b")) style = { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-300", icon: CheckCircle, iconColor: "text-blue-500" };
+            else if (g === "grade c" || g === "c" || g.endsWith(" c") || g.includes("tidak layak")) style = { bg: "bg-red-50", text: "text-red-700", border: "border-red-300", icon: AlertTriangle, iconColor: "text-red-500" };
             const GradeIcon = style.icon;
             return (
-              <span className={`${style.bg} ${style.text} border ${style.border} px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm ${cartQty > 0 ? "opacity-90" : ""}`}>
-                <GradeIcon size={10} strokeWidth={3} />
+              <span className={`${style.bg} ${style.text} border ${style.border} px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs ${cartQty > 0 ? "opacity-90" : ""}`}>
+                <GradeIcon size={10} className={style.iconColor} fill="currentColor" />
                 {p.grade}
               </span>
             );
@@ -186,7 +192,7 @@ const CustomDropdown = ({ value, options, onChange, icon: Icon, placeholder, ali
         className="flex items-center justify-between gap-2.5 bg-white border border-[#E8E3D2] text-[#2B4C3B] font-extrabold text-xs sm:text-sm rounded-full py-2 px-3.5 sm:py-2.5 sm:pl-4 sm:pr-3 hover:bg-[#F8F6F0] transition-all shadow-sm min-w-32 sm:min-w-40"
       >
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <Icon size={14} className="text-[#C25939]" />
+          <Icon size={14} className="text-[#32452C]" />
           <span>{displayValue}</span>
         </div>
         <ChevronRight size={14} className={`text-[#A4B0A7] transition-transform duration-300 ${isOpen ? "rotate-90" : "rotate-0"}`} />
@@ -519,37 +525,6 @@ export default function MarketplacePage() {
           </div>
         </section>
 
-        {/* CONDITIONAL GRADE FILTER CHIPS (Only displayed when Category is "Daging") */}
-        <AnimatePresence>
-          {selectedCategory === "Daging" && (
-            <motion.section 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="space-y-2 overflow-hidden"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#1C241E]/60">Pilih Grade Daging Sapi / Ayam:</span>
-              </div>
-              <div className="flex items-center space-x-2 overflow-x-auto pb-1 hide-scrollbar">
-                {["Semua Grade", "Premium", "Grade A", "Grade B", "Grade C"].map(g => (
-                  <button
-                    key={g}
-                    onClick={() => setSelectedGrade(g)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
-                      selectedGrade === g 
-                        ? "bg-linear-to-br from-[#8FA76B] to-[#405D46] text-white border-2 border-white shadow-md" 
-                        : "bg-white text-[#1C241E]/70 border border-[#E8E3D2] hover:bg-[#F2EFE9]"
-                    }`}
-                  >
-                    {g}
-                  </button>
-                ))}
-              </div>
-            </motion.section>
-          )}
-        </AnimatePresence>
-
         {/* MAIN PRODUCTS SECTION */}
         <section className="pt-4 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -557,23 +532,40 @@ export default function MarketplacePage() {
               {selectedCategory === "Semua" ? "Mungkin Anda butuhkan" : selectedCategory}
             </h2>
 
-            <div className="flex items-center gap-2 justify-between sm:justify-end">
+            <div className="flex items-center gap-2 justify-between sm:justify-end flex-wrap">
+              {/* Conditional Grade Daging Pill Sorter (Only shown when selectedCategory is 'Daging') */}
+              {selectedCategory === "Daging" && (
+                <CustomDropdown
+                  value={selectedGrade}
+                  onChange={setSelectedGrade}
+                  icon={Crown}
+                  placeholder="Grade Daging"
+                  options={[
+                    { label: "Semua Grade", value: "Semua Grade" },
+                    { label: "Premium", value: "Premium" },
+                    { label: "Grade A", value: "Grade A" },
+                    { label: "Grade B", value: "Grade B" },
+                    { label: "Grade C", value: "Grade C" }
+                  ]}
+                />
+              )}
+
               <CustomDropdown
                 value={sortBy}
                 onChange={setSortBy}
                 icon={SlidersHorizontal}
                 placeholder="Urutkan"
                 options={[
-                  { label: <div className="flex items-center gap-2">Terbaru</div>, value: "Terbaru" },
-                  { label: <div className="flex items-center gap-2"><TrendingDown size={14} className="text-[#2B4C3B]" /> Harga Terendah</div>, value: "Harga Terendah" },
-                  { label: <div className="flex items-center gap-2"><TrendingUp size={14} className="text-[#C25939]" /> Harga Tertinggi</div>, value: "Harga Tertinggi" }
+                  { label: "Terbaru", value: "Terbaru" },
+                  { label: "Harga Terendah", value: "Harga Terendah" },
+                  { label: "Harga Tertinggi", value: "Harga Tertinggi" }
                 ]}
               />
 
               {hasMore && (
                 <button 
                   onClick={() => router.push(`/market/products?category=${selectedCategory}`)} 
-                  className="text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 bg-[#C25939] px-4 py-2 sm:px-5 sm:py-2.5 rounded-full hover:bg-[#A34529] transition-all shadow-sm"
+                  className="text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 bg-gradient-to-br from-[#8FA76B] to-[#405D46] px-4 py-2 sm:px-5 sm:py-2.5 rounded-full hover:opacity-95 hover:scale-[1.02] active:scale-95 transition-all shadow-sm"
                 >
                   <span>Lihat Semua</span>
                   <ArrowRight size={14} />

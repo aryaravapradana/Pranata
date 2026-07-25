@@ -5,7 +5,7 @@ import { useState, useEffect, memo, useMemo, useRef, Suspense, useCallback } fro
 import { 
   Search, MapPin, ChevronRight, Package, ArrowRight, Minus, Plus, 
   ShoppingBag, Store, User, Star, CheckCircle, Info, Crown, ChevronLeft, 
-  X, SlidersHorizontal, Sparkles, TrendingDown, TrendingUp, Layers, Check 
+  X, SlidersHorizontal, Sparkles, TrendingDown, TrendingUp, Layers, Check, ShieldCheck, Tag, AlertTriangle 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoading } from "@/components/shared/loading-context";
@@ -36,82 +36,64 @@ const getCategoryFallbackImage = (category: string) => {
   return "/mocks/mock_ternak_1784287398084.webp";
 };
 
-// ─── Responsive Product Card ──────────────────────────────────────────────────
-const ProductCard = memo(function ProductCard({ p, index, onClick, cartQty, onUpdateQuantity }: { p: any; index: number; onClick: () => void; cartQty: number; onUpdateQuantity: (e: React.MouseEvent, delta: number) => void }) {
+// ─── Product Card Component ───────────────────────────────────────────────────
+const ProductCard = memo(function ProductCard({ p, index, onClick, cartQty, onUpdateQuantity }: { p: any; index?: number; onClick: () => void; cartQty: number; onUpdateQuantity: (e: React.MouseEvent, delta: number) => void }) {
+  const fallbackImg = getCategoryFallbackImage(p.category);
+  const imgUrl = (p.imageUrls && p.imageUrls.length > 0) ? p.imageUrls[0] : fallbackImg;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "500px" }}
+      viewport={{ once: true }}
       transition={{ duration: 0.3 }}
       onClick={p.stock > 0 ? onClick : undefined}
-      className={`rounded-3xl sm:rounded-[2rem] flex flex-col p-3 sm:p-4 shadow-[0_8px_20px_-8px_rgba(43,76,59,0.08)] group relative transition-all duration-300 overflow-hidden z-0 transform-gpu [content-visibility:auto] [contain-intrinsic-size:1px_280px] sm:[content-visibility:visible] ${
-        cartQty > 0 ? "border-transparent shadow-[0_12px_24px_-8px_rgba(43,76,59,0.3)]" : "bg-white border border-[#E8E3D2]"
+      className={`rounded-[2rem] flex flex-col p-3.5 sm:p-4 shadow-[0_12px_24px_-12px_rgba(43,76,59,0.08)] group relative transition-all duration-300 overflow-hidden z-0 ${
+        cartQty > 0 ? "border-transparent shadow-[0_12px_24px_-8px_rgba(43,76,59,0.3)] ring-2 ring-[#2B4C3B]" : "bg-white border border-[#E8E3D2]"
       } ${
-        p.stock > 0 ? "cursor-pointer" : "cursor-not-allowed opacity-60 grayscale-[0.8]"
+        p.stock > 0 ? "cursor-pointer hover:shadow-lg hover:-translate-y-1" : "cursor-not-allowed opacity-60 grayscale-[0.8]"
       }`}
     >
-      {/* Background Gradient Animation Layer */}
       <div 
-        className={`absolute inset-0 bg-pranata -z-10 transition-opacity duration-300 ease-in-out ${cartQty > 0 ? 'opacity-100' : 'opacity-0'}`} 
+        className={`absolute inset-0 bg-pranata -z-10 transition-opacity duration-300 ${cartQty > 0 ? 'opacity-100' : 'opacity-0'}`} 
       />
-
-      {/* Product Image Box */}
-      <div className="w-full h-34 sm:h-36 flex items-center justify-center mb-2.5 sm:mb-4 bg-[#F8F6F0] rounded-2xl sm:rounded-[1.5rem] group-hover:scale-[0.98] transition-transform overflow-hidden relative shrink-0">
-        {p.imageUrls && p.imageUrls.length > 0 ? (
-          <img
-            src={p.imageUrls[0]}
-            alt={p.title}
-            decoding="async"
-            className="w-full h-full object-cover object-center scale-[1.05]"
-            loading="lazy" 
-          />
-        ) : (
-          <img 
-            src={getCategoryFallbackImage(p.category)} 
-            alt={p.title} 
-            decoding="async"
-            className="w-full h-full object-cover opacity-90 mix-blend-multiply scale-[1.05]" 
-            loading="lazy" 
-          />
-        )}
+      
+      {/* Product Image Container */}
+      <div className="w-full h-34 sm:h-36 flex items-center justify-center mb-3 bg-[#F8F6F0] rounded-2xl sm:rounded-3xl group-hover:scale-[0.98] transition-transform overflow-hidden relative shrink-0">
+        <img
+          src={imgUrl}
+          alt={p.title}
+          decoding="async"
+          className="w-full h-full object-cover"
+          loading="lazy" 
+        />
         
         {p.stock === 0 && (
           <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-10 backdrop-blur-[2px]">
-            <span className="bg-[#C25939] text-white font-black px-3 py-1.5 rounded-xl text-xs shadow-lg rotate-[-10deg]">
+            <span className="bg-[#C25939] text-white font-black px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm shadow-lg rotate-[-10deg]">
               HABIS
             </span>
-          </div>
-        )}
-
-        {index < 2 && p.stock > 0 && (
-          <div className="absolute top-2 right-2 bg-[#F5990D] text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-md flex items-center gap-1 z-10">
-            <Star size={9} fill="currentColor" /> TERLARIS
           </div>
         )}
       </div>
 
       {/* Product Info */}
       <div className="flex flex-col items-start flex-1 w-full text-left">
-        <h3 className={`font-black text-xs sm:text-[15px] leading-snug mb-1.5 line-clamp-2 w-full ${cartQty > 0 ? "text-white" : "text-[#1C241E]"}`} title={p.title}>
-          {p.title}
-        </h3>
-        
         <div className="flex flex-wrap items-center gap-1 mb-2">
           <div className={`px-1.5 py-0.5 rounded-md ${cartQty > 0 ? "bg-white/10" : "bg-[#F8F6F0]"}`}>
             <span className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-wider ${cartQty > 0 ? "text-white/80" : "text-[#5A635B]"}`}>{p.category || "Produk"}</span>
           </div>
           {p.grade && (() => {
-            const g = p.grade.toLowerCase();
-            let style = { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-300", icon: Info };
-            if (g === "premium") style = { bg: "bg-gradient-to-r from-amber-200 to-yellow-400", text: "text-amber-900", border: "border-amber-300", icon: Crown };
-            else if (g.includes("a")) style = { bg: "bg-gradient-to-r from-emerald-100 to-emerald-300", text: "text-emerald-900", border: "border-emerald-400", icon: Star };
-            else if (g.includes("b")) style = { bg: "bg-gradient-to-r from-cyan-100 to-cyan-300", text: "text-cyan-900", border: "border-cyan-400", icon: CheckCircle };
-            else if (g.includes("c")) style = { bg: "bg-gradient-to-r from-orange-100 to-orange-300", text: "text-orange-900", border: "border-orange-400", icon: Info };
+            const g = (p.grade || "").toLowerCase().trim();
+            let style = { bg: "bg-red-50", text: "text-red-700", border: "border-red-300", icon: AlertTriangle, iconColor: "text-red-500" };
+            if (g === "premium") style = { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-300", icon: Crown, iconColor: "text-[#F5990D]" };
+            else if (g === "grade a" || g === "a" || g.endsWith(" a")) style = { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-300", icon: Star, iconColor: "text-emerald-500" };
+            else if (g === "grade b" || g === "b" || g.endsWith(" b")) style = { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-300", icon: CheckCircle, iconColor: "text-blue-500" };
+            else if (g === "grade c" || g === "c" || g.endsWith(" c") || g.includes("tidak layak")) style = { bg: "bg-red-50", text: "text-red-700", border: "border-red-300", icon: AlertTriangle, iconColor: "text-red-500" };
             const GradeIcon = style.icon;
             return (
-              <span className={`${style.bg} ${style.text} border ${style.border} px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-wider flex items-center gap-0.5 shadow-sm ${cartQty > 0 ? "opacity-90" : ""}`}>
-                <GradeIcon size={9} strokeWidth={3} />
+              <span className={`${style.bg} ${style.text} border ${style.border} px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs ${cartQty > 0 ? "opacity-90" : ""}`}>
+                <GradeIcon size={9} className={style.iconColor} fill="currentColor" />
                 {p.grade}
               </span>
             );
@@ -186,7 +168,7 @@ const CustomDropdown = ({ value, options, onChange, icon: Icon, placeholder, ali
         className="flex items-center justify-between gap-2 sm:gap-3 bg-white border border-[#E8E3D2] text-[#2B4C3B] font-black text-xs sm:text-sm rounded-full py-2 px-3 sm:py-2.5 sm:pl-4 sm:pr-3 hover:bg-[#F8F6F0] transition-all shadow-sm shrink-0"
       >
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <Icon size={14} className="text-[#C25939] shrink-0" />
+          <Icon size={14} className="text-[#32452C] shrink-0" />
           <span className="truncate">{displayValue}</span>
         </div>
         <ChevronRight size={14} className={`text-[#A4B0A7] transition-transform duration-300 shrink-0 ${isOpen ? "rotate-90" : "rotate-0"}`} />
@@ -471,14 +453,14 @@ function MarketplaceProductsContent() {
                 align="left"
                 value={selectedGrade}
                 onChange={setSelectedGrade}
-                icon={Star}
+                icon={Crown}
                 placeholder="Filter Grade"
                 options={[
-                  { label: <div className="flex items-center gap-2">Semua Grade</div>, value: "Semua Grade" },
-                  { label: <div className="flex items-center gap-2">Premium <Crown size={14} className="text-[#F5990D]" /></div>, value: "Premium" },
-                  { label: <div className="flex items-center gap-2">Grade A <Star size={14} className="text-emerald-600" /></div>, value: "Grade A" },
-                  { label: <div className="flex items-center gap-2">Grade B <CheckCircle size={14} className="text-cyan-600" /></div>, value: "Grade B" },
-                  { label: <div className="flex items-center gap-2">Grade C <Info size={14} className="text-amber-600" /></div>, value: "Grade C" },
+                  { label: "Semua Grade", value: "Semua Grade" },
+                  { label: "Premium", value: "Premium" },
+                  { label: "Grade A", value: "Grade A" },
+                  { label: "Grade B", value: "Grade B" },
+                  { label: "Grade C", value: "Grade C" }
                 ]}
               />
             )}
@@ -489,9 +471,9 @@ function MarketplaceProductsContent() {
               icon={SlidersHorizontal}
               placeholder="Urutkan"
               options={[
-                { label: <div className="flex items-center gap-2">Terbaru</div>, value: "Terbaru" },
-                { label: <div className="flex items-center gap-2"><TrendingDown size={14} className="text-[#2B4C3B]" /> Harga Terendah</div>, value: "Harga Terendah" },
-                { label: <div className="flex items-center gap-2"><TrendingUp size={14} className="text-[#C25939]" /> Harga Tertinggi</div>, value: "Harga Tertinggi" }
+                { label: "Terbaru", value: "Terbaru" },
+                { label: "Harga Terendah", value: "Harga Terendah" },
+                { label: "Harga Tertinggi", value: "Harga Tertinggi" }
               ]}
             />
           </div>

@@ -6,7 +6,7 @@ import {
   Store, ShoppingCart, ArrowLeft, ShieldCheck, MapPin,
   CheckCircle, Package, Star, ChevronLeft, X,
   ChevronDown, ChevronUp, Heart, Crown, Info, Loader2,
-  Share2, ArrowRight, ChevronRight, Check
+  Share2, ArrowRight, ChevronRight, Check, Sparkles, Tag, AlertTriangle
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,6 +28,50 @@ const getCategoryFallbackImage = (category: string) => {
   if (c.includes("alat")) return "/mocks/mock_alat_1784287447181.webp";
   return "/mocks/mock_ternak_1784287398084.webp";
 };
+
+  const getGradeStyle = (gradeStr: string) => {
+    const g = (gradeStr || "").toLowerCase().trim();
+    if (g === "premium") {
+      return {
+        bg: "bg-amber-50",
+        border: "border-amber-300",
+        text: "text-amber-700",
+        badgeBg: "bg-amber-500",
+        badgeText: "text-white",
+        icon: Crown,
+        iconColor: "text-amber-500",
+      };
+    } else if (g === "grade a" || g === "a" || g.endsWith(" a")) {
+      return {
+        bg: "bg-emerald-50",
+        border: "border-emerald-300",
+        text: "text-emerald-700",
+        badgeBg: "bg-emerald-600",
+        badgeText: "text-white",
+        icon: Star,
+        iconColor: "text-emerald-500",
+      };
+    } else if (g === "grade b" || g === "b" || g.endsWith(" b")) {
+      return {
+        bg: "bg-blue-50",
+        border: "border-blue-300",
+        text: "text-blue-700",
+        badgeBg: "bg-blue-600",
+        badgeText: "text-white",
+        icon: CheckCircle,
+        iconColor: "text-blue-500",
+      };
+    }
+    return {
+      bg: "bg-red-50",
+      border: "border-red-300",
+      text: "text-red-700",
+      badgeBg: "bg-red-600",
+      badgeText: "text-white",
+      icon: AlertTriangle,
+      iconColor: "text-red-500",
+    };
+  };
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -198,46 +242,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     </div>
   );
 
-  const getGradeStyle = (gradeStr: string) => {
-    const g = (gradeStr || "").toLowerCase();
-    if (g === "premium") {
-      return {
-        bg: "bg-[#FFF9E6]",
-        border: "border-[#F5990D]",
-        text: "text-[#D97706]",
-        badgeBg: "bg-[#F5990D]",
-        badgeText: "text-white",
-        icon: Crown,
-      };
-    } else if (g.includes("a")) {
-      return {
-        bg: "bg-[#F0F7F2]",
-        border: "border-[#2B4C3B]",
-        text: "text-[#2B4C3B]",
-        badgeBg: "bg-[#2B4C3B]",
-        badgeText: "text-[#B4C179]",
-        icon: Star,
-      };
-    } else if (g.includes("b")) {
-      return {
-        bg: "bg-[#F6F8EF]",
-        border: "border-[#767C15]",
-        text: "text-[#767C15]",
-        badgeBg: "bg-[#767C15]",
-        badgeText: "text-white",
-        icon: CheckCircle,
-      };
-    }
-    return {
-      bg: "bg-[#FDF6F3]",
-      border: "border-[#C25939]",
-      text: "text-[#C25939]",
-      badgeBg: "bg-[#C25939]",
-      badgeText: "text-white",
-      icon: Info,
-    };
-  };
-
   const gradeStyle = getGradeStyle(product.grade || "Grade A");
   const GradeIconComponent = gradeStyle.icon;
 
@@ -280,8 +284,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {product.category || "Produk Agriculture"}
             </span>
             {product.grade && (
-              <span className="px-2.5 py-0.5 rounded-md bg-[#F5990D]/15 text-[#D97706] text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                <Star size={10} fill="currentColor" /> {product.grade}
+              <span className={`px-2.5 py-0.5 rounded-md ${gradeStyle.bg} ${gradeStyle.text} border ${gradeStyle.border} text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs`}>
+                <GradeIconComponent size={10} fill="currentColor" /> {product.grade}
               </span>
             )}
           </div>

@@ -70,14 +70,14 @@ export default function LandingPage() {
                       whileTap={{ scale: 0.98 }}
                       className="w-full sm:w-auto bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] transition-all flex items-center justify-center gap-2 group transform-gpu cursor-pointer"
                     >
-                      {session.avatar ? (
-                        <img src={session.avatar} alt="PFP" className="w-4.5 h-4.5 rounded-full object-cover border-2 border-white/50" loading="lazy" decoding="async" />
+                      {(session?.avatarUrl || session?.avatar) ? (
+                        <img src={session.avatarUrl || session.avatar} alt="PFP" className="w-5 h-5 rounded-full object-cover border-2 border-white/50" loading="lazy" decoding="async" />
                       ) : (
-                        <div className="w-4.5 h-4.5 rounded-full border-2 border-white/50 bg-[#3A6B49] flex items-center justify-center text-white text-[9px] font-bold">
-                          {(session.fullName || session.username || 'U').charAt(0).toUpperCase()}
+                        <div className="w-5 h-5 rounded-full border-2 border-white/50 bg-[#3A6B49] flex items-center justify-center text-white text-[9px] font-bold">
+                          {(session?.fullName || session?.name || session?.username || 'U').charAt(0).toUpperCase()}
                         </div>
                       )}
-                      Lanjut sebagai {session.username}
+                      <span>Lanjut sebagai {session?.name?.split(" ")[0] || session?.fullName?.split(" ")[0] || session?.username}</span>
                       <ArrowRight size={16} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
                     </motion.button>
                   </Link>

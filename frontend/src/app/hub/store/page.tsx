@@ -2,10 +2,24 @@
 import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
 
 import { useState, useEffect } from "react";
-import { Store, Package, Plus, CheckCircle, Image as ImageIcon, Info, X, Edit2, Trash2, Sparkles, ChevronRight, Crown, Star, AlertTriangle, Loader2 } from "lucide-react";
+import { Store, Package, Plus, CheckCircle, Image as ImageIcon, Info, X, Edit2, Trash2, Sparkles, ChevronRight, Crown, Star, AlertTriangle, Loader2, ShieldCheck, Tag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoading } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
+
+const getGradeStyle = (gradeStr: string) => {
+  const g = (gradeStr || "").toLowerCase().trim();
+  if (g === "premium") {
+    return { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-300", icon: Crown, iconColor: "text-[#F5990D]" };
+  } else if (g === "grade a" || g === "a" || g.endsWith(" a")) {
+    return { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-300", icon: Star, iconColor: "text-emerald-500" };
+  } else if (g === "grade b" || g === "b" || g.endsWith(" b")) {
+    return { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-300", icon: CheckCircle, iconColor: "text-blue-500" };
+  } else if (g === "grade c" || g === "c" || g.endsWith(" c") || g.includes("tidak layak")) {
+    return { bg: "bg-red-50", text: "text-red-700", border: "border-red-300", icon: AlertTriangle, iconColor: "text-red-500" };
+  }
+  return null;
+};
 
 export default function StoreDashboardPage() {
   const [profile, setProfile] = useState<any>(null);
@@ -169,8 +183,8 @@ export default function StoreDashboardPage() {
                         if (!style) return null;
                         const GradeIcon = style.icon;
                         return (
-                          <span className={`${style.bg} ${style.text} border ${style.border} px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm`}>
-                            <GradeIcon size={10} strokeWidth={3} />
+                          <span className={`${style.bg} ${style.text} border ${style.border} px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs`}>
+                            <GradeIcon size={10} className={(style as any).iconColor} fill="currentColor" />
                             {p.grade}
                           </span>
                         );
