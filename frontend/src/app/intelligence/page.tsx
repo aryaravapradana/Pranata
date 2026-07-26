@@ -9,7 +9,7 @@ import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export default function IntelligencePage() {
+export default function StandaloneIntelligencePage() {
   const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
   const [contextData, setContextData] = useState<any>(null);
@@ -157,7 +157,7 @@ export default function IntelligencePage() {
             <ChevronLeft size={20} />
           </Link>
 
-          <Link href="/hub/intelligence" className="flex items-center gap-2">
+          <Link href="/intelligence" className="flex items-center gap-2">
             <img src="/logos/intelligence/intelligence-black.webp" alt="Pranata Intelligence" className="h-6 sm:h-7 w-auto object-contain" />
           </Link>
         </div>

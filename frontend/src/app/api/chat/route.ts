@@ -96,8 +96,8 @@ INFO KONTEKS (HEMAT TOKEN):
 
   try {
     const result = await streamText({
-      model: google('gemini-2.5-flash') as any,
-      maxTokens: 1500, // Sufficient output token limit for complete responses
+      model: google('gemini-3.6-flash') as any,
+      maxTokens: 500, // Reduced for FinOps token efficiency
       system: `Anda adalah "Pranata Intelligence", konsultan AI peternakan, manajemen kandang, logistik, dan bisnis peternak.
 
 TUGAS:

@@ -1,0 +1,57 @@
+# ==============================================================================
+# .geminiignore - FINOPS & AI TOKEN CONSERVATION CONFIGURATION
+# ==============================================================================
+
+# 1. DEPENDENCIES & LOCK FILES (HUGE TOKEN SAVINGS)
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+vendor/
+composer.lock
+.venv/
+venv/
+
+# 2. BUILDS & EXPORTS
+dist/
+build/
+.next/
+out/
+target/
+.output/
+
+# 3. CACHES & METADATA
+.vite/
+.eslintcache
+.tsbuildinfo
+.turbo/
+.pytest_cache/
+
+# 4. BINARY & RICH MEDIA (PREVENT UNNECESSARY VISION TOKENS)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+*.ico
+*.pdf
+*.zip
+*.woff
+*.woff2
+*.ttf
+
+# 5. LOGS & LOCAL DATABASES
+*.log
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+
+# 6. SYSTEM & IDE CACHES
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+.idea/
