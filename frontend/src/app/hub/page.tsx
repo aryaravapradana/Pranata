@@ -472,17 +472,43 @@ export default function MainDashboard() {
                       <div className="flex flex-col gap-2.5 sm:gap-3 flex-1 overflow-y-auto pr-1 hide-scrollbar">
                         {(() => {
                           const content = messages.filter(m => m.role === 'assistant').pop()?.content || "";
-                          let rawCards = content.split('---').map(c => c.trim()).filter(c => c.length > 5);
+                          let rawCards = content.split(/---|\n(?=TITLE:)/i)
+                            .map(c => c.trim())
+                            .filter(c => c.length > 5 && /TITLE:/i.test(c));
                           
                           // Default fallback cards if model returned less than 2
                           if (rawCards.length === 0) {
+                            const lowStockProd = products.find(p => p.stock < 5);
+                            const pendingOrdersCount = orders.filter(o => o.status === 'PENDING' || o.status === 'PROCESSING').length;
+                            const card1T = lowStockProd ? "Stok Menipis" : (pendingOrdersCount > 0 ? "Pesanan Masuk" : "Status Etalase");
+                            const card1V = lowStockProd ? `${lowStockProd.title} (${lowStockProd.stock} Pcs)` : (pendingOrdersCount > 0 ? `${pendingOrdersCount} Pesanan Baru` : `${products.length} Produk`);
+                            const card1D = lowStockProd ? `Stok ${lowStockProd.title} tersisa ${lowStockProd.stock} pcs. Segera restok.` : (pendingOrdersCount > 0 ? `Ada ${pendingOrdersCount} pesanan aktif yang perlu diproses.` : `Semua ${products.length} produk di etalase aktif.`);
+                            const card1Text = pendingOrdersCount > 0 ? "Proses Pesanan" : "Kelola Produk";
+                            const card1Url = pendingOrdersCount > 0 ? "/hub/orders" : "/hub/store";
+
+                            const upcomingEvt = events && events.length > 0 ? events[0] : null;
+                            const temp = weather?.temperature_2m;
+                            const card2T = upcomingEvt ? "Agenda Terdekat" : (temp ? "Cuaca Kandang" : "Jadwal Kandang");
+                            const card2V = upcomingEvt ? upcomingEvt.title : (temp ? `${Math.round(temp)}°C` : "Operasional");
+                            const card2D = upcomingEvt 
+                              ? `Agenda: ${upcomingEvt.title} pada ${new Date(upcomingEvt.eventDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}.`
+                              : (temp && temp > 30 ? `Suhu ${Math.round(temp)}°C tergolong tinggi. Pastikan pakan & air minum.` : 'Kelola rutinitas pakan dan kesehatan ternak hari ini.');
+
                             rawCards.push(
-                              `TITLE: Status Toko\nVALUE: Aktif\nDESC: Kelola produk dan pantau pesanan peternakan Anda.\nCTA_TEXT: Edit Produk\nCTA_URL: /hub/store`,
-                              `TITLE: Jadwal Kandang\nVALUE: Operasional\nDESC: Kelola rutinitas pakan dan kesehatan ternak hari ini.\nCTA_TEXT: Cek Kalender\nCTA_URL: /hub/calendar`
+                              `TITLE: ${card1T}\nVALUE: ${card1V}\nDESC: ${card1D}\nCTA_TEXT: ${card1Text}\nCTA_URL: ${card1Url}`,
+                              `TITLE: ${card2T}\nVALUE: ${card2V}\nDESC: ${card2D}\nCTA_TEXT: Cek Kalender\nCTA_URL: /hub/calendar`
                             );
                           } else if (rawCards.length === 1) {
+                            const upcomingEvt = events && events.length > 0 ? events[0] : null;
+                            const temp = weather?.temperature_2m;
+                            const secondTitle = upcomingEvt ? "Agenda Terdekat" : (temp ? "Cuaca Kandang" : "Jadwal Kandang");
+                            const secondVal = upcomingEvt ? upcomingEvt.title : (temp ? `${Math.round(temp)}°C` : "Operasional");
+                            const secondDesc = upcomingEvt 
+                              ? `Agenda: ${upcomingEvt.title} pada ${new Date(upcomingEvt.eventDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}.`
+                              : (temp && temp > 30 ? `Suhu ${Math.round(temp)}°C tergolong tinggi. Pastikan pakan & air minum.` : 'Kelola rutinitas pakan dan kesehatan ternak hari ini.');
+                            
                             rawCards.push(
-                              `TITLE: Jadwal Kandang\nVALUE: Operasional\nDESC: Kelola rutinitas pakan dan kesehatan ternak hari ini.\nCTA_TEXT: Cek Kalender\nCTA_URL: /hub/calendar`
+                              `TITLE: ${secondTitle}\nVALUE: ${secondVal}\nDESC: ${secondDesc}\nCTA_TEXT: Cek Kalender\nCTA_URL: /hub/calendar`
                             );
                           }
 

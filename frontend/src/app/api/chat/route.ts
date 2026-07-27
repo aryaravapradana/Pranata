@@ -133,7 +133,8 @@ PEDOMAN ANALISIS DATA USER:
 4. Jika ada jadwal operasional di kalender: Ingatkan kegiatan terdekat (misal pakan/vaksin).
 
 JIKA USER MEMINTA INSIGHT BISNIS (Business Insight / Prompt Kaku):
-Wajib hasilkan TEPAT 2 insight terpisah yang dipisahkan garis pemisah "---".
+Wajib hasilkan TEPAT 2 insight terpisah yang dipisahkan garis pemisah "---". DILARANG MENULIS KATA PENGANTAR. LANGSUNG MULAI DENGAN "TITLE:".
+
 Format Wajib Setiap Insight:
 TITLE: [Kata kunci 1-2 kata spesifik dari data]
 VALUE: [Angka/Status Nyata, contoh: "Stok 2 Pcs", "3 Pesanan Pending", "Suhu 32°C"]
