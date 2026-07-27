@@ -318,12 +318,12 @@ function DesktopEditorialGallery() {
 
             {/* Top Transition Gradient */}
             {item.topGradient && (
-              <div className="absolute top-0 left-0 right-0 z-10 bg-linear-to-b from-[#32452C] via-[#32452C]/70 to-transparent w-full h-48 sm:h-64 md:h-80 pointer-events-none" />
+              <div className="absolute -top-4 left-0 right-0 z-10 bg-linear-to-b from-[#32452C] via-[#32452C] via-25% to-transparent w-full h-52 sm:h-72 md:h-96 pointer-events-none" />
             )}
 
             {/* Bottom Transition Gradient */}
             {item.bottomGradient && (
-              <div className="absolute bottom-0 left-0 right-0 z-10 bg-linear-to-t from-[#32452C] via-[#32452C] via-25% to-transparent w-full h-64 sm:h-96 md:h-[500px] pointer-events-none" />
+              <div className="absolute -bottom-4 left-0 right-0 z-10 bg-linear-to-t from-[#32452C] via-[#32452C] via-25% to-transparent w-full h-64 sm:h-96 md:h-[520px] pointer-events-none" />
             )}
 
             {/* Panel Content */}
