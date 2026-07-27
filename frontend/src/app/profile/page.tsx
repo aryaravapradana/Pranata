@@ -112,24 +112,39 @@ export default function AccountSettingsPage() {
   useEffect(() => {
     const sessionStr = localStorage.getItem("farmpro_session");
     if (!sessionStr) { router.push("/login"); return; }
-    fetchProfile(JSON.parse(sessionStr).id);
+    try {
+      const session = JSON.parse(sessionStr);
+      const id = session.id || session.userId;
+      if (!id) { router.push("/login"); return; }
+      fetchProfile(id);
+    } catch(e) {
+      router.push("/login");
+    }
   }, []);
 
   const fetchProfile = async (id: string) => {
     setLoading(true);
-    const res = await fetchApi(`${API_BASE}/api/profile/${id}`);
-    if (res.ok) {
-      const d = await res.json();
-      setProfile(d);
-      setUsername(d.username   || "");
-      setFullName(d.fullName   || "");
-      setFarmName(d.farmName   || "");
-      setLocation(d.location   || "");
-      setContact (d.contact    || "");
-      setAvatarUrl(d.avatarUrl || null);
-      setBannerUrl(d.bannerUrl || null);
+    try {
+      const res = await fetchApi(`${API_BASE}/api/profile/${id}`);
+      if (res.ok) {
+        const d = await res.json();
+        setProfile(d);
+        setUsername(d.username   || "");
+        setFullName(d.fullName   || "");
+        setFarmName(d.farmName   || "");
+        setLocation(d.location   || "");
+        setContact (d.contact    || "");
+        setAvatarUrl(d.avatarUrl || null);
+        setBannerUrl(d.bannerUrl || null);
+      } else if (res.status === 401 || res.status === 403 || res.status === 404) {
+        localStorage.removeItem("farmpro_session");
+        router.push("/login");
+      }
+    } catch(err) {
+      console.warn("Failed to fetch profile:", err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const showToast = (type: "success" | "error", message: string) => {

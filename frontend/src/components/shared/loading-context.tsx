@@ -60,8 +60,14 @@ export const useGlobalLoading = () => useContext(LoadingContext);
 // Custom hook for pages to signal when they are done fetching data
 export const usePageLoading = (isLoading: boolean = false) => {
   const { registerBlocker, removeBlocker } = useGlobalLoading();
+  const pathname = usePathname();
   
   useEffect(() => {
+    // Sub-route navigation inside /hub should NOT trigger or block global splash screen
+    if (pathname?.startsWith('/hub')) {
+      return;
+    }
+
     const id = 'page-load';
     if (isLoading) {
       registerBlocker(id);
@@ -73,5 +79,5 @@ export const usePageLoading = (isLoading: boolean = false) => {
     
     // Cleanup on unmount
     return () => removeBlocker(id);
-  }, [isLoading, registerBlocker, removeBlocker]);
+  }, [isLoading, pathname, registerBlocker, removeBlocker]);
 };

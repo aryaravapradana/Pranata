@@ -8,10 +8,10 @@ import os from 'os';
 const port = process.env.PORT || 4000;
 
 if (cluster.isPrimary) {
-  const numCPUs = os.cpus().length;
-  console.log(`🚀 Primary cluster setting up ${numCPUs} workers...`);
+  const workerCount = Math.max(1, Math.min(os.cpus().length, 4));
+  console.log(`🚀 Primary cluster setting up ${workerCount} worker processes...`);
 
-  for (let i = 0; i < numCPUs; i++) {
+  for (let i = 0; i < workerCount; i++) {
     cluster.fork();
   }
 

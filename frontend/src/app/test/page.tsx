@@ -211,7 +211,7 @@ export default function MobileTestPage() {
 
               {/* Profile Avatar */}
               <Link 
-                href="/settings"
+                href="/profile"
                 className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/20 p-0.5 overflow-hidden hover:scale-105 active:scale-95 transition-transform shadow-sm flex items-center justify-center"
               >
                 {profile?.avatarUrl || profile?.avatar ? (

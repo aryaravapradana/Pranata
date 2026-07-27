@@ -46,8 +46,16 @@ export const checkout = async (req: Request, res: Response) => {
 
   try {
     const order = await prisma.$transaction(async (tx) => {
+      const productIds = items.map((i) => i.productId);
+      const products = await tx.product.findMany({
+        where: { id: { in: productIds } },
+        select: { id: true, title: true, stock: true }
+      });
+
+      const productMap = new Map(products.map((p) => [p.id, p]));
+
       for (const item of items) {
-        const product = await tx.product.findUnique({ where: { id: item.productId } });
+        const product = productMap.get(item.productId);
         if (!product) throw new Error(`Produk tidak ditemukan`);
         if (product.stock < item.quantity) throw new Error(`Stok ${product.title} tidak mencukupi`);
       }
