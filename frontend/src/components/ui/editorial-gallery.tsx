@@ -296,7 +296,7 @@ function DesktopEditorialGallery() {
         return (
           <div
             key={`testimony-panel-${item.id}`}
-            className="panel absolute inset-0 w-full h-full bg-[#32452C] overflow-hidden transform-gpu"
+            className="panel absolute inset-0 w-full h-full bg-[#32452C] transform-gpu"
             style={{
               zIndex: (index + 1) * 10,
               clipPath: initialClip,
@@ -305,7 +305,7 @@ function DesktopEditorialGallery() {
             }}
           >
             {/* Background Image */}
-            <div className="absolute inset-0 z-0 parallax-img opacity-100 transform-gpu">
+            <div className="absolute inset-0 z-0 parallax-img opacity-100 overflow-hidden transform-gpu">
               <img
                 src={item.image}
                 alt={item.alt}
@@ -319,16 +319,16 @@ function DesktopEditorialGallery() {
             {/* Top Transition Gradient */}
             {item.topGradient && (
               <>
-                <div className="absolute top-0 left-0 right-0 h-6 bg-[#32452C] z-15 pointer-events-none" />
-                <div className="absolute top-0 left-0 right-0 z-10 bg-linear-to-b from-[#32452C] via-[#32452C] via-20% to-transparent w-full h-52 sm:h-72 md:h-96 pointer-events-none" />
+                <div className="absolute -top-4 left-0 right-0 h-10 bg-[#32452C] z-15 pointer-events-none" />
+                <div className="absolute -top-4 left-0 right-0 z-10 bg-linear-to-b from-[#32452C] via-[#32452C] via-30% to-transparent w-full h-60 sm:h-80 md:h-[480px] pointer-events-none" />
               </>
             )}
 
             {/* Bottom Transition Gradient */}
             {item.bottomGradient && (
               <>
-                <div className="absolute bottom-0 left-0 right-0 h-6 bg-[#32452C] z-15 pointer-events-none" />
-                <div className="absolute bottom-0 left-0 right-0 z-10 bg-linear-to-t from-[#32452C] via-[#32452C] via-20% to-transparent w-full h-64 sm:h-96 md:h-[520px] pointer-events-none" />
+                <div className="absolute -bottom-4 left-0 right-0 h-10 bg-[#32452C] z-15 pointer-events-none" />
+                <div className="absolute -bottom-4 left-0 right-0 z-10 bg-linear-to-t from-[#32452C] via-[#32452C] via-30% to-transparent w-full h-72 sm:h-[450px] md:h-[600px] pointer-events-none" />
               </>
             )}
 
