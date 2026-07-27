@@ -371,7 +371,7 @@ export default function AccountSettingsPage() {
               <span className={`text-xs font-black px-2.5 py-1 rounded-full ${
                 profile?.role === "PRODUCER" ? "bg-[#EEF2E6] text-[#2B4C3B]" : "bg-[#FFF3E0] text-[#C25939]"
               }`}>
-                {profile?.role === "PRODUCER" ? "Pedagang / Petani" : "Pembeli"}
+                {profile?.role === "PRODUCER" ? "Pedagang / Peternak" : "Pembeli"}
               </span>
             </div>
 

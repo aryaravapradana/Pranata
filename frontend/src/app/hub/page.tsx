@@ -161,7 +161,7 @@ export default function MainDashboard() {
 
           if (shouldFetchNew) {
             append(
-              { role: 'user', content: 'Berikan tepat 2 insight bisnis paling krusial untuk saya hari ini. WAJIB GUNAKAN FORMAT KAKU BERIKUT tanpa tambahan teks apapun di awal/akhir:\n\nTITLE: [Kata kunci 1-2 kata]\nVALUE: [Angka/Status menonjol]\nDESC: [1 kalimat singkat actionable]\nCTA_TEXT: [Teks tombol, misal: Edit Produk, Cek Kalender]\nCTA_URL: [URL relatif: /hub/store ATAU /hub/calendar ATAU /hub/orders]\n---\nTITLE: [Kata kunci ke-2]\nVALUE: [Angka/Status ke-2]\nDESC: [Penjelasan ke-2]\nCTA_TEXT: [Teks tombol ke-2]\nCTA_URL: [URL ke-2]' },
+              { role: 'user', content: 'Analisis data riwayat stok, pesanan, dan cuaca terkini milik saya. Berikan tepat 2 insight bisnis paling krusial dan aksi nyata yang sangat spesifik. WAJIB GUNAKAN FORMAT KAKU BERIKUT:\n\nTITLE: [Kata kunci 1-2 kata spesifik dari data]\nVALUE: [Angka/Status Nyata]\nDESC: [1 kalimat analisis & tindakan konkret spesifik]\nCTA_TEXT: [Teks tombol]\nCTA_URL: [URL relatif: /hub/store ATAU /hub/calendar ATAU /hub/orders]\n---\nTITLE: [Kata kunci ke-2]\nVALUE: [Angka/Status ke-2]\nDESC: [Penjelasan & aksi ke-2]\nCTA_TEXT: [Teks tombol ke-2]\nCTA_URL: [URL ke-2]' },
               { body: { contextData: { profile, orders, products, allMarketplaceCount, events, weather } } }
             );
           }
@@ -313,26 +313,42 @@ export default function MainDashboard() {
                 
                 {/* Event List (Kiri Bawah) */}
                 <div className="max-h-32 sm:max-h-36 md:max-h-none overflow-y-auto min-h-0 pr-1 sm:pr-2 space-y-2 pb-1 hide-scrollbar">
-                  {events.length > 0 ? events.map((e, idx) => {
-                    const d = new Date(e.eventDate);
-                    return (
-                      <div key={idx} className="flex items-start gap-2 bg-white/5 p-2 rounded-xl border border-white/10 transition-colors hover:bg-white/10">
-                         <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center shrink-0 shadow-inner ${e.type === 'HARVEST' ? 'bg-[#C25939] text-white' : e.type === 'TASK' ? 'bg-[#F5990D] text-white' : 'bg-[#4A7C59] text-white'}`}>
-                           <span className="text-[8px] sm:text-[9px] font-bold leading-none opacity-80 mb-0.5">{d.toLocaleDateString('id-ID', { month: 'short' })}</span>
-                           <span className="text-xs sm:text-base font-black leading-none">{d.getDate()}</span>
-                         </div>
-                         <div className="flex-1 min-w-0">
-                           <h4 className="text-xs font-bold text-white leading-tight mb-0.5 truncate">{e.title}</h4>
-                           <div className="flex items-center justify-between">
-                             <p className="text-[10px] font-bold text-[#84B0A5]">{d.toLocaleDateString('id-ID', { weekday: 'long' })}</p>
-                             <p className="text-[9px] font-black tracking-wider uppercase text-white/50">{e.type}</p>
-                           </div>
-                         </div>
-                      </div>
-                    )
-                  }) : (
-                    <div className="text-xs sm:text-sm font-semibold text-[#84B0A5] py-1 md:py-0 md:h-full flex items-center">Belum ada jadwal mendatang.</div>
-                  )}
+                  {(() => {
+                    const startOfToday = new Date();
+                    startOfToday.setHours(0, 0, 0, 0);
+
+                    const futureEvents = events
+                      .filter(e => new Date(e.eventDate) >= startOfToday)
+                      .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())
+                      .slice(0, 4);
+
+                    if (futureEvents.length === 0) {
+                      return (
+                        <div className="text-xs sm:text-sm font-semibold text-[#84B0A5] py-1 md:py-0 md:h-full flex items-center">
+                          Belum ada jadwal mendatang.
+                        </div>
+                      );
+                    }
+
+                    return futureEvents.map((e, idx) => {
+                      const d = new Date(e.eventDate);
+                      return (
+                        <div key={idx} className="flex items-start gap-2 bg-white/5 p-2 rounded-xl border border-white/10 transition-colors hover:bg-white/10">
+                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center shrink-0 shadow-inner ${e.type === 'TASK' ? 'bg-[#F5990D] text-white' : 'bg-[#4A7C59] text-white'}`}>
+                            <span className="text-[8px] sm:text-[9px] font-bold leading-none opacity-80 mb-0.5">{d.toLocaleDateString('id-ID', { month: 'short' })}</span>
+                            <span className="text-xs sm:text-base font-black leading-none">{d.getDate()}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-xs font-bold text-white leading-tight mb-0.5 truncate">{e.title}</h4>
+                            <div className="flex items-center justify-between">
+                              <p className="text-[10px] font-bold text-[#84B0A5]">{d.toLocaleDateString('id-ID', { weekday: 'long' })} • {d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</p>
+                              <p className="text-[9px] font-black tracking-wider uppercase text-white/50">{e.type === 'TASK' ? 'Tugas' : e.type === 'ROUTINE' ? 'Rutinitas' : e.type}</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
 
                 {/* Mobile Button: Bottom Right of Card */}
@@ -446,10 +462,19 @@ export default function MainDashboard() {
                       <div className="flex flex-col gap-2.5 sm:gap-3 flex-1 overflow-y-auto pr-1 hide-scrollbar">
                         {(() => {
                           const content = messages.filter(m => m.role === 'assistant').pop()?.content || "";
-                          const rawCards = content.split('---').map(c => c.trim()).filter(c => c);
+                          let rawCards = content.split('---').map(c => c.trim()).filter(c => c.length > 5);
                           
-                          // Pad with empty cards if less than 2 so UI doesn't jump
-                          while(rawCards.length < 2) rawCards.push("");
+                          // Default fallback cards if model returned less than 2
+                          if (rawCards.length === 0) {
+                            rawCards.push(
+                              `TITLE: Status Toko\nVALUE: Aktif\nDESC: Kelola produk dan pantau pesanan peternakan Anda.\nCTA_TEXT: Edit Produk\nCTA_URL: /hub/store`,
+                              `TITLE: Jadwal Kandang\nVALUE: Operasional\nDESC: Kelola rutinitas pakan dan kesehatan ternak hari ini.\nCTA_TEXT: Cek Kalender\nCTA_URL: /hub/calendar`
+                            );
+                          } else if (rawCards.length === 1) {
+                            rawCards.push(
+                              `TITLE: Jadwal Kandang\nVALUE: Operasional\nDESC: Kelola rutinitas pakan dan kesehatan ternak hari ini.\nCTA_TEXT: Cek Kalender\nCTA_URL: /hub/calendar`
+                            );
+                          }
 
                           return rawCards.slice(0, 2).map((raw, idx) => {
                             const titleMatch = raw.match(/TITLE:\s*(.*)/i);
@@ -458,11 +483,11 @@ export default function MainDashboard() {
                             const ctaTextMatch = raw.match(/CTA_TEXT:\s*(.*)/i);
                             const ctaUrlMatch = raw.match(/CTA_URL:\s*(.*)/i);
                             
-                            const title = titleMatch ? titleMatch[1].replace(/\*/g, '') : (isLoading ? '...' : 'Menunggu');
-                            const val = valMatch ? valMatch[1].replace(/\*/g, '') : (isLoading ? '...' : '-');
-                            const desc = descMatch ? descMatch[1].replace(/\*/g, '') : (isLoading ? 'Memproses intelijen...' : '-');
-                            const ctaText = ctaTextMatch ? ctaTextMatch[1].replace(/\*/g, '') : 'Tanya AI';
-                            const ctaUrl = ctaUrlMatch ? ctaUrlMatch[1].replace(/\*/g, '') : '/hub/intelligence';
+                            const title = titleMatch ? titleMatch[1].replace(/\*/g, '').trim() : (idx === 0 ? 'Status Toko' : 'Jadwal Kandang');
+                            const val = valMatch ? valMatch[1].replace(/\*/g, '').trim() : (idx === 0 ? 'Aktif' : 'Operasional');
+                            const desc = descMatch ? descMatch[1].replace(/\*/g, '').trim() : (idx === 0 ? 'Pantau pesanan peternakan Anda.' : 'Kelola rutinitas pakan ternak hari ini.');
+                            const ctaText = ctaTextMatch ? ctaTextMatch[1].replace(/\*/g, '').trim() : (idx === 0 ? 'Edit Produk' : 'Cek Kalender');
+                            const ctaUrl = ctaUrlMatch ? ctaUrlMatch[1].replace(/\*/g, '').trim() : (idx === 0 ? '/hub/store' : '/hub/calendar');
 
                             return (
                               <div key={idx} className="bg-white/10 rounded-xl border border-white/20 p-2.5 sm:p-3 backdrop-blur-md shadow-sm flex flex-col hover:bg-white/15 transition-colors group">

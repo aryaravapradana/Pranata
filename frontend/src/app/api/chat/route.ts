@@ -14,25 +14,31 @@ export async function POST(req: Request) {
   const { messages, contextData } = await req.json();
 
   // Token Optimization: Compact context objects to essential fields only
-  const compactProducts = contextData?.products?.slice(0, 4).map((p: any) => ({
+  const compactProducts = contextData?.products?.slice(0, 6).map((p: any) => ({
     title: p.title,
     price: p.price,
     stock: p.stock,
     category: p.category
   })) || [];
 
-  const compactOrders = contextData?.orders?.slice(0, 4).map((o: any) => ({
+  const compactOrders = contextData?.orders?.slice(0, 6).map((o: any) => ({
     status: o.status,
     totalAmount: o.totalAmount
   })) || [];
 
+  const compactEvents = contextData?.events?.slice(0, 6).map((e: any) => ({
+    title: e.title,
+    eventDate: e.eventDate,
+    type: e.type
+  })) || [];
+
   const dynamicContext = contextData ? `
-INFO KONTEKS (HEMAT TOKEN):
-- User: ${contextData.profile?.fullName || contextData.profile?.username || 'Peternak'}
-- Produk Toko (${contextData.products?.length || 0} items): ${JSON.stringify(compactProducts)}
-- Total Produk Market: ${contextData.allMarketplaceCount || 0}
-- Pesanan Toko: ${JSON.stringify(compactOrders)}
-- Cuaca: ${contextData.weather?.temperature_2m ? `${Math.round(contextData.weather.temperature_2m)}°C` : 'N/A'}
+INFO KONTEKS REAL-TIME BACKEND USER:
+- Nama Peternak: ${contextData.profile?.fullName || contextData.profile?.username || 'Peternak'}
+- Daftar Produk Toko (${contextData.products?.length || 0} produk): ${JSON.stringify(compactProducts)}
+- Pesanan Toko Aktif: ${JSON.stringify(compactOrders)}
+- Jadwal Operasional Ternak: ${JSON.stringify(compactEvents)}
+- Kondisi Cuaca Lokasi: ${contextData.weather?.temperature_2m ? `${Math.round(contextData.weather.temperature_2m)}°C, Kelembapan ${contextData.weather.relative_humidity_2m}%` : 'Normal'}
   ` : "";
 
   // Token Optimization: Limit history to last 6 messages max
@@ -94,48 +100,106 @@ INFO KONTEKS (HEMAT TOKEN):
     };
   });
 
-  try {
-    const result = await streamText({
-      model: google('gemini-3.6-flash') as any,
-      maxTokens: 500, // Reduced for FinOps token efficiency
-      system: `Anda adalah "Pranata Intelligence", konsultan AI peternakan, manajemen kandang, logistik, dan bisnis peternak.
+  // Verified Active Model Fallback Chain (Tested directly against API Key status)
+  const MODELS_TO_TRY = [
+    'gemini-2.5-flash',       // Status: 200 OK (Aktif)
+    'gemini-2.5-flash-lite',  // Status: 200 OK (Aktif)
+    'gemini-3.6-flash',       // Status: Quota 429 (Terlampaui)
+    'gemini-2.5-pro',          // Status: Quota 429 (Terlampaui)
+    'gemini-2.0-flash',       // Status: Quota 429 (Terlampaui)
+    'gemini-2.0-flash-lite'   // Status: Quota 429 (Terlampaui)
+  ];
+  let lastError: any = null;
 
-TUGAS:
-1. Diagnosis penyakit ternak (Veterinary).
-2. Saran operasional kandang & pakan (Management & Business).
+  for (const modelName of MODELS_TO_TRY) {
+    try {
+      const result = await streamText({
+        model: google(modelName) as any,
+        maxTokens: 500, // Reduced for FinOps token efficiency
+        system: `Anda adalah "Pranata Intelligence", konsultan AI profesional khusus bisnis peternakan (daging, susu, telur), manajemen kandang, dan logistik toko.
 
-INFORMASI PLATFORM PRANATA:
-- Marketplace: Jual beli Daging, Susu, Telur. (TIDAK ADA ternak hidup/sayur/buah/alat).
-- Fitur: Marketplace, Calendar, AI Veterinary, Store Manager.
-- Keterbatasan: Tidak ada IoT/sensor otomatis, tidak ada ternak hidup.
+TUGAS UTAMA:
+Berikan rekomendasi bisnis & operasional yang SANGAT SPESIFIK, NYATA, DAN ACTIONABLE berdasarkan data backend user di atas.
 
-FORMATTING:
-- Jawab singkat, padat, ramah, dan to the point.
-- Gunakan markdown bullet points dan **bold**. JANGAN buat paragraf panjang.${dynamicContext}`,
-      messages: coreMessages as any,
-    });
+PEDOMAN ANALISIS DATA USER:
+1. Jika ada produk dengan stok menipis (<5) atau habis (0): Sebutkan nama produk secara persis dan minta peternak menambah/restok.
+2. Jika ada pesanan bernilai tinggi atau berstatus PENDING/PROCESSING: Berikan instruksi langsung untuk memproses pesanan tersebut.
+3. Jika cuaca ekstrem (misal suhu >30°C atau kelembapan tinggi): Berikan saran kesehatan/nutrisi ternak spesifik terkait cuaca tersebut.
+4. Jika ada jadwal operasional di kalender: Ingatkan kegiatan terdekat (misal pakan/vaksin).
 
-    return result.toAIStreamResponse();
-  } catch (error: any) {
-    console.error("AI Insight Error:", error?.message || error);
-    if (error?.stack) console.error(error.stack);
-    
-    const errorDetails = error?.message ? ` (${error.message})` : "";
-    const fallbackText = `TITLE: Perhatian API\nVALUE: Limit / Key Invalid\nDESC: AI Insight offline${errorDetails}. Pastikan GEMINI_API_KEY di .env.local valid (dari Google AI Studio).\nCTA_TEXT: Mengerti\nCTA_URL: /hub\n---\nTITLE: Info Status\nVALUE: Mode Fallback\nDESC: Aplikasi tetap berfungsi normal, silakan lanjutkan pengelolaan toko Anda.\nCTA_TEXT: Lihat Etalase\nCTA_URL: /hub/store`;
-    
-    // Vercel AI SDK v1 stream protocol format
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(new TextEncoder().encode('0:' + JSON.stringify(fallbackText) + '\n'));
-        controller.close();
-      }
-    });
-    
-    return new Response(stream, { 
-      headers: { 
-        'Content-Type': 'text/plain; charset=utf-8', 
-        'X-Vercel-AI-Data-Stream': 'v1' 
-      } 
-    });
+JIKA USER MEMINTA INSIGHT BISNIS (Business Insight / Prompt Kaku):
+Wajib hasilkan TEPAT 2 insight terpisah yang dipisahkan garis pemisah "---".
+Format Wajib Setiap Insight:
+TITLE: [Kata kunci 1-2 kata spesifik dari data]
+VALUE: [Angka/Status Nyata, contoh: "Stok 2 Pcs", "3 Pesanan Pending", "Suhu 32°C"]
+DESC: [1 kalimat analisis & tindakan konkret yang harus dilakukan peternak]
+CTA_TEXT: [Teks tombol aksi, contoh: "Kelola Produk", "Proses Pesanan", "Cek Kalender"]
+CTA_URL: [URL relatif terkait: /hub/store ATAU /hub/orders ATAU /hub/calendar]
+---
+TITLE: [Kata kunci ke-2]
+VALUE: [Status ke-2]
+DESC: [Analisis & aksi ke-2]
+CTA_TEXT: [Teks tombol ke-2]
+CTA_URL: [URL ke-2]
+
+JANGAN GUNAKAN TEKS UMUM SEPERTI "TINGKATKAN PENJUALAN". SEBUTKAN NAMA PRODUK / ANGKA NYATA SESUAI KONTEKS.${dynamicContext}`,
+        messages: coreMessages as any,
+      });
+
+      return result.toAIStreamResponse();
+    } catch (error: any) {
+      console.warn(`Model ${modelName} failed or quota exceeded:`, error?.message || error);
+      lastError = error;
+    }
   }
+
+  console.error("All AI models failed, using smart data-driven local fallback:", lastError?.message || lastError);
+
+  // Smart Data-Driven Local Fallback when all API quotas are exhausted
+  const lowStockProd = contextData?.products?.find((p: any) => p.stock < 5);
+  const pendingOrdersCount = contextData?.orders?.filter((o: any) => o.status === 'PENDING' || o.status === 'PROCESSING').length || 0;
+  const temp = contextData?.weather?.temperature_2m;
+
+  let card1Title = "Status Etalase";
+  let card1Val = `${contextData?.products?.length || 0} Produk`;
+  let card1Desc = "Etalase produk ternak Anda aktif dan siap menerima pesanan.";
+  let card1CtaText = "Kelola Produk";
+  let card1CtaUrl = "/hub/store";
+
+  if (lowStockProd) {
+    card1Title = "Stok Menipis";
+    card1Val = `${lowStockProd.title} (${lowStockProd.stock} Pcs)`;
+    card1Desc = `Stok ${lowStockProd.title} hampir habis. Segera restok produk di etalase Anda.`;
+  } else if (pendingOrdersCount > 0) {
+    card1Title = "Pesanan Aktif";
+    card1Val = `${pendingOrdersCount} Pesanan Baru`;
+    card1Desc = `Ada ${pendingOrdersCount} pesanan aktif yang perlu diproses dan dikirim.`;
+    card1CtaText = "Proses Pesanan";
+    card1CtaUrl = "/hub/orders";
+  }
+
+  let card2Title = "Kondisi Kandang";
+  let card2Val = temp ? `${Math.round(temp)}°C` : "Operasional";
+  let card2Desc = temp && temp > 30 
+    ? `Suhu lingkungan ${Math.round(temp)}°C tergolong panas. Pastikan ventilasi dan kecukupan air pakan ternak.`
+    : "Jadwal pakan dan kesehatan ternak berjalan normal hari ini.";
+  let card2CtaText = "Cek Kalender";
+  let card2CtaUrl = "/hub/calendar";
+
+  const fallbackText = `TITLE: ${card1Title}\nVALUE: ${card1Val}\nDESC: ${card1Desc}\nCTA_TEXT: ${card1CtaText}\nCTA_URL: ${card1CtaUrl}\n---\nTITLE: ${card2Title}\nVALUE: ${card2Val}\nDESC: ${card2Desc}\nCTA_TEXT: ${card2CtaText}\nCTA_URL: ${card2CtaUrl}`;
+  
+  // Vercel AI SDK v1 stream protocol format
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode('0:' + JSON.stringify(fallbackText) + '\n'));
+      controller.close();
+    }
+  });
+  
+  return new Response(stream, { 
+    headers: { 
+      'Content-Type': 'text/plain; charset=utf-8', 
+      'X-Vercel-AI-Data-Stream': 'v1' 
+    } 
+  });
 }
