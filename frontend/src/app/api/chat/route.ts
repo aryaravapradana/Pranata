@@ -4,11 +4,15 @@ import { streamText, convertToCoreMessages } from 'ai';
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
 
 export async function POST(req: Request) {
+  const apiKey = process.env.GEMINI_API_KEY || "";
+  if (!apiKey) {
+    console.warn("WARNING: GEMINI_API_KEY is not defined in process.env!");
+  }
+
   const google = createGoogleGenerativeAI({
-    apiKey: process.env.GEMINI_API_KEY || "",
+    apiKey,
   });
 
   const { messages, contextData } = await req.json();
