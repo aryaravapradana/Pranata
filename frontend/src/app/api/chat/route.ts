@@ -30,18 +30,25 @@ export async function POST(req: Request) {
     totalAmount: o.totalAmount
   })) || [];
 
-  const compactEvents = contextData?.events?.slice(0, 6).map((e: any) => ({
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const futureEvents = (contextData?.events || [])
+    .filter((e: any) => new Date(e.eventDate) >= today)
+    .sort((a: any, b: any) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
+
+  const compactEvents = futureEvents.slice(0, 6).map((e: any) => ({
     title: e.title,
     eventDate: e.eventDate,
     type: e.type
-  })) || [];
+  }));
 
   const dynamicContext = contextData ? `
 INFO KONTEKS REAL-TIME BACKEND USER:
 - Nama Peternak: ${contextData.profile?.fullName || contextData.profile?.username || 'Peternak'}
 - Daftar Produk Toko (${contextData.products?.length || 0} produk): ${JSON.stringify(compactProducts)}
 - Pesanan Toko Aktif: ${JSON.stringify(compactOrders)}
-- Jadwal Operasional Ternak: ${JSON.stringify(compactEvents)}
+- Jadwal Operasional Ternak Mendatang (Future Events Only): ${JSON.stringify(compactEvents)}
 - Kondisi Cuaca Lokasi: ${contextData.weather?.temperature_2m ? `${Math.round(contextData.weather.temperature_2m)}°C, Kelembapan ${contextData.weather.relative_humidity_2m}%` : 'Normal'}
   ` : "";
 
@@ -130,7 +137,7 @@ PEDOMAN ANALISIS DATA USER:
 1. Jika ada produk dengan stok menipis (<5) atau habis (0): Sebutkan nama produk secara persis dan minta peternak menambah/restok.
 2. Jika ada pesanan bernilai tinggi atau berstatus PENDING/PROCESSING: Berikan instruksi langsung untuk memproses pesanan tersebut.
 3. Jika cuaca ekstrem (misal suhu >30°C atau kelembapan tinggi): Berikan saran kesehatan/nutrisi ternak spesifik terkait cuaca tersebut.
-4. Jika ada jadwal operasional di kalender: Ingatkan kegiatan terdekat (misal pakan/vaksin).
+4. Jika ada jadwal operasional di kalender: HANYA INGATKAN KEGIATAN TERDEKAT DI MASA DEPAN / MENDATANG (Mulai hari ini ke depan). DILARANG KERAS MERUJUK ATAU MENGINGATKAN ACARA YANG SUDAH LALU (PAST EVENTS).
 
 JIKA USER MEMINTA INSIGHT BISNIS (Business Insight / Prompt Kaku):
 Wajib hasilkan TEPAT 2 insight terpisah yang dipisahkan garis pemisah "---". DILARANG MENULIS KATA PENGANTAR. LANGSUNG MULAI DENGAN "TITLE:".

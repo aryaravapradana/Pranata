@@ -486,7 +486,13 @@ export default function MainDashboard() {
                             const card1Text = pendingOrdersCount > 0 ? "Proses Pesanan" : "Kelola Produk";
                             const card1Url = pendingOrdersCount > 0 ? "/hub/orders" : "/hub/store";
 
-                            const upcomingEvt = events && events.length > 0 ? events[0] : null;
+                            const startOfToday = new Date();
+                            startOfToday.setHours(0, 0, 0, 0);
+                            const futureEventsList = (events || [])
+                              .filter(e => new Date(e.eventDate) >= startOfToday)
+                              .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
+                            const upcomingEvt = futureEventsList.length > 0 ? futureEventsList[0] : null;
+
                             const temp = weather?.temperature_2m;
                             const card2T = upcomingEvt ? "Agenda Terdekat" : (temp ? "Cuaca Kandang" : "Jadwal Kandang");
                             const card2V = upcomingEvt ? upcomingEvt.title : (temp ? `${Math.round(temp)}°C` : "Operasional");
@@ -499,7 +505,13 @@ export default function MainDashboard() {
                               `TITLE: ${card2T}\nVALUE: ${card2V}\nDESC: ${card2D}\nCTA_TEXT: Cek Kalender\nCTA_URL: /hub/calendar`
                             );
                           } else if (rawCards.length === 1) {
-                            const upcomingEvt = events && events.length > 0 ? events[0] : null;
+                            const startOfToday = new Date();
+                            startOfToday.setHours(0, 0, 0, 0);
+                            const futureEventsList = (events || [])
+                              .filter(e => new Date(e.eventDate) >= startOfToday)
+                              .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
+                            const upcomingEvt = futureEventsList.length > 0 ? futureEventsList[0] : null;
+
                             const temp = weather?.temperature_2m;
                             const secondTitle = upcomingEvt ? "Agenda Terdekat" : (temp ? "Cuaca Kandang" : "Jadwal Kandang");
                             const secondVal = upcomingEvt ? upcomingEvt.title : (temp ? `${Math.round(temp)}°C` : "Operasional");
