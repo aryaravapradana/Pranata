@@ -7,7 +7,6 @@ import { Loader2 } from "lucide-react";
 
 export function SplashScreen() {
   const [targetRadius, setTargetRadius] = useState(15000);
-  const [targetScale, setTargetScale] = useState(80);
   const { isGlobalReady } = useGlobalLoading();
 
   useEffect(() => {
@@ -31,38 +30,20 @@ export function SplashScreen() {
     );
     
     // Perfect target radius plus a MASSIVE 10000 unit buffer 
-    // This ensures that if the mobile viewport grows (e.g. address bar hides), 
-    // the circle hole remains larger than the screen, preventing the circle from "sitting on the screen".
     const requiredRadius = (maxCornerDist / ratio) + 10000; 
-     
     setTargetRadius(requiredRadius);
-
-    // For scale, we need the logo's bounds to clear the screen. 
-    // We calculate the maximum distance to any screen edge from our origin.
-    const maxDistToEdge = Math.max(
-      originXPhysical, // left screen edge
-      w - originXPhysical, // right screen edge
-      originYPhysical, // top screen edge
-      h - originYPhysical // bottom screen edge
-    );
-    
-    // The closest inner edge of the logo path to the origin is ~40 viewBox units.
-    // To ensure this inner edge clears the farthest screen edge, we divide by its physical size.
-    // Add a tiny 0.2 buffer so it just barely covers the screen.
-    const requiredScale = (maxDistToEdge / (40 * ratio)) + 0.2; 
-    setTargetScale(requiredScale);
   }, []);
 
-  // Custom curve for Zoom In (Open): [1.00, 0.05, 0.15, 1]
-  // This curve starts very flat. It sits at r=0 for a long time before opening.
-  const enterTransition = {
-    duration: 1.2,
-    ease: [1.00, 0.05, 0.15, 1] as import("framer-motion").Easing
+  // Transisi Tutup (IN): Menutup lingkaran dari r=targetRadius ke r=0 (Tutup Dulu)
+  const inTransition = {
+    duration: 0.7,
+    ease: [0.65, 0, 0.35, 1] as import("framer-motion").Easing
   };
 
-  const exitTransition = {
-    duration: 0.5, // Faster close animation
-    ease: "easeOut" as import("framer-motion").Easing
+  // Transisi Buka (OUT): Membuka lingkaran dari r=0 ke r=targetRadius (Baru Buka)
+  const outTransition = {
+    duration: 1.0,
+    ease: [0.87, 0, 0.13, 1] as import("framer-motion").Easing
   };
 
   return (
@@ -83,9 +64,8 @@ export function SplashScreen() {
                 cx="437"
                 cy="497"
                 fill="black"
-                initial={{ r: 0 }}
-                animate={{ r: isGlobalReady ? targetRadius : 0, transition: enterTransition }}
-                exit={{ r: 0, transition: exitTransition }}
+                animate={{ r: isGlobalReady ? targetRadius : 0 }}
+                transition={isGlobalReady ? outTransition : inTransition}
               />
             </svg>
           </mask>

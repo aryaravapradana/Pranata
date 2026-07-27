@@ -57,17 +57,35 @@ export const getAllProducts = async (req: Request, res: Response) => {
 export const getSellerProducts = async (req: Request, res: Response) => {
   try {
     const sellerId = String(req.params.id);
-    const cacheKey = `seller_products_${sellerId}`;
+    const page = Math.max(1, parseInt(String(req.query.page)) || 1);
+    const limit = Math.min(50, parseInt(String(req.query.limit)) || 20);
+
+    const cacheKey = `seller_products_${sellerId}_${page}_${limit}`;
     const cached = getCache(cacheKey);
     if (cached) return res.json(cached);
 
-    const products = await prisma.product.findMany({
-      where: { sellerId, deletedAt: null },
-      orderBy: { createdAt: 'desc' }
-    });
+    const skip = (page - 1) * limit;
 
-    setCache(cacheKey, products, 60);
-    return res.json(products);
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where: { sellerId, deletedAt: null },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+      prisma.product.count({ where: { sellerId, deletedAt: null } })
+    ]);
+
+    const result = {
+      data: products,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
+
+    setCache(cacheKey, result, 60);
+    return res.json(result);
   } catch (error) {
     console.error('[getSellerProducts]', error);
     return res.status(500).json({ error: 'Gagal mengambil produk seller' });

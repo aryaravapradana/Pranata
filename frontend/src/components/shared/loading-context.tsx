@@ -13,6 +13,23 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
   const [blockers, setBlockers] = useState<Set<string>>(new Set());
   const [isTransitioning, setIsTransitioning] = useState(true);
   const pathname = usePathname();
+  const [prevPath, setPrevPath] = useState(pathname);
+
+  // Synchronous route change detection during render tick (0ms - zero blink/flicker)
+  if (prevPath !== pathname) {
+    setPrevPath(pathname);
+    setIsTransitioning(true);
+    setBlockers(new Set());
+  }
+
+  useEffect(() => {
+    if (isTransitioning) {
+      const timer = setTimeout(() => {
+        setIsTransitioning(false);
+      }, 750);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, isTransitioning]);
 
   const registerBlocker = useCallback((id: string) => {
     setBlockers(prev => {
@@ -29,22 +46,6 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
       return next;
     });
   }, []);
-
-  // On route change, clear blockers and enter a brief transition state
-  // to give the new page's useEffect time to register its blockers.
-  useEffect(() => {
-     
-    setBlockers(new Set());
-     
-    setIsTransitioning(true);
-    
-    // Give the new page 50ms to register blockers before we declare it "Ready"
-    const timer = setTimeout(() => {
-      setIsTransitioning(false);
-    }, 50);
-    
-    return () => clearTimeout(timer);
-  }, [pathname]);
 
   const isGlobalReady = !isTransitioning && blockers.size === 0;
 

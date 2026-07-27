@@ -3,7 +3,7 @@ import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
 import { Footer } from "@/components/layout/Footer";
 
 import React, { useState, useEffect } from "react";
-import { Search, Bell, Settings, Store, TrendingUp, CloudSun, Calendar, Package, ChevronRight, Droplets, Wind, MapPin, Sparkles, Loader2, Info } from "lucide-react";
+import { Search, Bell, Settings, Store, TrendingUp, CloudSun, Calendar, Package, ChevronRight, Droplets, Wind, MapPin, Sparkles, Loader2, Info, RefreshCw } from "lucide-react";
 import { useChat } from "ai/react";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,6 +23,81 @@ export default function MainDashboard() {
   // Weather State
   const [weather, setWeather] = useState<any>(null);
   const [locationName, setLocationName] = useState<string>("Mencari lokasi...");
+  const [isDetectingLocation, setIsDetectingLocation] = useState<boolean>(false);
+
+  const getWeatherDetails = (code: number) => {
+    if (code === 0) return { text: "Cerah", icon: "☀️", bg: "from-[#2B4C3B] via-[#3A6B49] to-[#4A7C59]", advice: "Cuaca cerah. Sangat baik untuk aktivitas kandang & pengiriman." };
+    if ([1, 2].includes(code)) return { text: "Cerah Berawan", icon: "⛅", bg: "from-[#2B4C3B] via-[#3A6B49] to-[#4A7C59]", advice: "Cuaca hangat berawan. Pastikan sirkulasi udara kandang lancar." };
+    if (code === 3) return { text: "Berawan", icon: "☁️", bg: "from-[#334237] via-[#43574A] to-[#2B4C3B]", advice: "Cuaca teduh berawan. Cocok untuk pemberian pakan & kesehatan ternak." };
+    if ([45, 48].includes(code)) return { text: "Kabut", icon: "🌫️", bg: "from-[#38483E] via-[#4B5E52] to-[#2B4C3B]", advice: "Jarak pandang terbatas karena kabut. Berhati-hati saat pengiriman." };
+    if ([51, 53, 55, 56, 57].includes(code)) return { text: "Gerimis Ringan", icon: "🌦️", bg: "from-[#254238] via-[#355B4D] to-[#1E362C]", advice: "Gerimis turun. Jaga kelembapan alas ternak tetap kering." };
+    if ([61, 63, 65, 66, 67].includes(code)) return { text: "Hujan", icon: "🌧️", bg: "from-[#1F3A30] via-[#2D5043] to-[#162B23]", advice: "Terjadi hujan. Waspada lantai kandang licin & kelembapan tinggi." };
+    if ([80, 81, 82].includes(code)) return { text: "Hujan Lebat", icon: "🌧️", bg: "from-[#192F27] via-[#264438] to-[#101F19]", advice: "Hujan lebat. Pastikan pakan tersimpan rapat & terlindung dari air." };
+    if ([95, 96, 99].includes(code)) return { text: "Badai Petir", icon: "🌩️", bg: "from-[#14241E] via-[#1E362C] to-[#0A120F]", advice: "Waspada badai petir. Pastikan kelistrikan & tirai kandang tertutup aman." };
+    return { text: "Cerah Berawan", icon: "⛅", bg: "from-[#2B4C3B] via-[#3A6B49] to-[#4A7C59]", advice: "Suhu & kondisi stabil untuk kegiatan pemeliharaan ternak." };
+  };
+
+  const fetchWeatherForCoords = async (lat: number, lng: number) => {
+    try {
+      try {
+        const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`);
+        if (geoRes.ok) {
+          const geoData = await geoRes.json();
+          const district = geoData.locality || geoData.city || geoData.principalSubdivision;
+          const regency = geoData.city || geoData.principalSubdivision;
+          if (district && regency && district !== regency) {
+            setLocationName(`${district}, ${regency}`);
+          } else if (regency) {
+            setLocationName(regency);
+          } else {
+            setLocationName(geoData.countryName || "Lokasi Terdeteksi");
+          }
+        }
+      } catch(e) {
+        if (!locationName || locationName === "Mencari lokasi...") {
+          setLocationName("Lokasi Terdeteksi");
+        }
+      }
+
+      const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,is_day,precipitation,weather_code,wind_speed_10m&timezone=auto`);
+      if (weatherRes.ok) {
+        const weatherData = await weatherRes.json();
+        setWeather(weatherData.current);
+      }
+    } catch(err) {
+      console.error("[Weather Fetch Error]", err);
+    } finally {
+      setIsDetectingLocation(false);
+    }
+  };
+
+  const detectLocationAndWeather = () => {
+    setIsDetectingLocation(true);
+    setLocationName("Mencari lokasi...");
+
+    if (typeof window !== "undefined" && "geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          fetchWeatherForCoords(latitude, longitude);
+        },
+        (err) => {
+          console.warn("[Geolocation Error/Denied]", err);
+          // Fallback: Default to Kediri / East Java Agricultural Hub
+          const fallbackLat = -7.848;
+          const fallbackLng = 112.017;
+          setLocationName("Kediri, Jawa Timur");
+          fetchWeatherForCoords(fallbackLat, fallbackLng);
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
+      );
+    } else {
+      const fallbackLat = -7.848;
+      const fallbackLng = 112.017;
+      setLocationName("Kediri, Jawa Timur");
+      fetchWeatherForCoords(fallbackLat, fallbackLng);
+    }
+  };
 
   // Products State for AI
   const [products, setProducts] = useState<any[]>([]);
@@ -119,15 +194,8 @@ export default function MainDashboard() {
       })
       .catch(console.error);
 
-    // 3. Fetch Weather & Location (Default: Jakarta)
-    const lat = -6.2088;
-    const lon = 106.8456;
-    setLocationName("Jakarta");
-    
-    fetchApi(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,is_day,precipitation,wind_speed_10m&timezone=auto`)
-      .then(res => res.json())
-      .then(data => setWeather(data.current))
-      .catch(() => setLocationName("Gagal memuat cuaca"));
+    // 3. Detect Real-time High-Accuracy Location & Weather
+    detectLocationAndWeather();
   }, [router]);
 
   // Live Tile Effect for Prices
@@ -206,56 +274,83 @@ export default function MainDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
               
           {/* Weather Widget */}
-          <div className="md:col-span-1 lg:col-span-1 order-1 bg-gradient-to-br from-[#4A7C59] via-[#3A6B49] to-[#2B4C3B] rounded-3xl sm:rounded-[2rem] p-5 sm:p-7 text-white shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[200px] sm:min-h-[220px]">
-            
-            <div className="relative z-10 flex justify-between items-center mb-3 sm:mb-4">
-              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-black tracking-wider uppercase">
-                <MapPin size={13} className="text-white" /> {locationName}
-              </div>
-            </div>
+          {(() => {
+            const details = weather ? getWeatherDetails(weather.weather_code ?? 1) : null;
+            const bgGradient = details ? details.bg : "from-[#4A7C59] via-[#3A6B49] to-[#2B4C3B]";
 
-            <div className="relative z-10 my-auto">
-              {weather ? (
-                <div className="space-y-3 sm:space-y-4">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <div className="flex items-baseline gap-1.5 sm:gap-2">
-                      <span className="text-5xl sm:text-6xl lg:text-7xl font-black leading-none tracking-tight">{Math.round(weather.temperature_2m)}°</span>
-                      <span className="text-xl sm:text-2xl font-black text-[#B4C179]">C</span>
-                    </div>
-                    <span className="text-xs sm:text-sm font-black text-white bg-white/10 border border-white/20 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full backdrop-blur-md">
-                      Cerah
-                    </span>
+            return (
+              <div className={`md:col-span-1 lg:col-span-1 order-1 bg-gradient-to-br ${bgGradient} rounded-3xl sm:rounded-[2rem] p-5 sm:p-7 text-white shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[220px] sm:min-h-[240px] border border-white/15 transition-all`}>
+                
+                {/* Header: Location & Refresh Button */}
+                <div className="relative z-10 flex justify-between items-center mb-3 sm:mb-4 gap-2">
+                  <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-black tracking-wider uppercase truncate max-w-[85%] border border-white/10 shadow-xs">
+                    <MapPin size={13} className="text-white shrink-0" />
+                    <span className="truncate">{locationName}</span>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-1 sm:pt-2">
-                    <div className="bg-black/20 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-white/10 flex items-center gap-2.5 sm:gap-3">
-                      <div className="p-1.5 sm:p-2 bg-[#4A7C59]/50 rounded-lg sm:rounded-xl shrink-0">
-                        <Droplets size={18} className="text-[#B4C179]" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[9px] sm:text-[10px] font-bold text-[#A4C4A8] uppercase tracking-wider truncate">Kelembapan</p>
-                        <p className="text-sm sm:text-base font-black text-white">{weather.relative_humidity_2m}%</p>
-                      </div>
-                    </div>
-                    <div className="bg-black/20 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-white/10 flex items-center gap-2.5 sm:gap-3">
-                      <div className="p-1.5 sm:p-2 bg-[#4A7C59]/50 rounded-lg sm:rounded-xl shrink-0">
-                        <Wind size={18} className="text-[#B4C179]" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[9px] sm:text-[10px] font-bold text-[#A4C4A8] uppercase tracking-wider truncate">Angin</p>
-                        <p className="text-sm sm:text-base font-black text-white truncate">{weather.wind_speed_10m} <span className="text-[10px] sm:text-xs font-normal">km/j</span></p>
-                      </div>
-                    </div>
-                  </div>
+
+                  <button 
+                    onClick={detectLocationAndWeather} 
+                    disabled={isDetectingLocation}
+                    title="Perbarui Lokasi Presisi"
+                    className="p-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-all backdrop-blur-md active:scale-95 text-white disabled:opacity-50 cursor-pointer shrink-0"
+                  >
+                    <RefreshCw size={14} className={isDetectingLocation ? "animate-spin" : ""} />
+                  </button>
                 </div>
-              ) : (
-                <div className="animate-pulse space-y-4">
-                  <div className="h-16 w-32 bg-white/20 rounded-2xl"></div>
-                  <div className="h-10 w-full bg-white/20 rounded-xl"></div>
+
+                <div className="relative z-10 my-auto">
+                  {weather ? (
+                    <div className="space-y-3 sm:space-y-4">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <div className="flex items-baseline gap-1.5 sm:gap-2">
+                          <span className="text-5xl sm:text-6xl lg:text-7xl font-black leading-none tracking-tight">{Math.round(weather.temperature_2m)}°</span>
+                          <span className="text-xl sm:text-2xl font-black text-[#B4C179]">C</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-1.5 bg-white/15 border border-white/25 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full backdrop-blur-md shadow-xs">
+                          <span className="text-base sm:text-lg">{details?.icon || "⛅"}</span>
+                          <span className="text-xs sm:text-sm font-black text-white">{details?.text || "Cerah"}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-1">
+                        <div className="bg-black/20 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-white/10 flex items-center gap-2.5 sm:gap-3">
+                          <div className="p-1.5 sm:p-2 bg-[#4A7C59]/50 rounded-lg sm:rounded-xl shrink-0">
+                            <Droplets size={18} className="text-[#B4C179]" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[9px] sm:text-[10px] font-bold text-[#A4C4A8] uppercase tracking-wider truncate">Kelembapan</p>
+                            <p className="text-sm sm:text-base font-black text-white">{weather.relative_humidity_2m}%</p>
+                          </div>
+                        </div>
+                        <div className="bg-black/20 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-white/10 flex items-center gap-2.5 sm:gap-3">
+                          <div className="p-1.5 sm:p-2 bg-[#4A7C59]/50 rounded-lg sm:rounded-xl shrink-0">
+                            <Wind size={18} className="text-[#B4C179]" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[9px] sm:text-[10px] font-bold text-[#A4C4A8] uppercase tracking-wider truncate">Kecepatan Angin</p>
+                            <p className="text-sm sm:text-base font-black text-white truncate">{weather.wind_speed_10m} <span className="text-[10px] sm:text-xs font-normal">km/j</span></p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Agricultural Weather Insight Pill */}
+                      {details?.advice && (
+                        <div className="mt-2 text-[10px] sm:text-xs font-bold text-white/90 bg-white/10 border border-white/15 p-2 sm:p-2.5 rounded-xl backdrop-blur-sm flex items-start gap-1.5">
+                          <Sparkles size={14} className="text-[#F5990D] shrink-0 mt-0.5" />
+                          <span className="leading-snug">{details.advice}</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="animate-pulse space-y-4 py-3">
+                      <div className="h-14 w-36 bg-white/20 rounded-2xl"></div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
+            );
+          })()}
 
               {/* Incoming Orders Tile */}
               <div className="md:col-span-1 lg:col-span-1 order-3 lg:order-2 bg-gradient-to-br from-[#2B4C3B] to-[#4A7C59] rounded-3xl sm:rounded-[2rem] p-4.5 sm:p-5 border border-[#4A7C59] shadow-lg text-white flex flex-col relative overflow-hidden min-h-[140px]">

@@ -6,7 +6,6 @@ export default function proxy(request: NextRequest) {
   const token = request.cookies.get('auth-token')?.value;
 
   const isProtected = pathname.startsWith('/hub') || pathname.startsWith('/market');
-  const isAuthPage = pathname === '/login' || pathname === '/register';
 
   // If trying to access protected page without token, redirect to login
   if (isProtected && !token) {

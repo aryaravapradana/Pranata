@@ -111,13 +111,22 @@ export default function AccountSettingsPage() {
 
   useEffect(() => {
     const sessionStr = localStorage.getItem("farmpro_session");
-    if (!sessionStr) { router.push("/login"); return; }
+    if (!sessionStr) {
+      setLoading(false);
+      router.push("/login");
+      return;
+    }
     try {
       const session = JSON.parse(sessionStr);
       const id = session.id || session.userId;
-      if (!id) { router.push("/login"); return; }
+      if (!id) {
+        setLoading(false);
+        router.push("/login");
+        return;
+      }
       fetchProfile(id);
     } catch(e) {
+      setLoading(false);
       router.push("/login");
     }
   }, []);

@@ -3,7 +3,7 @@ import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
 import { Footer } from "@/components/layout/Footer";
 
 import { useState, useEffect } from "react";
-import { Store, Package, Plus, CheckCircle, Image as ImageIcon, Info, X, Edit2, Trash2, Sparkles, ChevronRight, Crown, Star, AlertTriangle, Loader2, ShieldCheck, Tag } from "lucide-react";
+import { Store, Package, Plus, CheckCircle, Image as ImageIcon, Info, X, Edit2, Trash2, Sparkles, ChevronRight, ChevronLeft, Crown, Star, AlertTriangle, Loader2, ShieldCheck, Tag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoading } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
@@ -26,6 +26,12 @@ export default function StoreDashboardPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // Pagination State (20 products per page)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const LIMIT = 20;
+
   // Custom Delete Modal State
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -34,10 +40,10 @@ export default function StoreDashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    loadData();
+    loadData(1);
   }, []);
 
-  const loadData = async () => {
+  const loadData = async (pageToLoad = 1) => {
     setLoading(true);
     
     const sessionStr = localStorage.getItem("farmpro_session");
@@ -57,16 +63,30 @@ export default function StoreDashboardPage() {
     const API_BASE = getApiBaseUrl();
 
     try {
-      const prodRes = await fetchApi(`${API_BASE}/api/products/seller/${session.id}`);
+      const prodRes = await fetchApi(`${API_BASE}/api/products/seller/${session.id}?page=${pageToLoad}&limit=${LIMIT}`);
       const pData = await prodRes.json();
-      setProducts(Array.isArray(pData) ? pData : []);
+
+      if (pData && Array.isArray(pData.data)) {
+        setProducts(pData.data);
+        setTotalProducts(pData.total || pData.data.length);
+        setTotalPages(pData.totalPages || 1);
+        setCurrentPage(pData.page || pageToLoad);
+      } else if (Array.isArray(pData)) {
+        setProducts(pData);
+        setTotalProducts(pData.length);
+        setTotalPages(Math.ceil(pData.length / LIMIT) || 1);
+        setCurrentPage(pageToLoad);
+      } else {
+        setProducts([]);
+        setTotalProducts(0);
+        setTotalPages(1);
+      }
       
       const ordRes = await fetchApi(`${API_BASE}/api/orders/PRODUCER/${session.id}`);
       const oData = await ordRes.json();
       setOrders(Array.isArray(oData) ? oData : []);
     } catch (error) {
       console.error(error);
-      alert("Failed to load store data");
     } finally {
       setLoading(false);
     }
@@ -216,6 +236,76 @@ export default function StoreDashboardPage() {
                 </div>
               ))}
             </div>
+
+            {/* Pagination Controls (20 Items Per Page) */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[#E8E3D2]/60">
+                <p className="text-xs sm:text-sm font-bold text-[#7A8678]">
+                  Menampilkan <span className="text-[#1C241E] font-black">{((currentPage - 1) * LIMIT) + 1} - {Math.min(currentPage * LIMIT, totalProducts)}</span> dari <span className="text-[#1C241E] font-black">{totalProducts}</span> produk
+                </p>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => {
+                      if (currentPage > 1) {
+                        const next = currentPage - 1;
+                        setCurrentPage(next);
+                        loadData(next);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    disabled={currentPage === 1 || loading}
+                    className="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-white border border-[#E8E3D2] text-[#1C241E] font-bold text-xs sm:text-sm hover:bg-[#F8F6F0] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs flex items-center gap-1 cursor-pointer"
+                  >
+                    <ChevronLeft size={16} />
+                    <span className="hidden sm:inline">Sebelumnya</span>
+                  </button>
+
+                  <div className="flex items-center gap-1 px-1">
+                    {Array.from({ length: totalPages }).map((_, idx) => {
+                      const pageNum = idx + 1;
+                      const isActive = pageNum === currentPage;
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => {
+                            if (pageNum !== currentPage && !loading) {
+                              setCurrentPage(pageNum);
+                              loadData(pageNum);
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }
+                          }}
+                          disabled={loading}
+                          className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl font-black text-xs transition-all cursor-pointer ${
+                            isActive 
+                              ? 'bg-[#2B4C3B] text-white shadow-sm scale-105' 
+                              : 'bg-white text-[#7A8678] hover:text-[#1C241E] border border-[#E8E3D2]'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      if (currentPage < totalPages) {
+                        const next = currentPage + 1;
+                        setCurrentPage(next);
+                        loadData(next);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    disabled={currentPage === totalPages || loading}
+                    className="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-white border border-[#E8E3D2] text-[#1C241E] font-bold text-xs sm:text-sm hover:bg-[#F8F6F0] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs flex items-center gap-1 cursor-pointer"
+                  >
+                    <span className="hidden sm:inline">Berikutnya</span>
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
       </div>
 
