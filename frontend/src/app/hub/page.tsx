@@ -38,16 +38,21 @@ export default function MainDashboard() {
   });
   const hasTriggeredInsight = React.useRef(false);
 
-  // Cache AI messages when they finish loading
+  // Cache AI messages when they finish loading (only if not fallback)
   useEffect(() => {
     if (!isLoading && messages.length > 0 && profile?.id) {
-      const prodIds = products.map(p => p.id).sort().join(',');
-      const currentHash = `${profile.id}_${prodIds}_${orders.length}_${events.length}`;
-      localStorage.setItem(`pranata_ai_insight_cache_${profile.id}`, JSON.stringify({
-        timestamp: Date.now(),
-        dataHash: currentHash,
-        messages: messages
-      }));
+      const lastMsgContent = messages.filter((m: any) => m.role === 'assistant').pop()?.content || "";
+      const isFallback = lastMsgContent.includes("TITLE: Status Toko\nVALUE: Aktif") || lastMsgContent.includes("TITLE: Status Etalase");
+      
+      if (!isFallback) {
+        const prodIds = products.map(p => p.id).sort().join(',');
+        const currentHash = `${profile.id}_${prodIds}_${orders.length}_${events.length}`;
+        localStorage.setItem(`pranata_ai_insight_cache_${profile.id}`, JSON.stringify({
+          timestamp: Date.now(),
+          dataHash: currentHash,
+          messages: messages
+        }));
+      }
     }
   }, [messages, isLoading, profile?.id, products, orders.length, events.length]);
 
@@ -152,7 +157,12 @@ export default function MainDashboard() {
             try {
               const cached = JSON.parse(cachedStr);
               const isExpired = Date.now() - cached.timestamp > 2 * 60 * 60 * 1000; // 2 hours TTL
-              if (!isExpired && cached.dataHash === currentHash && cached.messages?.length > 0) {
+              const lastMsgContent = cached.messages?.filter((m: any) => m.role === 'assistant').pop()?.content || "";
+              
+              // Invalidate stale fallback cache
+              const isFallbackCache = lastMsgContent.includes("TITLE: Status Toko\nVALUE: Aktif") || lastMsgContent.includes("TITLE: Status Etalase");
+
+              if (!isExpired && !isFallbackCache && cached.dataHash === currentHash && cached.messages?.length > 0) {
                 shouldFetchNew = false;
                 setMessages(cached.messages);
               }

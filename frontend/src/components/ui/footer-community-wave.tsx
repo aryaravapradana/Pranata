@@ -27,10 +27,12 @@ export function FooterCommunityWave({ variant = "light" }: FooterProps) {
   const devSubColor = isLightPage ? "text-white/80 group-hover:text-[#5A635B]" : "text-[#5A635B] group-hover:text-emerald-100/90";
   const devAvatarBorder = isLightPage ? "border-white group-hover:border-[#32452C]" : "border-[#32452C] group-hover:border-white";
 
+  const waveContainerBg = isLightPage ? "bg-transparent" : "bg-[#32452C]";
+
   return (
     <div className="w-full font-sans overflow-hidden">
       {/* ── Curved Wave Divider ── */}
-      <div className="w-full relative z-20 overflow-hidden leading-none select-none pointer-events-none -mb-1">
+      <div className={`w-full relative z-20 overflow-hidden leading-none select-none pointer-events-none -mb-1 -mt-2 ${waveContainerBg}`}>
         <svg
           viewBox="0 0 1440 180"
           fill="none"

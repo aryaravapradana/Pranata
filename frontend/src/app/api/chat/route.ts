@@ -100,14 +100,15 @@ INFO KONTEKS REAL-TIME BACKEND USER:
     };
   });
 
-  // Verified Active Model Fallback Chain (Tested directly against API Key status)
+  // Verified Active 200 OK Model Fallback Chain
   const MODELS_TO_TRY = [
-    'gemini-2.5-flash',       // Status: 200 OK (Aktif)
-    'gemini-2.5-flash-lite',  // Status: 200 OK (Aktif)
-    'gemini-3.6-flash',       // Status: Quota 429 (Terlampaui)
-    'gemini-2.5-pro',          // Status: Quota 429 (Terlampaui)
-    'gemini-2.0-flash',       // Status: Quota 429 (Terlampaui)
-    'gemini-2.0-flash-lite'   // Status: Quota 429 (Terlampaui)
+    'gemini-2.5-flash',
+    'gemini-flash-latest',
+    'gemini-3.6-flash',
+    'gemini-3.5-flash',
+    'gemini-3.1-flash-lite',
+    'gemini-2.5-flash-lite',
+    'gemini-3-flash-preview'
   ];
   let lastError: any = null;
 
@@ -115,11 +116,11 @@ INFO KONTEKS REAL-TIME BACKEND USER:
     try {
       const result = await streamText({
         model: google(modelName) as any,
-        maxTokens: 500, // Reduced for FinOps token efficiency
+        maxTokens: 2500, // Sufficient token budget for complete, detailed answers
         system: `Anda adalah "Pranata Intelligence", konsultan AI profesional khusus bisnis peternakan (daging, susu, telur), manajemen kandang, dan logistik toko.
 
 TUGAS UTAMA:
-Berikan rekomendasi bisnis & operasional yang SANGAT SPESIFIK, NYATA, DAN ACTIONABLE berdasarkan data backend user di atas.
+Berikan rekomendasi bisnis & operasional yang SANGAT SPESIFIK, NYATA, LENGKAP, DAN ACTIONABLE berdasarkan data backend user di atas. Jawab pertanyaan peternak secara tuntas, jelas, terstruktur, dan tidak terpotong.
 
 PEDOMAN ANALISIS DATA USER:
 1. Jika ada produk dengan stok menipis (<5) atau habis (0): Sebutkan nama produk secara persis dan minta peternak menambah/restok.
@@ -155,34 +156,39 @@ JANGAN GUNAKAN TEKS UMUM SEPERTI "TINGKATKAN PENJUALAN". SEBUTKAN NAMA PRODUK / 
 
   console.error("All AI models failed, using smart data-driven local fallback:", lastError?.message || lastError);
 
-  // Smart Data-Driven Local Fallback when all API quotas are exhausted
+  // Smart Data-Driven Local Fallback when API quotas are exhausted
   const lowStockProd = contextData?.products?.find((p: any) => p.stock < 5);
   const pendingOrdersCount = contextData?.orders?.filter((o: any) => o.status === 'PENDING' || o.status === 'PROCESSING').length || 0;
   const temp = contextData?.weather?.temperature_2m;
+  const upcomingEvent = Array.isArray(contextData?.events) && contextData.events.length > 0 ? contextData.events[0] : null;
 
   let card1Title = "Status Etalase";
   let card1Val = `${contextData?.products?.length || 0} Produk`;
-  let card1Desc = "Etalase produk ternak Anda aktif dan siap menerima pesanan.";
+  let card1Desc = contextData?.products?.length > 0 
+    ? `Semua ${contextData.products.length} produk di etalase toko Anda aktif dan siap dipesan.`
+    : "Belum ada produk di etalase. Tambahkan produk ternak pertama Anda.";
   let card1CtaText = "Kelola Produk";
   let card1CtaUrl = "/hub/store";
 
   if (lowStockProd) {
     card1Title = "Stok Menipis";
     card1Val = `${lowStockProd.title} (${lowStockProd.stock} Pcs)`;
-    card1Desc = `Stok ${lowStockProd.title} hampir habis. Segera restok produk di etalase Anda.`;
+    card1Desc = `Stok ${lowStockProd.title} tersisa ${lowStockProd.stock} pcs. Segera restok produk di etalase Anda.`;
   } else if (pendingOrdersCount > 0) {
-    card1Title = "Pesanan Aktif";
+    card1Title = "Pesanan Masuk";
     card1Val = `${pendingOrdersCount} Pesanan Baru`;
-    card1Desc = `Ada ${pendingOrdersCount} pesanan aktif yang perlu diproses dan dikirim.`;
+    card1Desc = `Ada ${pendingOrdersCount} pesanan aktif yang perlu diproses dan dikirim ke pembeli.`;
     card1CtaText = "Proses Pesanan";
     card1CtaUrl = "/hub/orders";
   }
 
   let card2Title = "Kondisi Kandang";
-  let card2Val = temp ? `${Math.round(temp)}°C` : "Operasional";
-  let card2Desc = temp && temp > 30 
-    ? `Suhu lingkungan ${Math.round(temp)}°C tergolong panas. Pastikan ventilasi dan kecukupan air pakan ternak.`
-    : "Jadwal pakan dan kesehatan ternak berjalan normal hari ini.";
+  let card2Val = upcomingEvent ? upcomingEvent.title : (temp ? `${Math.round(temp)}°C` : "Operasional");
+  let card2Desc = upcomingEvent
+    ? `Agenda terdekat: ${upcomingEvent.title} pada ${new Date(upcomingEvent.eventDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}.`
+    : (temp && temp > 30 
+      ? `Suhu lingkungan ${Math.round(temp)}°C tergolong tinggi. Pastikan ventilasi dan kecukupan air pakan ternak.`
+      : "Jadwal pakan dan kesehatan ternak berjalan normal hari ini.");
   let card2CtaText = "Cek Kalender";
   let card2CtaUrl = "/hub/calendar";
 

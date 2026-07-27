@@ -4,14 +4,15 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
-// Preferred model list for vision grading (Ordered by verified active quota status)
+// Preferred model list for vision grading (Verified 200 OK models)
 const CANDIDATE_MODELS = [
+  "gemini-2.5-flash",
+  "gemini-flash-latest",
   "gemini-3.6-flash",
   "gemini-3.5-flash",
   "gemini-3.1-flash-lite",
   "gemini-2.5-flash-lite",
-  "gemini-flash-latest",
-  "gemini-2.0-flash"
+  "gemini-3-flash-preview"
 ];
 
 // In-Memory Cache to prevent duplicate AI grading calls for identical image URLs (FinOps)
