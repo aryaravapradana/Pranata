@@ -37,7 +37,7 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
     triggerTransition();
     setTimeout(() => {
       router.push(url);
-    }, 350);
+    }, 650);
   }, [router, triggerTransition]);
 
   // Global Click Interceptor: Catch link clicks at 0ms BEFORE Next.js fetches RSC payload
@@ -65,7 +65,7 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
             triggerTransition();
             setTimeout(() => {
               router.push(href);
-            }, 350);
+            }, 650);
           }
         }
       }
@@ -89,7 +89,7 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
     if (isTransitioning) {
       const timer = setTimeout(() => {
         setIsTransitioning(false);
-      }, 500);
+      }, 900);
       return () => clearTimeout(timer);
     }
   }, [pathname, isTransitioning]);
