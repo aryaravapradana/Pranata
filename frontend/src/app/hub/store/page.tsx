@@ -24,7 +24,8 @@ export default function StoreDashboardPage() {
   const [profile, setProfile] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [gridLoading, setGridLoading] = useState(true);
   
   // Pagination State (20 products per page)
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,15 +37,18 @@ export default function StoreDashboardPage() {
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  usePageLoading(loading);
+  usePageLoading(initialLoading);
   const router = useRouter();
 
   useEffect(() => {
-    loadData(1);
+    loadData(1, true);
   }, []);
 
-  const loadData = async (pageToLoad = 1) => {
-    setLoading(true);
+  const loadData = async (pageToLoad = 1, isInitial = false) => {
+    if (isInitial) {
+      setInitialLoading(true);
+    }
+    setGridLoading(true);
     
     const sessionStr = localStorage.getItem("farmpro_session");
     if (!sessionStr) {
@@ -88,7 +92,8 @@ export default function StoreDashboardPage() {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
+      setGridLoading(false);
     }
   };
 
@@ -118,7 +123,7 @@ export default function StoreDashboardPage() {
     }
   };
 
-  if (loading) return (
+  if (initialLoading) return (
     <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E] pt-4 sm:pt-10">
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-32 px-3.5 sm:px-6 md:px-8 lg:px-12">
         <div className="bg-pranata rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
@@ -173,13 +178,28 @@ export default function StoreDashboardPage() {
         </div>
 
         {/* Content Tabs */}
-        <div className="space-y-4 sm:space-y-6">
+        <div id="products-section" className="space-y-4 sm:space-y-6 scroll-mt-24 sm:scroll-mt-28">
           
           {/* Main List */}
           <h2 className="text-xl sm:text-2xl font-black text-[#2B4C3B]">
             Daftar Produk Aktif
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {gridLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                <div key={i} className="bg-white border border-[#DDE2D6] rounded-2xl sm:rounded-3xl p-4 sm:p-5">
+                  <div className="h-36 sm:h-40 w-full rounded-xl sm:rounded-2xl skeleton-shimmer bg-[#E8E3D2] mb-3 sm:mb-4" />
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="w-1/2 h-5 sm:h-6 rounded-md skeleton-shimmer bg-[#E8E3D2]" />
+                    <div className="w-16 h-5 sm:h-6 rounded-full skeleton-shimmer bg-[#E8E3D2]" />
+                  </div>
+                  <div className="w-full h-3 rounded-md skeleton-shimmer bg-[#E8E3D2] mb-3" />
+                  <div className="w-1/3 h-7 sm:h-8 rounded-md skeleton-shimmer bg-[#E8E3D2]" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {products.length === 0 && <p className="text-[#5A635B] text-sm">Belum ada produk aktif.</p>}
               {products.map((p) => (
                 <div key={p.id} className="bg-white border border-[#DDE2D6] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-all group overflow-hidden flex flex-col justify-between">
@@ -236,25 +256,26 @@ export default function StoreDashboardPage() {
                 </div>
               ))}
             </div>
+          )}
 
-            {/* Pagination Controls (20 Items Per Page) */}
+          {/* Pagination Controls (20 Items Per Page) */}
             {totalPages > 1 && (
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[#E8E3D2]/60">
                 <p className="text-xs sm:text-sm font-bold text-[#7A8678]">
                   Menampilkan <span className="text-[#1C241E] font-black">{((currentPage - 1) * LIMIT) + 1} - {Math.min(currentPage * LIMIT, totalProducts)}</span> dari <span className="text-[#1C241E] font-black">{totalProducts}</span> produk
                 </p>
 
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <button
                     onClick={() => {
-                      if (currentPage > 1) {
-                        const next = currentPage - 1;
-                        setCurrentPage(next);
-                        loadData(next);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      if (currentPage > 1 && !gridLoading) {
+                        const prev = currentPage - 1;
+                        setCurrentPage(prev);
+                        loadData(prev, false);
+                        document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
                       }
                     }}
-                    disabled={currentPage === 1 || loading}
+                    disabled={currentPage === 1 || gridLoading}
                     className="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-white border border-[#E8E3D2] text-[#1C241E] font-bold text-xs sm:text-sm hover:bg-[#F8F6F0] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs flex items-center gap-1 cursor-pointer"
                   >
                     <ChevronLeft size={16} />
@@ -269,13 +290,13 @@ export default function StoreDashboardPage() {
                         <button
                           key={pageNum}
                           onClick={() => {
-                            if (pageNum !== currentPage && !loading) {
+                            if (pageNum !== currentPage && !gridLoading) {
                               setCurrentPage(pageNum);
-                              loadData(pageNum);
-                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                              loadData(pageNum, false);
+                              document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
                             }
                           }}
-                          disabled={loading}
+                          disabled={gridLoading}
                           className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl font-black text-xs transition-all cursor-pointer ${
                             isActive 
                               ? 'bg-[#2B4C3B] text-white shadow-sm scale-105' 
@@ -290,15 +311,15 @@ export default function StoreDashboardPage() {
 
                   <button
                     onClick={() => {
-                      if (currentPage < totalPages) {
+                      if (currentPage < totalPages && !gridLoading) {
                         const next = currentPage + 1;
                         setCurrentPage(next);
-                        loadData(next);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        loadData(next, false);
+                        document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
                       }
                     }}
-                    disabled={currentPage === totalPages || loading}
-                    className="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-white border border-[#E8E3D2] text-[#1C241E] font-bold text-xs sm:text-sm hover:bg-[#F8F6F0] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs flex items-center gap-1 cursor-pointer"
+                    disabled={currentPage === totalPages || gridLoading}
+                    className="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-[#2B4C3B] hover:bg-[#20392C] text-white font-bold text-xs sm:text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm flex items-center gap-1 cursor-pointer"
                   >
                     <span className="hidden sm:inline">Berikutnya</span>
                     <ChevronRight size={16} />
@@ -306,7 +327,7 @@ export default function StoreDashboardPage() {
                 </div>
               </div>
             )}
-          </div>
+        </div>
       </div>
 
       {/* Custom Designed Delete Confirmation Modal */}

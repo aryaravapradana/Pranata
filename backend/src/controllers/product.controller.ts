@@ -58,7 +58,7 @@ export const getSellerProducts = async (req: Request, res: Response) => {
   try {
     const sellerId = String(req.params.id);
     const page = Math.max(1, parseInt(String(req.query.page)) || 1);
-    const limit = Math.min(50, parseInt(String(req.query.limit)) || 20);
+    const limit = Math.min(500, parseInt(String(req.query.limit)) || 20);
 
     const cacheKey = `seller_products_${sellerId}_${page}_${limit}`;
     const cached = getCache(cacheKey);

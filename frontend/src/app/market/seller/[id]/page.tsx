@@ -2,13 +2,15 @@
 import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
 
 import { useState, useEffect, use } from "react";
-import { Store, ArrowLeft, ShieldCheck, MapPin, Phone, Package, ChevronLeft } from "lucide-react";
+import { Store, ArrowLeft, ShieldCheck, MapPin, Phone, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePageLoading } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
+import { Footer } from "@/components/layout/Footer";
 
 const API_BASE = getApiBaseUrl();
+const LIMIT = 20;
 
 export default function SellerProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -16,26 +18,55 @@ export default function SellerProfilePage({ params }: { params: Promise<{ id: st
 
   const [seller, setSeller] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  usePageLoading(loading);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [gridLoading, setGridLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  
+  usePageLoading(initialLoading);
   const router = useRouter();
 
-  useEffect(() => { loadData(); }, [sellerId]);
+  useEffect(() => { loadData(1, true); }, [sellerId]);
 
-  const loadData = async () => {
-    setLoading(true);
-    const [sellerRes, prodRes] = await Promise.all([
-      fetchApi(`${API_BASE}/api/profile/${sellerId}`),
-      fetchApi(`${API_BASE}/api/products`),
-    ]);
-    if (sellerRes.ok) setSeller(await sellerRes.json());
-    const raw = await prodRes.json();
-    const all = Array.isArray(raw) ? raw : (raw.data ?? []);
-    setProducts(all.filter((p: any) => p.sellerId === sellerId));
-    setLoading(false);
+  const loadData = async (pageToLoad = 1, isInitial = false) => {
+    if (isInitial) {
+      setInitialLoading(true);
+    }
+    setGridLoading(true);
+    try {
+      const [sellerRes, prodRes] = await Promise.all([
+        fetchApi(`${API_BASE}/api/profile/${sellerId}`),
+        fetchApi(`${API_BASE}/api/products/seller/${sellerId}?page=${pageToLoad}&limit=${LIMIT}`),
+      ]);
+      if (sellerRes.ok) setSeller(await sellerRes.json());
+      if (prodRes.ok) {
+        const pData = await prodRes.json();
+        if (pData && Array.isArray(pData.data)) {
+          setProducts(pData.data);
+          setTotalProducts(pData.total || pData.data.length);
+          setTotalPages(pData.totalPages || 1);
+          setCurrentPage(pData.page || pageToLoad);
+        } else if (Array.isArray(pData)) {
+          setProducts(pData);
+          setTotalProducts(pData.length);
+          setTotalPages(Math.ceil(pData.length / LIMIT) || 1);
+          setCurrentPage(pageToLoad);
+        } else {
+          setProducts([]);
+          setTotalProducts(0);
+          setTotalPages(1);
+        }
+      }
+    } catch(err) {
+      console.error(err);
+    } finally {
+      setInitialLoading(false);
+      setGridLoading(false);
+    }
   };
 
-  if (loading) return (
+  if (initialLoading) return (
     <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E]">
       <div className="sticky top-0 z-40 px-3.5 sm:px-4 pt-3.5 sm:pt-4">
         <div className="max-w-7xl mx-auto bg-white border border-[#E8E3D2] rounded-2xl shadow-[0_4px_24px_-8px_rgba(43,76,59,0.1)] h-12 sm:h-14 flex items-center px-4 md:px-8 lg:px-12">
@@ -60,7 +91,6 @@ export default function SellerProfilePage({ params }: { params: Promise<{ id: st
         <div>
           <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div className="w-32 sm:w-40 h-7 sm:h-8 rounded-xl skeleton-shimmer bg-[#E8E3D2]" />
-            <div className="w-16 sm:w-20 h-4 rounded-md skeleton-shimmer bg-[#E8E3D2]" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
             {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
@@ -160,13 +190,18 @@ export default function SellerProfilePage({ params }: { params: Promise<{ id: st
         </motion.div>
 
         {/* ── Products Grid ── */}
-        <div>
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div id="products-section" className="scroll-mt-24 sm:scroll-mt-28">
+          <div className="mb-4 sm:mb-6">
             <h2 className="text-xl sm:text-2xl font-black text-[#1C241E]">Etalase Produk</h2>
-            <p className="text-xs sm:text-sm text-[#7A8678] font-semibold">{products.length} produk</p>
           </div>
 
-          {products.length === 0 ? (
+          {gridLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                <div key={i} className="bg-white border border-[#E8E3D2] rounded-2xl sm:rounded-[1.75rem] overflow-hidden h-[300px] sm:h-[340px] skeleton-shimmer bg-[#E8E3D2]" />
+              ))}
+            </div>
+          ) : products.length === 0 ? (
             <div className="text-center py-12 sm:py-20 border-2 border-dashed border-[#DDE2D6] rounded-2xl sm:rounded-[2rem]">
               <Package size={40} className="mx-auto text-[#C4BAA8] mb-3 sm:w-12 sm:h-12" />
               <p className="font-black text-lg sm:text-xl text-[#5A635B] mb-1">Belum ada produk</p>
@@ -237,8 +272,78 @@ export default function SellerProfilePage({ params }: { params: Promise<{ id: st
               ))}
             </div>
           )}
+
+          {/* ── Pagination Controls ── */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-[#E8E3D2]">
+              <p className="text-xs sm:text-sm font-semibold text-[#7A8678]">
+                Menampilkan <span className="font-bold text-[#1C241E]">{products.length}</span> dari <span className="font-bold text-[#1C241E]">{totalProducts}</span> Produk
+              </p>
+
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <button
+                  onClick={() => {
+                    if (currentPage > 1 && !gridLoading) {
+                      const prev = currentPage - 1;
+                      setCurrentPage(prev);
+                      loadData(prev, false);
+                      document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                  }}
+                  disabled={currentPage === 1 || gridLoading}
+                  className="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-white border border-[#E8E3D2] text-[#1C241E] font-bold text-xs sm:text-sm hover:bg-[#F8F6F0] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs flex items-center gap-1 cursor-pointer"
+                >
+                  <ChevronLeft size={16} />
+                  <span className="hidden sm:inline">Sebelumnya</span>
+                </button>
+
+                <div className="flex items-center gap-1 px-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                    const isActive = pageNum === currentPage;
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => {
+                          if (pageNum !== currentPage && !gridLoading) {
+                            setCurrentPage(pageNum);
+                            loadData(pageNum, false);
+                            document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                          }
+                        }}
+                        disabled={gridLoading}
+                        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl font-black text-xs transition-all cursor-pointer ${
+                          isActive 
+                            ? 'bg-[#2B4C3B] text-white shadow-sm scale-105' 
+                            : 'bg-white text-[#7A8678] hover:text-[#1C241E] border border-[#E8E3D2]'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (currentPage < totalPages && !gridLoading) {
+                      const next = currentPage + 1;
+                      setCurrentPage(next);
+                      loadData(next, false);
+                      document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                  }}
+                  disabled={currentPage === totalPages || gridLoading}
+                  className="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-white border border-[#E8E3D2] text-[#1C241E] font-bold text-xs sm:text-sm hover:bg-[#F8F6F0] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs flex items-center gap-1 cursor-pointer"
+                >
+                  <span className="hidden sm:inline">Berikutnya</span>
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
