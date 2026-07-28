@@ -52,8 +52,8 @@ INFO KONTEKS REAL-TIME BACKEND USER:
 - Kondisi Cuaca Lokasi: ${contextData.weather?.temperature_2m ? `${Math.round(contextData.weather.temperature_2m)}°C, Kelembapan ${contextData.weather.relative_humidity_2m}%` : 'Normal'}
   ` : "";
 
-  // Token Optimization: Limit history to last 6 messages max
-  const recentMessages = Array.isArray(messages) ? messages.slice(-6) : [];
+  // Token & Context Optimization: Limit history to last 10 messages max (5 full turns of memory)
+  const recentMessages = Array.isArray(messages) ? messages.slice(-10) : [];
 
   // Transform recent messages into CoreMessages with explicit Buffer image payloads
   const coreMessages = recentMessages.map((msg: any) => {

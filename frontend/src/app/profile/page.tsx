@@ -282,7 +282,7 @@ export default function AccountSettingsPage() {
             <ChevronLeft size={18} className="shrink-0" />
             <span className="truncate">{backLabel}</span>
           </button>
-          <h2 className="font-black text-xs sm:text-sm text-[#1C241E] m-0 text-center truncate px-2">Pengaturan Akun</h2>
+          <h2 className="font-black text-xs sm:text-sm text-[#1C241E] m-0 text-center truncate px-2">Profil</h2>
           <div className="w-16 sm:w-28 shrink-0" />
         </div>
       </div>
@@ -302,8 +302,8 @@ export default function AccountSettingsPage() {
         )}
       </AnimatePresence>
 
-      <main className="max-w-7xl mx-auto pt-6 pb-28 px-4 md:px-8 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+      <main className="max-w-7xl mx-auto pt-4 sm:pt-6 pb-20 sm:pb-28 px-3.5 sm:px-6 md:px-8 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
 
         {/* ══════════════════════════════════════════════════════
             TWITTER / FB STYLE PROFILE CARD
@@ -312,11 +312,11 @@ export default function AccountSettingsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
-          className="lg:col-span-3 bg-white border border-[#E2E8F0]/50 rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+          className="lg:col-span-3 bg-white border border-[#E2E8F0]/50 rounded-2xl sm:rounded-3xl lg:rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
         >
 
           {/* Banner */}
-          <div className="relative h-40 sm:h-52 bg-pranata group">
+          <div className="relative h-32 sm:h-44 md:h-52 bg-pranata group">
             {bannerUrl ? (
               <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
             ) : (
@@ -332,10 +332,10 @@ export default function AccountSettingsPage() {
               </div>
             )}
 
-            {/* Banner upload overlay — always visible on hover */}
-            <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer gap-2">
-              <div className="flex items-center gap-2 bg-white/90 text-[#1C241E] font-black text-xs px-4 py-2.5 rounded-xl shadow-lg">
-                <Camera size={15} /> Ganti Sampul
+            {/* Banner upload button / overlay */}
+            <label className="absolute bottom-3 right-3 sm:inset-0 sm:flex sm:items-center sm:justify-center bg-black/40 sm:opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2 bg-white/90 text-[#1C241E] font-black text-[11px] sm:text-xs px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-xl shadow-lg">
+                <Camera size={14} className="sm:w-[15px] sm:h-[15px]" /> <span>Ganti Sampul</span>
               </div>
               <input
                 type="file" accept="image/*" className="sr-only"
@@ -351,21 +351,21 @@ export default function AccountSettingsPage() {
           </div>
 
           {/* Avatar + action row */}
-          <div className="px-6 pb-6">
-            <div className="flex items-end justify-between -mt-12 mb-4">
+          <div className="px-4 sm:px-6 pb-5 sm:pb-6">
+            <div className="flex items-end justify-between -mt-8 sm:-mt-12 mb-3 sm:mb-4 gap-2">
               {/* Avatar */}
               <div className="relative group shrink-0">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-pranata border-4 border-white overflow-hidden shadow-lg">
+                <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full bg-pranata border-4 border-white overflow-hidden shadow-lg">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white font-black text-4xl">
+                    <div className="w-full h-full flex items-center justify-center text-white font-black text-2xl sm:text-4xl">
                       {initials}
                     </div>
                   )}
                 </div>
                 <label className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                  <Camera size={20} className="text-white" />
+                  <Camera size={18} className="text-white sm:w-5 sm:h-5" />
                   <input
                     type="file" accept="image/*" className="sr-only"
                     onChange={async (e) => {
@@ -384,16 +384,16 @@ export default function AccountSettingsPage() {
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                 onClick={handleSaveProfile}
                 disabled={saving || usernameAvail === false}
-                className="flex items-center gap-2 border-2 border-[#2B4C3B] text-[#2B4C3B] font-black text-sm px-5 py-2.5 rounded-full hover:bg-pranata hover:text-white transition-all disabled:opacity-40"
+                className="flex items-center gap-1.5 sm:gap-2 border-2 border-[#2B4C3B] text-[#2B4C3B] font-black text-xs sm:text-sm px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full hover:bg-pranata hover:text-white transition-all disabled:opacity-40 shrink-0"
               >
-                {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-                {saving ? "Menyimpan…" : "Simpan Profil"}
+                {saving ? <Loader2 size={14} className="animate-spin sm:w-[15px] sm:h-[15px]" /> : <Save size={14} className="sm:w-[15px] sm:h-[15px]" />}
+                <span>{saving ? "Menyimpan…" : "Simpan Profil"}</span>
               </motion.button>
             </div>
 
             {/* Name / username */}
-            <h1 className="text-2xl font-black text-[#1C241E] leading-tight">{profile?.fullName || profile?.username}</h1>
-            <p className="text-sm font-bold text-[#7A8678]">@{profile?.username}</p>
+            <h1 className="text-xl sm:text-2xl font-black text-[#1C241E] leading-tight">{profile?.fullName || profile?.username}</h1>
+            <p className="text-xs sm:text-sm font-bold text-[#7A8678]">@{profile?.username}</p>
             <div className="flex flex-wrap items-center gap-2 mt-2">
               {profile?.location && (
                 <span className="flex items-center gap-1 text-xs text-[#7A8678] font-semibold">
@@ -405,7 +405,7 @@ export default function AccountSettingsPage() {
                   <Phone size={13} className="text-[#2B4C3B]" /> {profile.contact}
                 </span>
               )}
-              <span className={`text-xs font-black px-2.5 py-1 rounded-full ${
+              <span className={`text-[11px] sm:text-xs font-black px-2.5 py-0.5 sm:py-1 rounded-full ${
                 profile?.role === "PRODUCER" ? "bg-[#EEF2E6] text-[#2B4C3B]" : "bg-[#FFF3E0] text-[#C25939]"
               }`}>
                 {profile?.role === "PRODUCER" ? "Pedagang / Peternak" : "Pembeli"}
@@ -413,8 +413,8 @@ export default function AccountSettingsPage() {
             </div>
 
             {/* Hint */}
-            <p className="text-xs text-[#A4B0A7] font-semibold mt-4">
-              Arahkan cursor ke foto atau sampul untuk menggantinya.
+            <p className="text-[11px] sm:text-xs text-[#A4B0A7] font-semibold mt-3 sm:mt-4">
+              Ketuk foto atau sampul untuk mengunggah gambar baru.
             </p>
           </div>
         </motion.div>
@@ -424,24 +424,24 @@ export default function AccountSettingsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
-          className="lg:col-span-2 bg-white border border-[#E2E8F0]/50 rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] flex flex-col"
+          className="lg:col-span-2 bg-white border border-[#E2E8F0]/50 rounded-2xl sm:rounded-3xl lg:rounded-[2.5rem] p-4 sm:p-8 md:p-10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] flex flex-col"
         >
-          <h2 className="text-lg font-black text-[#1C241E] flex items-center gap-2 mb-6">
+          <h2 className="text-base sm:text-lg font-black text-[#1C241E] flex items-center gap-2 mb-4 sm:mb-6">
             <div className="w-7 h-7 bg-[#EEF2E6] rounded-lg flex items-center justify-center">
               <User size={14} className="text-[#2B4C3B]" />
             </div>
             Informasi Profil
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {/* Username */}
             <div>
-              <label className="block text-sm font-bold text-[#71717A] mb-2">Username</label>
+              <label className="block text-xs sm:text-sm font-bold text-[#71717A] mb-1.5 sm:mb-2">Username</label>
               <div className="relative">
                 <input
                   value={username}
                   onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, ""))}
-                  className="w-full bg-[#F9FAFB] border border-[#E2E8F0]/80 rounded-2xl px-4 py-3.5 font-bold text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#2B4C3B] focus:border-transparent transition-all"
+                  className="w-full bg-[#F9FAFB] border border-[#E2E8F0]/80 rounded-xl sm:rounded-2xl px-3.5 sm:px-4 py-3 sm:py-3.5 font-bold text-xs sm:text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#2B4C3B] focus:border-transparent transition-all"
                   placeholder="username"
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -456,20 +456,20 @@ export default function AccountSettingsPage() {
 
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-bold text-[#71717A] mb-2">Nama Lengkap</label>
+              <label className="block text-xs sm:text-sm font-bold text-[#71717A] mb-1.5 sm:mb-2">Nama Lengkap</label>
               <input value={fullName} onChange={(e) => setFullName(e.target.value)}
-                className="w-full bg-[#F9FAFB] border border-[#E2E8F0]/80 rounded-2xl px-4 py-3.5 font-bold text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#2B4C3B] focus:border-transparent transition-all"
+                className="w-full bg-[#F9FAFB] border border-[#E2E8F0]/80 rounded-xl sm:rounded-2xl px-3.5 sm:px-4 py-3 sm:py-3.5 font-bold text-xs sm:text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#2B4C3B] focus:border-transparent transition-all"
                 placeholder="Nama lengkap" />
             </div>
 
             {/* Farm Name — PRODUCER only */}
             {profile?.role === "PRODUCER" && (
               <div>
-                <label className="block text-sm font-bold text-[#71717A] mb-2">Nama Usaha / Farm</label>
+                <label className="block text-xs sm:text-sm font-bold text-[#71717A] mb-1.5 sm:mb-2">Nama Usaha / Farm</label>
                 <div className="relative">
-                  <Store size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+                  <Store size={18} className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
                   <input value={farmName} onChange={(e) => setFarmName(e.target.value)}
-                    className="w-full bg-[#F9FAFB] border border-[#E2E8F0]/80 rounded-2xl pl-12 pr-4 py-3.5 font-bold text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#2B4C3B] focus:border-transparent transition-all"
+                    className="w-full bg-[#F9FAFB] border border-[#E2E8F0]/80 rounded-xl sm:rounded-2xl pl-11 sm:pl-12 pr-4 py-3 sm:py-3.5 font-bold text-xs sm:text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#2B4C3B] focus:border-transparent transition-all"
                     placeholder="Nama toko / farm" />
                 </div>
               </div>
@@ -477,34 +477,34 @@ export default function AccountSettingsPage() {
 
             {/* Location */}
             <div>
-              <label className="block text-sm font-bold text-[#71717A] mb-2">Lokasi</label>
+              <label className="block text-xs sm:text-sm font-bold text-[#71717A] mb-1.5 sm:mb-2">Lokasi</label>
               <div className="relative">
-                <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+                <MapPin size={18} className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
                 <input value={location} onChange={(e) => setLocation(e.target.value)}
-                  className="w-full bg-[#F9FAFB] border border-[#E2E8F0]/80 rounded-2xl pl-12 pr-4 py-3.5 font-bold text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#2B4C3B] focus:border-transparent transition-all"
+                  className="w-full bg-[#F9FAFB] border border-[#E2E8F0]/80 rounded-xl sm:rounded-2xl pl-11 sm:pl-12 pr-4 py-3 sm:py-3.5 font-bold text-xs sm:text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#2B4C3B] focus:border-transparent transition-all"
                   placeholder="Kota, Provinsi" />
               </div>
             </div>
 
             {/* Contact */}
             <div className="col-span-1 sm:col-span-2">
-              <label className="block text-sm font-bold text-[#71717A] mb-2">Kontak / WhatsApp</label>
+              <label className="block text-xs sm:text-sm font-bold text-[#71717A] mb-1.5 sm:mb-2">Kontak / WhatsApp</label>
               <div className="relative">
-                <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+                <Phone size={18} className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
                 <input value={contact} onChange={(e) => setContact(e.target.value)}
-                  className="w-full bg-[#F9FAFB] border border-[#E2E8F0]/80 rounded-2xl pl-12 pr-4 py-3.5 font-bold text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#2B4C3B] focus:border-transparent transition-all"
+                  className="w-full bg-[#F9FAFB] border border-[#E2E8F0]/80 rounded-xl sm:rounded-2xl pl-11 sm:pl-12 pr-4 py-3 sm:py-3.5 font-bold text-xs sm:text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#2B4C3B] focus:border-transparent transition-all"
                   placeholder="+62 812 xxxx xxxx" />
               </div>
             </div>
           </div>
 
-          <div className="mt-auto pt-8">
+          <div className="mt-auto pt-6 sm:pt-8">
             <motion.button
               whileHover={!(saving || usernameAvail === false) ? { scale: 1.02 } : {}}
               whileTap={!(saving || usernameAvail === false) ? { scale: 0.97 } : {}}
               onClick={handleSaveProfile}
               disabled={saving || usernameAvail === false}
-              className="w-full py-4 bg-pranata hover:bg-[#1E362A] disabled:opacity-50 text-white font-black rounded-2xl shadow-[0_10px_20px_-10px_rgba(43,76,59,0.5)] transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3.5 sm:py-4 bg-pranata hover:bg-[#1E362A] disabled:opacity-50 text-white font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-[0_10px_20px_-10px_rgba(43,76,59,0.5)] transition-colors flex items-center justify-center gap-2 cursor-pointer active:scale-95"
             >
               {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
               {saving ? "Menyimpan…" : "Simpan Perubahan"}
@@ -517,32 +517,32 @@ export default function AccountSettingsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 20, delay: 0.3 }}
-          className="lg:col-span-1 bg-white border border-[#E2E8F0]/50 rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] flex flex-col"
+          className="lg:col-span-1 bg-white border border-[#E2E8F0]/50 rounded-2xl sm:rounded-3xl lg:rounded-[2.5rem] p-4 sm:p-8 md:p-10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] flex flex-col"
         >
-          <h2 className="text-lg font-black text-[#1C241E] flex items-center gap-2 mb-6">
+          <h2 className="text-base sm:text-lg font-black text-[#1C241E] flex items-center gap-2 mb-4 sm:mb-6">
             <div className="w-7 h-7 bg-[#FFF3E0] rounded-lg flex items-center justify-center">
               <Lock size={14} className="text-[#C25939]" />
             </div>
             Ubah Password
           </h2>
 
-          <div className="space-y-4">
+          <div className="space-y-3.5 sm:space-y-4">
             {[
               { label: "Password Saat Ini",          val: currentPw, set: setCurrentPw, show: showCur,  toggle: () => setShowCur (v => !v) },
               { label: "Password Baru",               val: newPw,     set: setNewPw,     show: showNew,  toggle: () => setShowNew (v => !v) },
               { label: "Konfirmasi Password Baru",    val: confirmPw, set: setConfirmPw, show: showConf, toggle: () => setShowConf(v => !v) },
             ].map(f => (
               <div key={f.label}>
-                <label className="block text-sm font-bold text-[#71717A] mb-2">{f.label}</label>
+                <label className="block text-xs sm:text-sm font-bold text-[#71717A] mb-1.5 sm:mb-2">{f.label}</label>
                 <div className="relative">
                   <input
                     type={f.show ? "text" : "password"}
                     value={f.val}
                     onChange={(e) => f.set(e.target.value)}
-                    className="w-full bg-[#F9FAFB] border border-[#E2E8F0]/80 rounded-2xl px-4 py-3.5 pr-12 font-bold text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#2B4C3B] focus:border-transparent transition-all"
+                    className="w-full bg-[#F9FAFB] border border-[#E2E8F0]/80 rounded-xl sm:rounded-2xl px-3.5 sm:px-4 py-3 sm:py-3.5 pr-12 font-bold text-xs sm:text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#2B4C3B] focus:border-transparent transition-all"
                     placeholder="••••••••"
                   />
-                  <button type="button" onClick={f.toggle} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#18181B] transition-colors">
+                  <button type="button" onClick={f.toggle} className="absolute right-3.5 sm:right-4 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#18181B] transition-colors">
                     {f.show ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
@@ -557,13 +557,13 @@ export default function AccountSettingsPage() {
             )}
           </div>
 
-          <div className="mt-auto pt-8">
+          <div className="mt-auto pt-6 sm:pt-8">
             <motion.button
               whileHover={!(savingPw || !currentPw || !newPw || newPw !== confirmPw || newPw.length < 6) ? { scale: 1.02 } : {}}
               whileTap={!(savingPw || !currentPw || !newPw || newPw !== confirmPw || newPw.length < 6) ? { scale: 0.97 } : {}}
               onClick={handleChangePw}
               disabled={savingPw || !currentPw || !newPw || newPw !== confirmPw || newPw.length < 6}
-              className="w-full py-4 bg-[#18181B] hover:bg-black disabled:opacity-50 text-white font-black rounded-2xl shadow-[0_10px_20px_-10px_rgba(0,0,0,0.5)] transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3.5 sm:py-4 bg-[#18181B] hover:bg-black disabled:opacity-50 text-white font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-[0_10px_20px_-10px_rgba(0,0,0,0.5)] transition-colors flex items-center justify-center gap-2 cursor-pointer active:scale-95"
             >
               {savingPw ? <Loader2 size={18} className="animate-spin" /> : <Lock size={18} />}
               {savingPw ? "Menyimpan…" : "Perbarui Password"}
@@ -576,11 +576,11 @@ export default function AccountSettingsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 20, delay: 0.4 }}
-          className="lg:col-span-3 border-2 border-dashed border-[#E11D48]/30 bg-[#FFF1F2] rounded-[2.5rem] p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6"
+          className="lg:col-span-3 border-2 border-dashed border-[#E11D48]/30 bg-[#FFF1F2] rounded-2xl sm:rounded-3xl lg:rounded-[2.5rem] p-4 sm:p-8 md:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6"
         >
           <div>
-            <h3 className="font-black text-[#E11D48] text-lg mb-2">Keluar dari Perangkat</h3>
-            <p className="text-sm font-semibold text-[#E11D48]/70">Akhiri sesi di perangkat ini untuk menjaga keamanan akun Anda.</p>
+            <h3 className="font-black text-[#E11D48] text-base sm:text-lg mb-1 sm:mb-2">Keluar dari Perangkat</h3>
+            <p className="text-xs sm:text-sm font-semibold text-[#E11D48]/70">Akhiri sesi di perangkat ini untuk menjaga keamanan akun Anda.</p>
           </div>
           <motion.button 
             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
@@ -589,7 +589,7 @@ export default function AccountSettingsPage() {
               localStorage.removeItem("farmpro_session"); 
               window.location.href = "/"; 
             }}
-            className="px-8 py-3.5 bg-white text-[#E11D48] font-black rounded-2xl border border-[#E11D48]/20 hover:bg-[#E11D48] hover:text-white transition-colors shadow-sm"
+            className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-[#E11D48] font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-[#E11D48]/20 hover:bg-[#E11D48] hover:text-white transition-colors shadow-sm cursor-pointer text-center active:scale-95"
           >
             Keluar dari Akun
           </motion.button>

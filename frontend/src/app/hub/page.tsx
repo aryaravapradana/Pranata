@@ -568,7 +568,7 @@ export default function MainDashboard() {
                   ) : (
                     <div className="flex-1 flex flex-col relative overflow-hidden">
                       
-                      <div className="flex flex-col gap-2.5 sm:gap-3 flex-1 overflow-y-auto pr-1 hide-scrollbar">
+                      <div className="flex flex-col gap-2.5 sm:gap-3 md:gap-3.5 flex-1 overflow-y-auto pr-1 hide-scrollbar md:justify-between">
                         {(() => {
                           const content = messages.filter(m => m.role === 'assistant').pop()?.content || "";
                           let rawCards = content.split(/---|\n(?=TITLE:)/i)
@@ -637,20 +637,20 @@ export default function MainDashboard() {
                             const ctaUrl = ctaUrlMatch ? ctaUrlMatch[1].replace(/\*/g, '').trim() : (idx === 0 ? '/hub/store' : '/hub/calendar');
 
                             return (
-                              <div key={idx} className="bg-white/10 rounded-xl border border-white/20 p-2.5 sm:p-3 backdrop-blur-md shadow-sm flex flex-col hover:bg-white/15 transition-colors group">
-                                <div className="flex flex-col mb-1.5">
-                                  <div className="mb-0.5">
-                                    <h4 className="text-[9px] font-black text-[#A4C4A8] uppercase tracking-wider mb-0.5">{title}</h4>
-                                    <div className="text-lg sm:text-xl font-black text-white leading-tight break-words">{val}</div>
+                              <div key={idx} className="bg-white/10 rounded-xl border border-white/20 p-2.5 sm:p-3 md:p-4 backdrop-blur-md shadow-sm flex flex-col justify-between hover:bg-white/15 transition-all group md:flex-1 md:rounded-2xl md:bg-white/12 md:border-white/25 md:shadow-md">
+                                <div className="flex flex-col mb-1.5 md:mb-2">
+                                  <div className="mb-1 md:mb-2">
+                                    <span className="text-[9px] md:text-[10px] font-black text-[#A4C4A8] md:text-[#C8E6C9] uppercase tracking-wider md:bg-white/15 md:px-2.5 md:py-0.5 md:rounded-full inline-block mb-1 border border-transparent md:border-white/10">{title}</span>
+                                    <div className="text-lg sm:text-xl md:text-2xl font-black text-white leading-tight md:leading-snug break-words md:tracking-tight">{val}</div>
                                   </div>
-                                  <p className="text-[10px] font-medium text-white/90 leading-snug">
+                                  <p className="text-[10px] md:text-xs font-medium text-white/90 leading-snug md:leading-relaxed">
                                     {desc}
                                   </p>
                                 </div>
                                 {!isLoading && ctaUrl !== '/hub/intelligence' && (
-                                  <div className="flex justify-end border-t border-white/10 pt-2 mt-auto">
-                                    <Link href={ctaUrl} className="inline-flex items-center gap-1 text-[10px] font-extrabold bg-white text-[#2B4C3B] px-3 py-1 rounded-full hover:bg-[#EEF2E6] transition-colors shadow-sm group-hover:scale-105 origin-right">
-                                      {ctaText} <ChevronRight size={10} />
+                                  <div className="flex justify-end border-t border-white/10 pt-2 md:pt-3 mt-auto">
+                                    <Link href={ctaUrl} className="inline-flex items-center gap-1 text-[10px] md:text-xs font-extrabold bg-white text-[#2B4C3B] px-3 py-1 md:px-3.5 md:py-1.5 rounded-full hover:bg-[#EEF2E6] transition-all shadow-sm group-hover:scale-105 origin-right">
+                                      {ctaText} <ChevronRight size={12} />
                                     </Link>
                                   </div>
                                 )}

@@ -193,30 +193,30 @@ export default function NewProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F6F0] p-6 sm:p-10 text-[#1C241E]">
-      <div className="max-w-7xl mx-auto space-y-8 px-4 md:px-8 lg:px-12">
+    <div className="min-h-screen bg-[#F8F6F0] p-3.5 sm:p-6 md:p-10 text-[#1C241E]">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 px-0 sm:px-4 md:px-8 lg:px-12">
         
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <button 
             onClick={() => stepperStep === 2 ? setStepperStep(1) : router.push("/hub/store")} 
-            className="text-[#5A635B] hover:text-[#2B4C3B] p-3 bg-white rounded-full shadow-sm transition-all hover:shadow-md"
+            className="text-[#5A635B] hover:text-[#2B4C3B] p-2.5 sm:p-3 bg-white rounded-full shadow-sm transition-all hover:shadow-md shrink-0"
           >
-            <ArrowLeft size={24} />
+            <ArrowLeft size={20} className="sm:w-6 sm:h-6" />
           </button>
           <div>
-            <h1 className="text-3xl md:text-4xl font-black text-[#2B4C3B] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#2B4C3B] tracking-tight">
               {stepperStep === 1 ? 'Pilih Kategori Produk' : 'Detail Produk Baru'}
             </h1>
-            <p className="text-[#5A635B] font-semibold mt-1">Langkah {stepperStep} dari 2</p>
+            <p className="text-xs sm:text-sm text-[#5A635B] font-semibold mt-0.5 sm:mt-1">Langkah {stepperStep} dari 2</p>
           </div>
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-[#E8E3D2]">
-          <div className="p-8 md:p-12">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden border border-[#E8E3D2]">
+          <div className="p-4 sm:p-8 md:p-12">
             {stepperStep === 1 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                 {[
                   { name: "Daging", image: "/icons/daging.webp", desc: "Sapi, Kambing, Ayam, dll.", theme: "hover:border-red-400 hover:bg-red-50" },
                   { name: "Susu", image: "/icons/susu.webp", desc: "Susu sapi segar, kambing, dll.", theme: "hover:border-blue-400 hover:bg-blue-50" },
@@ -228,28 +228,28 @@ export default function NewProductPage() {
                       setNewProduct({...newProduct, category: cat.name});
                       setStepperStep(2);
                     }}
-                    className={`flex flex-col items-center justify-center p-10 bg-[#F8F6F0] rounded-3xl border-2 border-[#E8E3D2] transition-all shadow-sm group hover:-translate-y-2 ${cat.theme}`}
+                    className={`flex flex-col items-center justify-center p-6 sm:p-10 bg-[#F8F6F0] rounded-2xl sm:rounded-3xl border-2 border-[#E8E3D2] transition-all shadow-sm group hover:-translate-y-2 ${cat.theme}`}
                   >
-                    <img src={cat.image} alt={cat.name} className="w-20 h-20 mb-6 object-contain group-hover:scale-110 transition-transform"  loading="lazy" decoding="async" />
-                    <h3 className="font-black text-2xl text-[#1C241E] mb-3">{cat.name}</h3>
-                    <p className="text-sm font-semibold text-[#7A8678] text-center leading-tight">{cat.desc}</p>
+                    <img src={cat.image} alt={cat.name} className="w-16 h-16 sm:w-20 sm:h-20 mb-4 sm:mb-6 object-contain group-hover:scale-110 transition-transform"  loading="lazy" decoding="async" />
+                    <h3 className="font-black text-xl sm:text-2xl text-[#1C241E] mb-2 sm:mb-3">{cat.name}</h3>
+                    <p className="text-xs sm:text-sm font-semibold text-[#7A8678] text-center leading-tight">{cat.desc}</p>
                   </button>
                 ))}
               </div>
             ) : (
-              <form id="productForm" onSubmit={handleAddProduct} className="space-y-10">
+              <form id="productForm" onSubmit={handleAddProduct} className="space-y-6 sm:space-y-10">
                 
                 {/* Photo & Basic Details Row */}
-                <div className="flex flex-col lg:flex-row gap-10">
-                  <div className="w-full lg:w-1/3 flex flex-col gap-4">
-                    <div className="flex justify-between items-end mb-2">
-                      <label className="block text-sm font-black text-[#2B4C3B] uppercase tracking-wider">Foto Produk</label>
-                      <span className="text-xs font-bold text-[#7A8678] bg-[#F8F6F0] px-3 py-1 rounded-full">{newProduct.imageUrls.length}/5</span>
+                <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-10">
+                  <div className="w-full lg:w-1/3 flex flex-col gap-3 sm:gap-4">
+                    <div className="flex justify-between items-end mb-1 sm:mb-2">
+                      <label className="block text-xs sm:text-sm font-black text-[#2B4C3B] uppercase tracking-wider">Foto Produk</label>
+                      <span className="text-[10px] sm:text-xs font-bold text-[#7A8678] bg-[#F8F6F0] px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full">{newProduct.imageUrls.length}/5</span>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                       {newProduct.imageUrls.map((url, idx) => (
-                        <div key={idx} className="aspect-square bg-[#F8F6F0] rounded-2xl border border-[#DDE2D6] overflow-hidden relative group shadow-inner">
+                        <div key={idx} className="aspect-square bg-[#F8F6F0] rounded-xl sm:rounded-2xl border border-[#DDE2D6] overflow-hidden relative group shadow-inner">
                           <img src={url} alt={`Preview ${idx}`} className="w-full h-full object-cover"  loading="lazy" decoding="async" />
                           <button 
                             type="button"
@@ -259,23 +259,23 @@ export default function NewProductPage() {
                             }}
                             className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                           >
-                            <X className="text-white bg-black/40 rounded-full p-2" size={36} />
+                            <X className="text-white bg-black/40 rounded-full p-1.5 sm:p-2" size={30} />
                           </button>
                         </div>
                       ))}
                       
                       {newProduct.imageUrls.length < 5 && (
-                        <div className="aspect-square bg-[#F8F6F0] rounded-2xl border-2 border-dashed border-[#DDE2D6] flex flex-col items-center justify-center relative group cursor-pointer hover:border-[#4A7C59] hover:bg-[#EEF2E6] transition-colors overflow-hidden shadow-inner">
+                        <div className="aspect-square bg-[#F8F6F0] rounded-xl sm:rounded-2xl border-2 border-dashed border-[#DDE2D6] flex flex-col items-center justify-center relative group cursor-pointer hover:border-[#4A7C59] hover:bg-[#EEF2E6] transition-colors overflow-hidden shadow-inner">
                           {isAiProcessing && newProduct.category === "Daging" ? (
-                            <div className="flex flex-col items-center gap-3">
-                              <Sparkles className="animate-pulse text-[#F5990D]" size={32} />
-                              <span className="text-[11px] font-black text-[#F5990D] uppercase tracking-widest text-center">AI Sedang<br/>Bekerja</span>
+                            <div className="flex flex-col items-center gap-2 sm:gap-3">
+                              <Sparkles className="animate-pulse text-[#F5990D]" size={26} />
+                              <span className="text-[10px] sm:text-[11px] font-black text-[#F5990D] uppercase tracking-widest text-center">AI Sedang<br/>Bekerja</span>
                             </div>
                           ) : (
                             <>
                               <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                              <div className="bg-white p-4 rounded-full shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all">
-                                <ImageIcon className="text-[#A4B0A7] group-hover:text-[#4A7C59] transition-colors" size={28} />
+                              <div className="bg-white p-3 sm:p-4 rounded-full shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all">
+                                <ImageIcon className="text-[#A4B0A7] group-hover:text-[#4A7C59] transition-colors" size={24} />
                               </div>
                             </>
                           )}
@@ -322,32 +322,32 @@ export default function NewProductPage() {
                     })()}
                   </div>
                   
-                  <div className="flex-1 space-y-6">
+                  <div className="flex-1 space-y-4 sm:space-y-6">
                     <div>
-                      <label className="block text-sm font-black mb-2 text-[#2B4C3B] uppercase tracking-wider">Product Name</label>
-                      <input required type="text" placeholder="e.g. Telur Ayam Kampung Premium" value={newProduct.title} onChange={e => setNewProduct({...newProduct, title: e.target.value})} className="w-full bg-[#F8F6F0] border border-[#DDE2D6] rounded-2xl p-4 focus:ring-4 focus:ring-[#4A7C59]/20 focus:border-[#4A7C59] outline-none transition-all text-[#1C241E] font-bold text-lg" />
+                      <label className="block text-xs sm:text-sm font-black mb-1.5 sm:mb-2 text-[#2B4C3B] uppercase tracking-wider">Nama Produk</label>
+                      <input required type="text" placeholder="misal: Telur Ayam Kampung Premium" value={newProduct.title} onChange={e => setNewProduct({...newProduct, title: e.target.value})} className="w-full bg-[#F8F6F0] border border-[#DDE2D6] rounded-xl sm:rounded-2xl p-3.5 sm:p-4 focus:ring-4 focus:ring-[#4A7C59]/20 focus:border-[#4A7C59] outline-none transition-all text-[#1C241E] font-bold text-base sm:text-lg" />
                     </div>
                     <div>
-                      <label className="block text-sm font-black mb-2 text-[#2B4C3B] uppercase tracking-wider">Description (Optional)</label>
-                      <textarea rows={4} placeholder="Describe the quality, origin, or freshness of your product..." value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} className="w-full bg-[#F8F6F0] border border-[#DDE2D6] rounded-2xl p-4 focus:ring-4 focus:ring-[#4A7C59]/20 focus:border-[#4A7C59] outline-none transition-all text-[#1C241E] font-medium resize-none leading-relaxed" />
+                      <label className="block text-xs sm:text-sm font-black mb-1.5 sm:mb-2 text-[#2B4C3B] uppercase tracking-wider">Deskripsi (Opsional)</label>
+                      <textarea rows={4} placeholder="Jelaskan kualitas, asal usul, atau kesegaran produk Anda..." value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} className="w-full bg-[#F8F6F0] border border-[#DDE2D6] rounded-xl sm:rounded-2xl p-3.5 sm:p-4 focus:ring-4 focus:ring-[#4A7C59]/20 focus:border-[#4A7C59] outline-none transition-all text-[#1C241E] font-medium text-xs sm:text-sm resize-none leading-relaxed" />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-1 sm:pt-2">
                       <div className="sm:col-span-1">
-                        <label className="block text-sm font-black mb-2 text-[#2B4C3B] uppercase tracking-wider">Category</label>
-                        <div className="w-full bg-[#E8E3D2] border border-[#DDE2D6] rounded-2xl p-4 text-[#7A8678] font-bold cursor-not-allowed opacity-80">
+                        <label className="block text-xs sm:text-sm font-black mb-1.5 sm:mb-2 text-[#2B4C3B] uppercase tracking-wider">Kategori</label>
+                        <div className="w-full bg-[#E8E3D2] border border-[#DDE2D6] rounded-xl sm:rounded-2xl p-3.5 sm:p-4 text-[#7A8678] font-bold text-sm sm:text-base cursor-not-allowed opacity-80">
                           {newProduct.category}
                         </div>
                       </div>
                       <div className="sm:col-span-1">
-                        <label className="block text-sm font-black mb-2 text-[#2B4C3B] uppercase tracking-wider">Stock Quantity</label>
-                        <div className="flex items-center bg-[#F8F6F0] border border-[#DDE2D6] rounded-2xl overflow-hidden focus-within:ring-4 focus-within:ring-[#4A7C59]/20 focus-within:border-[#4A7C59] relative h-14">
+                        <label className="block text-xs sm:text-sm font-black mb-1.5 sm:mb-2 text-[#2B4C3B] uppercase tracking-wider">Jumlah Stok</label>
+                        <div className="flex items-center bg-[#F8F6F0] border border-[#DDE2D6] rounded-xl sm:rounded-2xl overflow-hidden focus-within:ring-4 focus-within:ring-[#4A7C59]/20 focus-within:border-[#4A7C59] relative h-12 sm:h-14">
                           <button 
                             type="button" 
                             onClick={() => setNewProduct(prev => ({ ...prev, stock: Math.max(0, (prev.stock || 0) - 1) }))} 
-                            className="w-14 h-full bg-white hover:bg-[#EEF2E6] active:scale-95 text-[#2B4C3B] font-black text-xl flex items-center justify-center border-r border-[#DDE2D6] transition-all shrink-0 z-10 cursor-pointer select-none"
+                            className="w-12 sm:w-14 h-full bg-white hover:bg-[#EEF2E6] active:scale-95 text-[#2B4C3B] font-black text-lg sm:text-xl flex items-center justify-center border-r border-[#DDE2D6] transition-all shrink-0 z-10 cursor-pointer select-none"
                           >
-                            <Minus size={20} strokeWidth={3} />
+                            <Minus size={18} strokeWidth={3} />
                           </button>
                           
                           <div className="flex-1 relative h-full flex items-center justify-center min-w-0">
@@ -368,7 +368,7 @@ export default function NewProductPage() {
                                     const rawVal = e.target.value.replace(/\D/g, "");
                                     setNewProduct(prev => ({ ...prev, stock: rawVal ? parseInt(rawVal, 10) : 0 }));
                                   }}
-                                  className="w-full bg-transparent text-center font-black text-xl text-[#1C241E] h-full outline-none px-2 tracking-tight"
+                                  className="w-full bg-transparent text-center font-black text-lg sm:text-xl text-[#1C241E] h-full outline-none px-2 tracking-tight"
                                 />
                               </motion.div>
                             </AnimatePresence>
@@ -377,24 +377,24 @@ export default function NewProductPage() {
                           <button 
                             type="button" 
                             onClick={() => setNewProduct(prev => ({ ...prev, stock: (prev.stock || 0) + 1 }))} 
-                            className="w-14 h-full bg-white hover:bg-[#EEF2E6] active:scale-95 text-[#2B4C3B] font-black text-xl flex items-center justify-center border-l border-[#DDE2D6] transition-all shrink-0 z-10 cursor-pointer select-none"
+                            className="w-12 sm:w-14 h-full bg-white hover:bg-[#EEF2E6] active:scale-95 text-[#2B4C3B] font-black text-lg sm:text-xl flex items-center justify-center border-l border-[#DDE2D6] transition-all shrink-0 z-10 cursor-pointer select-none"
                           >
-                            <Plus size={20} strokeWidth={3} />
+                            <Plus size={18} strokeWidth={3} />
                           </button>
                         </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                       <div className="sm:col-span-1">
-                        <label className="block text-sm font-black mb-2 text-[#2B4C3B] uppercase tracking-wider">Minimum Order</label>
-                        <div className="flex items-center bg-[#F8F6F0] border border-[#DDE2D6] rounded-2xl overflow-hidden focus-within:ring-4 focus-within:ring-[#4A7C59]/20 focus-within:border-[#4A7C59] relative h-14">
+                        <label className="block text-xs sm:text-sm font-black mb-1.5 sm:mb-2 text-[#2B4C3B] uppercase tracking-wider">Minimal Pesanan</label>
+                        <div className="flex items-center bg-[#F8F6F0] border border-[#DDE2D6] rounded-xl sm:rounded-2xl overflow-hidden focus-within:ring-4 focus-within:ring-[#4A7C59]/20 focus-within:border-[#4A7C59] relative h-12 sm:h-14">
                           <button 
                             type="button" 
                             onClick={() => setNewProduct(prev => ({ ...prev, minOrder: Math.max(1, (prev.minOrder || 1) - 1) }))} 
-                            className="w-14 h-full bg-white hover:bg-[#EEF2E6] active:scale-95 text-[#2B4C3B] font-black text-xl flex items-center justify-center border-r border-[#DDE2D6] transition-all shrink-0 z-10 cursor-pointer select-none"
+                            className="w-12 sm:w-14 h-full bg-white hover:bg-[#EEF2E6] active:scale-95 text-[#2B4C3B] font-black text-lg sm:text-xl flex items-center justify-center border-r border-[#DDE2D6] transition-all shrink-0 z-10 cursor-pointer select-none"
                           >
-                            <Minus size={20} strokeWidth={3} />
+                            <Minus size={18} strokeWidth={3} />
                           </button>
 
                           <div className="flex-1 relative h-full flex items-center justify-center min-w-0">
@@ -415,7 +415,7 @@ export default function NewProductPage() {
                                     const rawVal = e.target.value.replace(/\D/g, "");
                                     setNewProduct(prev => ({ ...prev, minOrder: rawVal ? parseInt(rawVal, 10) : 1 }));
                                   }}
-                                  className="w-full bg-transparent text-center font-black text-xl text-[#1C241E] h-full outline-none px-2 tracking-tight"
+                                  className="w-full bg-transparent text-center font-black text-lg sm:text-xl text-[#1C241E] h-full outline-none px-2 tracking-tight"
                                 />
                               </motion.div>
                             </AnimatePresence>
@@ -424,19 +424,19 @@ export default function NewProductPage() {
                           <button 
                             type="button" 
                             onClick={() => setNewProduct(prev => ({ ...prev, minOrder: (prev.minOrder || 1) + 1 }))} 
-                            className="w-14 h-full bg-white hover:bg-[#EEF2E6] active:scale-95 text-[#2B4C3B] font-black text-xl flex items-center justify-center border-l border-[#DDE2D6] transition-all shrink-0 z-10 cursor-pointer select-none"
+                            className="w-12 sm:w-14 h-full bg-white hover:bg-[#EEF2E6] active:scale-95 text-[#2B4C3B] font-black text-lg sm:text-xl flex items-center justify-center border-l border-[#DDE2D6] transition-all shrink-0 z-10 cursor-pointer select-none"
                           >
-                            <Plus size={20} strokeWidth={3} />
+                            <Plus size={18} strokeWidth={3} />
                           </button>
                         </div>
                       </div>
                       <div className="sm:col-span-1">
-                        <label className="block text-sm font-black mb-2 text-[#2B4C3B] uppercase tracking-wider">Unit</label>
+                        <label className="block text-xs sm:text-sm font-black mb-1.5 sm:mb-2 text-[#2B4C3B] uppercase tracking-wider">Satuan (Unit)</label>
                         <div className="relative">
                           <button 
                             type="button" 
                             onClick={() => setShowUnitDropdown(!showUnitDropdown)}
-                            className="w-full bg-[#F8F6F0] border border-[#DDE2D6] rounded-2xl p-4 focus:ring-4 focus:ring-[#4A7C59]/20 focus:border-[#4A7C59] outline-none transition-all text-[#1C241E] font-bold text-lg flex justify-between items-center"
+                            className="w-full bg-[#F8F6F0] border border-[#DDE2D6] rounded-xl sm:rounded-2xl p-3.5 sm:p-4 focus:ring-4 focus:ring-[#4A7C59]/20 focus:border-[#4A7C59] outline-none transition-all text-[#1C241E] font-bold text-base sm:text-lg flex justify-between items-center"
                           >
                             <span>{newProduct.unit}</span>
                             <svg className={`fill-current h-5 w-5 text-[#5A635B] transition-transform duration-200 ${showUnitDropdown ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
@@ -447,14 +447,14 @@ export default function NewProductPage() {
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
-                                className="absolute z-10 w-full mt-2 bg-white border border-[#DDE2D6] rounded-2xl shadow-xl overflow-hidden py-2"
+                                className="absolute z-20 w-full mt-2 bg-white border border-[#DDE2D6] rounded-xl sm:rounded-2xl shadow-xl overflow-hidden py-2"
                               >
                                 {["kg", "gram", "ekor", "butir", "pack", "liter", "botol"].map((u) => (
                                   <button
                                     key={u}
                                     type="button"
                                     onClick={() => { setNewProduct({...newProduct, unit: u}); setShowUnitDropdown(false); }}
-                                    className={`w-full text-left px-5 py-3 text-sm font-bold hover:bg-[#F8F6F0] transition-colors ${newProduct.unit === u ? 'text-[#2B4C3B] bg-[#EEF2E6]' : 'text-[#5A635B]'}`}
+                                    className={`w-full text-left px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-bold hover:bg-[#F8F6F0] transition-colors ${newProduct.unit === u ? 'text-[#2B4C3B] bg-[#EEF2E6]' : 'text-[#5A635B]'}`}
                                   >
                                     {u}
                                   </button>
@@ -466,11 +466,11 @@ export default function NewProductPage() {
                       </div>
                     </div>
 
-                    <div className="bg-[#F8F6F0] p-8 rounded-3xl border border-[#DDE2D6] mt-6 relative overflow-hidden group">
+                    <div className="bg-[#F8F6F0] p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#DDE2D6] mt-4 sm:mt-6 relative overflow-hidden group">
                       <div className="absolute top-0 right-0 w-40 h-40 bg-[#B4C179]/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:scale-150 transition-transform duration-700" />
-                      <label className="block text-sm font-black mb-4 text-[#2B4C3B] uppercase tracking-widest">Harga per {newProduct.unit}</label>
+                      <label className="block text-xs sm:text-sm font-black mb-2 sm:mb-4 text-[#2B4C3B] uppercase tracking-widest">Harga per {newProduct.unit}</label>
                       <div className="flex items-center">
-                        <span className="text-2xl font-black text-[#5A635B] mr-4">Rp</span>
+                        <span className="text-xl sm:text-2xl font-black text-[#5A635B] mr-2 sm:mr-4">Rp</span>
                         <input 
                           required 
                           type="text" 
@@ -481,22 +481,22 @@ export default function NewProductPage() {
                             const rawVal = e.target.value.replace(/\D/g, "");
                             setNewProduct({ ...newProduct, price: rawVal ? parseInt(rawVal, 10) : 0 });
                           }}
-                          className="w-full bg-white border-2 border-[#DDE2D6] rounded-2xl p-5 focus:ring-0 focus:border-[#4A7C59] outline-none transition-all text-3xl font-black text-[#1C241E] shadow-inner" 
+                          className="w-full bg-white border-2 border-[#DDE2D6] rounded-xl sm:rounded-2xl p-3.5 sm:p-5 focus:ring-0 focus:border-[#4A7C59] outline-none transition-all text-xl sm:text-2xl md:text-3xl font-black text-[#1C241E] shadow-inner" 
                         />
                       </div>
                       
                       {benchmarkPrice && newProduct.price > benchmarkPrice && (
-                        <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="mt-5 flex items-start gap-4 bg-amber-50 text-amber-800 p-5 rounded-2xl border border-amber-200">
-                          <Info size={20} className="shrink-0 mt-0.5 text-amber-600" />
-                          <p className="text-sm font-semibold leading-relaxed">
+                        <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="mt-4 sm:mt-5 flex items-start gap-3 sm:gap-4 bg-amber-50 text-amber-800 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-amber-200">
+                          <Info size={18} className="shrink-0 mt-0.5 text-amber-600 sm:w-5 sm:h-5" />
+                          <p className="text-xs sm:text-sm font-semibold leading-relaxed">
                             Harga Anda (<strong className="text-amber-900 font-black">Rp {newProduct.price.toLocaleString()}</strong>) lebih tinggi dari rata-rata pasar (<strong className="text-amber-900 font-black">Rp {benchmarkPrice.toLocaleString()}</strong>). Ini mungkin akan mengurangi minat pembeli.
                           </p>
                         </motion.div>
                       )}
                       {benchmarkPrice && newProduct.price > 0 && newProduct.price <= benchmarkPrice && (
-                        <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="mt-5 flex items-center gap-4 bg-emerald-50 text-emerald-800 p-5 rounded-2xl border border-emerald-200">
-                          <CheckCircle size={20} className="text-emerald-600 shrink-0" />
-                          <p className="text-sm font-bold">Harga sangat kompetitif! Anda siap bersaing di pasar.</p>
+                        <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="mt-4 sm:mt-5 flex items-center gap-3 sm:gap-4 bg-emerald-50 text-emerald-800 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-emerald-200">
+                          <CheckCircle size={18} className="text-emerald-600 shrink-0 sm:w-5 sm:h-5" />
+                          <p className="text-xs sm:text-sm font-bold">Harga sangat kompetitif! Anda siap bersaing di pasar.</p>
                         </motion.div>
                       )}
                     </div>
@@ -516,12 +516,12 @@ export default function NewProductPage() {
             const isDisabled = Boolean(isSubmitting || isAiProcessing || (newProduct.category === "Daging" && newProduct.imageUrls.length > 0 && (!aiAnalysisResult || isUnfit)));
 
             return (
-              <div className="px-8 py-6 md:px-12 md:py-8 border-t border-[#E8E3D2] bg-[#F8F6F0] flex gap-4">
+              <div className="px-4 py-4 sm:px-8 sm:py-6 md:px-12 md:py-8 border-t border-[#E8E3D2] bg-[#F8F6F0] flex gap-4">
                 <button 
                   type="submit" 
                   form="productForm" 
                   disabled={isDisabled} 
-                  className={`w-full py-5 text-lg font-black text-white rounded-2xl transition-all flex items-center justify-center gap-3 ${
+                  className={`w-full py-4 sm:py-5 text-base sm:text-lg font-black text-white rounded-xl sm:rounded-2xl transition-all flex items-center justify-center gap-3 ${
                     isDisabled 
                       ? 'bg-gray-400 opacity-60 cursor-not-allowed shadow-none' 
                       : 'bg-pranata hover:opacity-90 shadow-xl shadow-green-900/20 hover:-translate-y-1'
@@ -529,7 +529,7 @@ export default function NewProductPage() {
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 size={24} className="animate-spin text-white" />
+                      <Loader2 size={22} className="animate-spin text-white" />
                       <span>Memproses Listing...</span>
                     </>
                   ) : (

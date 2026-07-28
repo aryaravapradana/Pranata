@@ -9,9 +9,12 @@ export default function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isIntelligence = pathname?.includes("/intelligence");
+
   return (
     <div className="min-h-screen bg-[#F8F6F0] relative">
-      <DashboardNavbar />
+      {!isIntelligence && <DashboardNavbar />}
       <main className="w-full">
         {children}
       </main>

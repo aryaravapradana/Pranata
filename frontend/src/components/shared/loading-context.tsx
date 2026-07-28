@@ -27,7 +27,10 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
   const navigateTo = useCallback((url: string) => {
     const targetPath = url.split('?')[0].split('#')[0];
     const currentPath = window.location.pathname;
-    const isInternalHub = currentPath.startsWith('/hub') && targetPath.startsWith('/hub');
+    const isInternalHub = currentPath.startsWith('/hub') && 
+                          targetPath.startsWith('/hub') && 
+                          !targetPath.includes('/intelligence') && 
+                          !currentPath.includes('/intelligence');
 
     if (targetPath === currentPath || isInternalHub) {
       router.push(url);
@@ -58,7 +61,10 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
         const currentPath = window.location.pathname;
 
         if (targetPath !== currentPath) {
-          const isInternalHub = currentPath.startsWith('/hub') && targetPath.startsWith('/hub');
+          const isInternalHub = currentPath.startsWith('/hub') && 
+                                targetPath.startsWith('/hub') && 
+                                !targetPath.includes('/intelligence') && 
+                                !currentPath.includes('/intelligence');
           if (!isInternalHub) {
             e.preventDefault();
             e.stopPropagation();
@@ -77,7 +83,10 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
 
   // Synchronous route change detection during render tick (0ms - zero blink/flicker)
   if (prevPath !== pathname) {
-    const isInternalHub = prevPath?.startsWith('/hub') && pathname?.startsWith('/hub');
+    const isInternalHub = prevPath?.startsWith('/hub') && 
+                          pathname?.startsWith('/hub') && 
+                          !pathname?.includes('/intelligence') && 
+                          !prevPath?.includes('/intelligence');
     setPrevPath(pathname);
     if (!isInternalHub) {
       setIsTransitioning(true);
