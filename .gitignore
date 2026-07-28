@@ -1,0 +1,17 @@
+# Dependencies & Build artifacts
+node_modules/
+.next/
+dist/
+build/
+
+# Skills & AI workspace folders
+agentic-awesome-skills/
+
+# Environment & local secrets
+.env
+.env.local
+*.log
+
+# OS & IDE
+.DS_Store
+Thumbs.db
