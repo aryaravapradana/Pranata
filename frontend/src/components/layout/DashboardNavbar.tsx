@@ -20,7 +20,7 @@ export default function DashboardNavbar() {
   const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
-    const sessionStr = localStorage.getItem("farmpro_session");
+    const sessionStr = localStorage.getItem("pranata_session") || localStorage.getItem("farmpro_session");
     if (sessionStr) {
       setProfile(JSON.parse(sessionStr));
     }

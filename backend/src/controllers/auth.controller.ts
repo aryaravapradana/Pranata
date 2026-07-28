@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'veternity-secret-key-2026-jwt';
+const JWT_SECRET = process.env.JWT_SECRET || 'pranata-secret-key-2026-jwt';
 const SALT_ROUNDS = 10;
 
 const registerSchema = z.object({

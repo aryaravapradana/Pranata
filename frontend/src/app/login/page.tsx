@@ -23,7 +23,7 @@ function AuthContent() {
   const { navigateTo } = useGlobalLoading();
 
   useEffect(() => {
-    const sessionStr = localStorage.getItem("farmpro_session");
+    const sessionStr = localStorage.getItem("pranata_session") || localStorage.getItem("farmpro_session");
     if (sessionStr) {
       const session = JSON.parse(sessionStr);
       if (session.role === 'PRODUCER') {
@@ -66,6 +66,7 @@ function AuthContent() {
       }
       
       // Store custom session
+      localStorage.setItem("pranata_session", JSON.stringify(data));
       localStorage.setItem("farmpro_session", JSON.stringify(data));
       Cookies.set("auth-token", data.token, { expires: 7, path: '/' });
       if (data.role === "BUYER") {

@@ -32,6 +32,7 @@ export default function UserDropdown({ profile }: { profile: any }) {
 
   const handleLogout = () => {
     Cookies.remove("auth-token");
+    localStorage.removeItem("pranata_session");
     localStorage.removeItem("farmpro_session");
     window.location.href = "/";
   };

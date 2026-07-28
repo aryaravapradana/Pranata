@@ -29,7 +29,7 @@ export default function MarketplaceNavbar({
   const displayCartCount = cartCount !== undefined ? cartCount : localCartCount;
 
   useEffect(() => {
-    const sessionStr = localStorage.getItem("farmpro_session");
+    const sessionStr = localStorage.getItem("pranata_session") || localStorage.getItem("farmpro_session");
     if (sessionStr) setProfile(JSON.parse(sessionStr));
 
     const checkCart = async () => {

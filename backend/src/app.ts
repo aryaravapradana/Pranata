@@ -15,7 +15,7 @@ app.set('trust proxy', 1);
 
 // ── Bulletproof CORS & Preflight OPTIONS Handler ──
 app.use((req: Request, res: Response, next) => {
-  const origin = req.headers.origin || 'https://veternity-frontend.vercel.app';
+  const origin = req.headers.origin || 'https://pranata-frontend.vercel.app';
   res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');

@@ -128,6 +128,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: { onSuccess: () => 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Gagal membuat akun");
       
+      localStorage.setItem("pranata_session", JSON.stringify(data));
       localStorage.setItem("farmpro_session", JSON.stringify(data));
       if (data.token) {
         Cookies.set("auth-token", data.token, { expires: 7, path: '/' });

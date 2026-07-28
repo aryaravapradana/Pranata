@@ -20,7 +20,7 @@ export const globalErrorHandler = (
     ip: req.ip,
   });
 
-  const origin = req.headers.origin || 'https://veternity-frontend.vercel.app';
+  const origin = req.headers.origin || 'https://pranata-frontend.vercel.app';
   res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Credentials', 'true');
 
