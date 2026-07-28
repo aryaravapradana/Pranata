@@ -286,6 +286,44 @@ export default function CalendarPage() {
     setShowModal(true);
   };
 
+  const handlePrev = () => {
+    const d = new Date(activeDateObj);
+    if (viewMode === 'Day') {
+      d.setDate(d.getDate() - 1);
+      setActiveDateObj(d);
+      setActiveDay(d.getDate());
+    } else if (viewMode === 'Week') {
+      d.setDate(d.getDate() - 7);
+      setActiveDateObj(d);
+      setActiveDay(d.getDate());
+    } else if (viewMode === 'Month') {
+      d.setMonth(d.getMonth() - 1);
+      setActiveDateObj(d);
+    }
+  };
+
+  const handleNext = () => {
+    const d = new Date(activeDateObj);
+    if (viewMode === 'Day') {
+      d.setDate(d.getDate() + 1);
+      setActiveDateObj(d);
+      setActiveDay(d.getDate());
+    } else if (viewMode === 'Week') {
+      d.setDate(d.getDate() + 7);
+      setActiveDateObj(d);
+      setActiveDay(d.getDate());
+    } else if (viewMode === 'Month') {
+      d.setMonth(d.getMonth() + 1);
+      setActiveDateObj(d);
+    }
+  };
+
+  const handleToday = () => {
+    const now = new Date();
+    setActiveDateObj(now);
+    setActiveDay(now.getDate());
+  };
+
   return (
     <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E] font-sans flex flex-col justify-between" >
       
@@ -318,13 +356,13 @@ export default function CalendarPage() {
           
           {/* Navigation */}
           <div className="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
-            <button onClick={() => {const d = new Date(activeDateObj); d.setDate(d.getDate() - 7); setActiveDateObj(d);}} className="w-8 h-8 sm:w-10 sm:h-10 bg-[#E8E3D2] hover:bg-[#DDE2D6] rounded-full flex items-center justify-center transition-colors cursor-pointer">
+            <button onClick={handlePrev} className="w-8 h-8 sm:w-10 sm:h-10 bg-[#E8E3D2] hover:bg-[#DDE2D6] rounded-full flex items-center justify-center transition-colors cursor-pointer">
               <ChevronLeft size={16} className="text-[#5A635B]" />
             </button>
-            <button onClick={() => { setActiveDateObj(new Date()); setActiveDay(new Date().getDate()); }} className="flex-1 sm:flex-none px-4 sm:px-6 py-1.5 sm:py-2 bg-[#E8E3D2] hover:bg-[#DDE2D6] rounded-full text-xs sm:text-sm font-bold text-[#2B4C3B] transition-colors text-center cursor-pointer">
+            <button onClick={handleToday} className="flex-1 sm:flex-none px-4 sm:px-6 py-1.5 sm:py-2 bg-[#E8E3D2] hover:bg-[#DDE2D6] rounded-full text-xs sm:text-sm font-bold text-[#2B4C3B] transition-colors text-center cursor-pointer">
               Hari Ini
             </button>
-            <button onClick={() => {const d = new Date(activeDateObj); d.setDate(d.getDate() + 7); setActiveDateObj(d);}} className="w-8 h-8 sm:w-10 sm:h-10 bg-[#E8E3D2] hover:bg-[#DDE2D6] rounded-full flex items-center justify-center transition-colors cursor-pointer">
+            <button onClick={handleNext} className="w-8 h-8 sm:w-10 sm:h-10 bg-[#E8E3D2] hover:bg-[#DDE2D6] rounded-full flex items-center justify-center transition-colors cursor-pointer">
               <ChevronRight size={16} className="text-[#5A635B]" />
             </button>
           </div>
