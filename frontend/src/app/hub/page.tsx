@@ -335,14 +335,6 @@ export default function MainDashboard() {
                           </div>
                         </div>
                       </div>
-
-                      {/* Agricultural Weather Insight Pill */}
-                      {details?.advice && (
-                        <div className="mt-2 text-[10px] sm:text-xs font-bold text-white/90 bg-white/10 border border-white/15 p-2 sm:p-2.5 rounded-xl backdrop-blur-sm flex items-start gap-1.5">
-                          <Sparkles size={14} className="text-[#F5990D] shrink-0 mt-0.5" />
-                          <span className="leading-snug">{details.advice}</span>
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div className="animate-pulse space-y-4 py-3">
