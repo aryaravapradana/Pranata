@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation';
 
 const LoadingContext = createContext({
   isGlobalReady: false,
+  isTransitioning: false,
+  triggerTransition: () => {},
   registerBlocker: (id: string) => {},
   removeBlocker: (id: string) => {}
 });
@@ -15,18 +17,52 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
   const pathname = usePathname();
   const [prevPath, setPrevPath] = useState(pathname);
 
-  // Synchronous route change detection during render tick (0ms - zero blink/flicker)
-  if (prevPath !== pathname) {
-    setPrevPath(pathname);
+  const triggerTransition = useCallback(() => {
     setIsTransitioning(true);
     setBlockers(new Set());
+  }, []);
+
+  // Global Click Interceptor: Catch link clicks at 0ms BEFORE Next.js fetches RSC payload
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('a, [data-navigate]');
+      if (!target) return;
+
+      const href = target.getAttribute('href') || target.getAttribute('data-navigate');
+      if (!href) return;
+
+      if (href.startsWith('/') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
+        const targetPath = href.split('?')[0].split('#')[0];
+        const currentPath = window.location.pathname;
+
+        if (targetPath !== currentPath) {
+          const isInternalHub = currentPath.startsWith('/hub') && targetPath.startsWith('/hub');
+          if (!isInternalHub) {
+            triggerTransition();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('click', handleClick, { capture: true });
+    return () => document.removeEventListener('click', handleClick, { capture: true });
+  }, [triggerTransition]);
+
+  // Synchronous route change detection during render tick (0ms - zero blink/flicker)
+  if (prevPath !== pathname) {
+    const isInternalHub = prevPath?.startsWith('/hub') && pathname?.startsWith('/hub');
+    setPrevPath(pathname);
+    if (!isInternalHub) {
+      setIsTransitioning(true);
+      setBlockers(new Set());
+    }
   }
 
   useEffect(() => {
     if (isTransitioning) {
       const timer = setTimeout(() => {
         setIsTransitioning(false);
-      }, 750);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [pathname, isTransitioning]);
@@ -50,7 +86,7 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
   const isGlobalReady = !isTransitioning && blockers.size === 0;
 
   return (
-    <LoadingContext.Provider value={{ isGlobalReady, registerBlocker, removeBlocker }}>
+    <LoadingContext.Provider value={{ isGlobalReady, isTransitioning, triggerTransition, registerBlocker, removeBlocker }}>
       {children}
     </LoadingContext.Provider>
   );
@@ -60,12 +96,12 @@ export const useGlobalLoading = () => useContext(LoadingContext);
 
 // Custom hook for pages to signal when they are done fetching data
 export const usePageLoading = (isLoading: boolean = false) => {
-  const { registerBlocker, removeBlocker } = useGlobalLoading();
+  const { registerBlocker, removeBlocker, isTransitioning } = useGlobalLoading();
   const pathname = usePathname();
   
   useEffect(() => {
-    // Sub-route navigation inside /hub should NOT trigger or block global splash screen
-    if (pathname?.startsWith('/hub')) {
+    // If inside /hub sub-routes and NOT in an active transition from outside, don't block global splash
+    if (pathname?.startsWith('/hub') && !isTransitioning) {
       return;
     }
 
@@ -80,5 +116,5 @@ export const usePageLoading = (isLoading: boolean = false) => {
     
     // Cleanup on unmount
     return () => removeBlocker(id);
-  }, [isLoading, pathname, registerBlocker, removeBlocker]);
+  }, [isLoading, pathname, isTransitioning, registerBlocker, removeBlocker]);
 };

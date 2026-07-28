@@ -9,6 +9,7 @@ import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { usePageLoading } from "@/components/shared/loading-context";
 
 export default function MainDashboard() {
   const router = useRouter();
@@ -103,6 +104,7 @@ export default function MainDashboard() {
   const [products, setProducts] = useState<any[]>([]);
   const [allMarketplaceCount, setAllMarketplaceCount] = useState<number>(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  usePageLoading(!isLoaded);
 
   // AI Live Tile State
   const { messages, append, isLoading, setMessages } = useChat({
