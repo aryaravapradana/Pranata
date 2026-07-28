@@ -27,15 +27,15 @@ export default function MainDashboard() {
   const [isDetectingLocation, setIsDetectingLocation] = useState<boolean>(false);
 
   const getWeatherDetails = (code: number) => {
-    if (code === 0) return { text: "Cerah", icon: "☀️", bg: "from-[#2B4C3B] via-[#3A6B49] to-[#4A7C59]", advice: "Cuaca cerah. Sangat baik untuk aktivitas kandang & pengiriman." };
-    if ([1, 2].includes(code)) return { text: "Cerah Berawan", icon: "⛅", bg: "from-[#2B4C3B] via-[#3A6B49] to-[#4A7C59]", advice: "Cuaca hangat berawan. Pastikan sirkulasi udara kandang lancar." };
-    if (code === 3) return { text: "Berawan", icon: "☁️", bg: "from-[#334237] via-[#43574A] to-[#2B4C3B]", advice: "Cuaca teduh berawan. Cocok untuk pemberian pakan & kesehatan ternak." };
-    if ([45, 48].includes(code)) return { text: "Kabut", icon: "🌫️", bg: "from-[#38483E] via-[#4B5E52] to-[#2B4C3B]", advice: "Jarak pandang terbatas karena kabut. Berhati-hati saat pengiriman." };
-    if ([51, 53, 55, 56, 57].includes(code)) return { text: "Gerimis Ringan", icon: "🌦️", bg: "from-[#254238] via-[#355B4D] to-[#1E362C]", advice: "Gerimis turun. Jaga kelembapan alas ternak tetap kering." };
-    if ([61, 63, 65, 66, 67].includes(code)) return { text: "Hujan", icon: "🌧️", bg: "from-[#1F3A30] via-[#2D5043] to-[#162B23]", advice: "Terjadi hujan. Waspada lantai kandang licin & kelembapan tinggi." };
-    if ([80, 81, 82].includes(code)) return { text: "Hujan Lebat", icon: "🌧️", bg: "from-[#192F27] via-[#264438] to-[#101F19]", advice: "Hujan lebat. Pastikan pakan tersimpan rapat & terlindung dari air." };
-    if ([95, 96, 99].includes(code)) return { text: "Badai Petir", icon: "🌩️", bg: "from-[#14241E] via-[#1E362C] to-[#0A120F]", advice: "Waspada badai petir. Pastikan kelistrikan & tirai kandang tertutup aman." };
-    return { text: "Cerah Berawan", icon: "⛅", bg: "from-[#2B4C3B] via-[#3A6B49] to-[#4A7C59]", advice: "Suhu & kondisi stabil untuk kegiatan pemeliharaan ternak." };
+    if (code === 0) return { text: "Cerah", icon: "☀️", advice: "Cuaca cerah. Sangat baik untuk aktivitas kandang & pengiriman." };
+    if ([1, 2].includes(code)) return { text: "Cerah Berawan", icon: "⛅", advice: "Cuaca hangat berawan. Pastikan sirkulasi udara kandang lancar." };
+    if (code === 3) return { text: "Berawan", icon: "☁️", advice: "Cuaca teduh berawan. Cocok untuk pemberian pakan & kesehatan ternak." };
+    if ([45, 48].includes(code)) return { text: "Kabut", icon: "🌫️", advice: "Jarak pandang terbatas karena kabut. Berhati-hati saat pengiriman." };
+    if ([51, 53, 55, 56, 57].includes(code)) return { text: "Gerimis Ringan", icon: "🌦️", advice: "Gerimis turun. Jaga kelembapan alas ternak tetap kering." };
+    if ([61, 63, 65, 66, 67].includes(code)) return { text: "Hujan", icon: "🌧️", advice: "Terjadi hujan. Waspada lantai kandang licin & kelembapan tinggi." };
+    if ([80, 81, 82].includes(code)) return { text: "Hujan Lebat", icon: "🌧️", advice: "Hujan lebat. Pastikan pakan tersimpan rapat & terlindung dari air." };
+    if ([95, 96, 99].includes(code)) return { text: "Badai Petir", icon: "🌩️", advice: "Waspada badai petir. Pastikan kelistrikan & tirai kandang tertutup aman." };
+    return { text: "Cerah Berawan", icon: "⛅", advice: "Suhu & kondisi stabil untuk kegiatan pemeliharaan ternak." };
   };
 
   const fetchWeatherForCoords = async (lat: number, lng: number) => {
@@ -279,10 +279,9 @@ export default function MainDashboard() {
           {/* Weather Widget */}
           {(() => {
             const details = weather ? getWeatherDetails(weather.weather_code ?? 1) : null;
-            const bgGradient = details ? details.bg : "from-[#4A7C59] via-[#3A6B49] to-[#2B4C3B]";
 
             return (
-              <div className={`md:col-span-1 lg:col-span-1 order-1 bg-gradient-to-br ${bgGradient} rounded-3xl sm:rounded-[2rem] p-5 sm:p-7 text-white shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[220px] sm:min-h-[240px] border border-white/15 transition-all`}>
+              <div className="md:col-span-1 lg:col-span-1 order-1 bg-gradient-to-br from-[#2B4C3B] to-[#4A7C59] rounded-3xl sm:rounded-[2rem] p-5 sm:p-7 text-white shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[220px] sm:min-h-[240px] border border-[#4A7C59] transition-all">
                 
                 {/* Header: Location & Refresh Button */}
                 <div className="relative z-10 flex justify-between items-center mb-3 sm:mb-4 gap-2">
