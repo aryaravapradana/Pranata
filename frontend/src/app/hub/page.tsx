@@ -122,16 +122,23 @@ export default function MainDashboard() {
       const isFallback = lastMsgContent.includes("TITLE: Status Toko\nVALUE: Aktif") || lastMsgContent.includes("TITLE: Status Etalase");
       
       if (!isFallback) {
-        const prodIds = products.map(p => p.id).sort().join(',');
-        const currentHash = `${profile.id}_${prodIds}_${orders.length}_${events.length}`;
         localStorage.setItem(`pranata_ai_insight_cache_${profile.id}`, JSON.stringify({
           timestamp: Date.now(),
-          dataHash: currentHash,
           messages: messages
         }));
       }
     }
-  }, [messages, isLoading, profile?.id, products, orders.length, events.length]);
+  }, [messages, isLoading, profile?.id]);
+
+  const handleRefreshAIInsight = () => {
+    if (!profile?.id || isLoading) return;
+    const cacheKey = `pranata_ai_insight_cache_${profile.id}`;
+    localStorage.removeItem(cacheKey);
+    append(
+      { role: 'user', content: 'Analisis data riwayat stok, pesanan, dan cuaca terkini milik saya. Berikan tepat 2 insight bisnis paling krusial dan aksi nyata yang sangat spesifik. WAJIB GUNAKAN FORMAT KAKU BERIKUT:\n\nTITLE: [Kata kunci 1-2 kata spesifik dari data]\nVALUE: [Angka/Status Nyata]\nDESC: [1 kalimat analisis & tindakan konkret spesifik]\nCTA_TEXT: [Teks tombol]\nCTA_URL: [URL relatif: /hub/store ATAU /hub/calendar ATAU /hub/orders]\n---\nTITLE: [Kata kunci ke-2]\nVALUE: [Angka/Status ke-2]\nDESC: [Penjelasan & aksi ke-2]\nCTA_TEXT: [Teks tombol ke-2]\nCTA_URL: [URL ke-2]' },
+      { body: { contextData: { profile, orders, products, allMarketplaceCount, events, weather } } }
+    );
+  };
 
   useEffect(() => {
     // 1. Session Auth
@@ -213,42 +220,36 @@ export default function MainDashboard() {
   // Auto-trigger AI Insight once everything is ready
   useEffect(() => {
     if (profile?.id && isLoaded && !hasTriggeredInsight.current) {
-      setTimeout(() => {
-        if (!hasTriggeredInsight.current) {
-          hasTriggeredInsight.current = true;
-          
-          let shouldFetchNew = true;
-          const prodIds = products.map(p => p.id).sort().join(',');
-          const currentHash = `${profile.id}_${prodIds}_${orders.length}_${events.length}`;
-          const cacheKey = `pranata_ai_insight_cache_${profile.id}`;
-          const cachedStr = localStorage.getItem(cacheKey);
-          
-          if (cachedStr) {
-            try {
-              const cached = JSON.parse(cachedStr);
-              const isExpired = Date.now() - cached.timestamp > 2 * 60 * 60 * 1000; // 2 hours TTL
-              const lastMsgContent = cached.messages?.filter((m: any) => m.role === 'assistant').pop()?.content || "";
-              
-              // Invalidate stale fallback cache
-              const isFallbackCache = lastMsgContent.includes("TITLE: Status Toko\nVALUE: Aktif") || lastMsgContent.includes("TITLE: Status Etalase");
+      hasTriggeredInsight.current = true;
+      
+      const cacheKey = `pranata_ai_insight_cache_${profile.id}`;
+      const cachedStr = localStorage.getItem(cacheKey);
+      
+      let loadedFromCache = false;
+      if (cachedStr) {
+        try {
+          const cached = JSON.parse(cachedStr);
+          const isExpired = Date.now() - cached.timestamp > 2 * 60 * 60 * 1000; // 2 hours TTL
+          const lastMsgContent = cached.messages?.filter((m: any) => m.role === 'assistant').pop()?.content || "";
+          const isFallbackCache = lastMsgContent.includes("TITLE: Status Toko\nVALUE: Aktif") || lastMsgContent.includes("TITLE: Status Etalase");
 
-              if (!isExpired && !isFallbackCache && cached.dataHash === currentHash && cached.messages?.length > 0) {
-                shouldFetchNew = false;
-                setMessages(cached.messages);
-              }
-            } catch(e) { }
+          if (!isExpired && !isFallbackCache && cached.messages?.length > 0) {
+            loadedFromCache = true;
+            setMessages(cached.messages);
           }
+        } catch(e) { }
+      }
 
-          if (shouldFetchNew) {
-            append(
-              { role: 'user', content: 'Analisis data riwayat stok, pesanan, dan cuaca terkini milik saya. Berikan tepat 2 insight bisnis paling krusial dan aksi nyata yang sangat spesifik. WAJIB GUNAKAN FORMAT KAKU BERIKUT:\n\nTITLE: [Kata kunci 1-2 kata spesifik dari data]\nVALUE: [Angka/Status Nyata]\nDESC: [1 kalimat analisis & tindakan konkret spesifik]\nCTA_TEXT: [Teks tombol]\nCTA_URL: [URL relatif: /hub/store ATAU /hub/calendar ATAU /hub/orders]\n---\nTITLE: [Kata kunci ke-2]\nVALUE: [Angka/Status ke-2]\nDESC: [Penjelasan & aksi ke-2]\nCTA_TEXT: [Teks tombol ke-2]\nCTA_URL: [URL ke-2]' },
-              { body: { contextData: { profile, orders, products, allMarketplaceCount, events, weather } } }
-            );
-          }
-        }
-      }, 500);
+      if (!loadedFromCache) {
+        setTimeout(() => {
+          append(
+            { role: 'user', content: 'Analisis data riwayat stok, pesanan, dan cuaca terkini milik saya. Berikan tepat 2 insight bisnis paling krusial dan aksi nyata yang sangat spesifik. WAJIB GUNAKAN FORMAT KAKU BERIKUT:\n\nTITLE: [Kata kunci 1-2 kata spesifik dari data]\nVALUE: [Angka/Status Nyata]\nDESC: [1 kalimat analisis & tindakan konkret spesifik]\nCTA_TEXT: [Teks tombol]\nCTA_URL: [URL relatif: /hub/store ATAU /hub/calendar ATAU /hub/orders]\n---\nTITLE: [Kata kunci ke-2]\nVALUE: [Angka/Status ke-2]\nDESC: [Penjelasan & aksi ke-2]\nCTA_TEXT: [Teks tombol ke-2]\nCTA_URL: [URL ke-2]' },
+            { body: { contextData: { profile, orders, products, allMarketplaceCount, events, weather } } }
+          );
+        }, 300);
+      }
     }
-  }, [profile, isLoaded, products, orders, events, weather, append]);
+  }, [profile?.id, isLoaded, setMessages, append]);
 
   const firstName = profile?.name?.split(" ")[0] || profile?.fullName?.split(" ")[0] || "Petani";
 
@@ -538,7 +539,17 @@ export default function MainDashboard() {
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-300 opacity-20 blur-[80px] rounded-full pointer-events-none" />
 
               <div className="p-4.5 sm:p-5 relative z-10 flex flex-col h-full">
-                <img src="/logos/intelligence/intelligence-white.webp" alt="Pranata Intelligence" className="h-6 sm:h-8 w-auto object-contain mb-2 drop-shadow-md origin-left self-start" loading="lazy" decoding="async" />
+                <div className="flex items-center justify-between mb-2">
+                  <img src="/logos/intelligence/intelligence-white.webp" alt="Pranata Intelligence" className="h-6 sm:h-8 w-auto object-contain drop-shadow-md origin-left" loading="lazy" decoding="async" />
+                  <button
+                    onClick={handleRefreshAIInsight}
+                    disabled={isLoading}
+                    title="Refresh AI Insight (Minta analisis baru)"
+                    className="p-1.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors active:scale-95 disabled:opacity-50 cursor-pointer"
+                  >
+                    <RefreshCw size={14} className={isLoading ? "animate-spin text-[#F5990D]" : ""} />
+                  </button>
+                </div>
                 
                 <h3 className="text-base sm:text-lg font-black text-white mb-1 leading-tight">
                   Business Insight
