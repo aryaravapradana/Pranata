@@ -7,7 +7,7 @@ import {
   Eye, EyeOff, Save, Loader2, Store, MapPin, Phone, ImageIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePageLoading } from "@/components/shared/loading-context";
+import { usePageLoading, useGlobalLoading } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
 
 import { uploadImage } from "@/lib/supabaseStorage";
@@ -81,6 +81,7 @@ function UploadZone({
 // ─── Main Page ───────────────────────────────────────────────────────────────
 export default function AccountSettingsPage() {
   const router = useRouter();
+  const { navigateTo } = useGlobalLoading();
 
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -109,6 +110,8 @@ export default function AccountSettingsPage() {
   const [usernameAvail, setUsernameAvail]     = useState<boolean | null>(null);
   const [checkingUsername, setCheckingUsername] = useState(false);
 
+  const [sessionRole, setSessionRole] = useState<string | null>(null);
+
   useEffect(() => {
     const sessionStr = localStorage.getItem("farmpro_session");
     if (!sessionStr) {
@@ -118,6 +121,9 @@ export default function AccountSettingsPage() {
     }
     try {
       const session = JSON.parse(sessionStr);
+      if (session.role) {
+        setSessionRole(session.role);
+      }
       const id = session.id || session.userId;
       if (!id) {
         setLoading(false);
@@ -138,6 +144,7 @@ export default function AccountSettingsPage() {
       if (res.ok) {
         const d = await res.json();
         setProfile(d);
+        if (d.role) setSessionRole(d.role);
         setUsername(d.username   || "");
         setFullName(d.fullName   || "");
         setFarmName(d.farmName   || "");
@@ -209,14 +216,20 @@ export default function AccountSettingsPage() {
     setSavingPw(false);
   };
 
-  const backPath = profile?.role === "PRODUCER" ? "/hub" : "/market";
+  const effectiveRole = (profile?.role || sessionRole || "").toUpperCase();
+  const isProducer = effectiveRole === "PRODUCER";
+  const backPath = isProducer ? "/hub" : "/market";
+  const backLabel = isProducer ? "Dashboard" : "Marketplace";
   const initials = (profile?.fullName || profile?.username || "?").charAt(0).toUpperCase();
 
   if (loading) return (
     <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E]">
       <div className="sticky top-0 z-40 px-3.5 sm:px-4 pt-3.5 sm:pt-4">
         <div className="max-w-7xl mx-auto bg-white border border-[#E8E3D2] rounded-2xl shadow-[0_4px_24px_-8px_rgba(43,76,59,0.1)] h-12 sm:h-14 flex items-center justify-between px-3.5 sm:px-6 md:px-8 lg:px-12">
-          <div className="w-20 sm:w-24 h-4 sm:h-5 rounded-md skeleton-shimmer bg-[#E8E3D2]" />
+          <button onClick={() => navigateTo(backPath)} className="flex items-center gap-1.5 sm:gap-2 text-[#5A635B] hover:text-[#2B4C3B] font-extrabold text-xs sm:text-sm transition-colors shrink-0 active:scale-95">
+            <ChevronLeft size={18} className="shrink-0" />
+            <span className="truncate">{backLabel}</span>
+          </button>
           <div className="w-24 sm:w-32 h-4 sm:h-5 rounded-md skeleton-shimmer bg-[#E8E3D2]" />
           <div className="w-16 sm:w-28 shrink-0" />
         </div>
@@ -265,9 +278,9 @@ export default function AccountSettingsPage() {
       {/* ── Back Navbar ── */}
       <div className="sticky top-0 z-40 px-3.5 sm:px-4 pt-3.5 sm:pt-4">
         <div className="max-w-7xl mx-auto bg-white border border-[#E8E3D2] rounded-2xl shadow-[0_4px_24px_-8px_rgba(43,76,59,0.1)] h-12 sm:h-14 flex items-center justify-between px-3.5 sm:px-6 md:px-8 lg:px-12">
-          <button onClick={() => router.push(backPath)} className="flex items-center gap-1.5 sm:gap-2 text-[#5A635B] hover:text-[#2B4C3B] font-extrabold text-xs sm:text-sm transition-colors shrink-0 active:scale-95">
+          <button onClick={() => navigateTo(backPath)} className="flex items-center gap-1.5 sm:gap-2 text-[#5A635B] hover:text-[#2B4C3B] font-extrabold text-xs sm:text-sm transition-colors shrink-0 active:scale-95">
             <ChevronLeft size={18} className="shrink-0" />
-            <span className="truncate">{profile?.role === "PRODUCER" ? "Dashboard" : "Marketplace"}</span>
+            <span className="truncate">{backLabel}</span>
           </button>
           <h2 className="font-black text-xs sm:text-sm text-[#1C241E] m-0 text-center truncate px-2">Pengaturan Akun</h2>
           <div className="w-16 sm:w-28 shrink-0" />
