@@ -10,7 +10,6 @@ type SplashState = "IDLE_OPEN" | "CLOSING" | "WAITING" | "OPENING";
 export function SplashScreen() {
   const [targetRadius, setTargetRadius] = useState(15000);
   const { isGlobalReady } = useGlobalLoading();
-  const [splashState, setSplashState] = useState<SplashState>("WAITING");
 
   useEffect(() => {
     const w = window.innerWidth;
@@ -20,66 +19,34 @@ export function SplashScreen() {
     const ratio = logoWidth / 3343;
     const logoHeight = logoWidth * (994 / 3343);
     
+    // The SVG is centered. The circle cx is 437 inside the viewBox.
     const originXPhysical = (w / 2) - (logoWidth / 2) + (437 * ratio); 
     const originYPhysical = (h / 2) - (logoHeight / 2) + (497 * ratio); 
 
+    // Find the max distance from this origin to any of the 4 screen corners
     const maxCornerDist = Math.max(
-      Math.hypot(originXPhysical, originYPhysical),
-      Math.hypot(w - originXPhysical, originYPhysical),
-      Math.hypot(originXPhysical, h - originYPhysical),
-      Math.hypot(w - originXPhysical, h - originYPhysical)
+      Math.hypot(originXPhysical, originYPhysical), // Top-left
+      Math.hypot(w - originXPhysical, originYPhysical), // Top-right
+      Math.hypot(originXPhysical, h - originYPhysical), // Bottom-left
+      Math.hypot(w - originXPhysical, h - originYPhysical) // Bottom-right
     );
     
+    // Perfect target radius plus a MASSIVE 10000 unit buffer 
     const requiredRadius = (maxCornerDist / ratio) + 10000; 
     setTargetRadius(requiredRadius);
   }, []);
 
-  // Synchronize state machine with isGlobalReady
-  useEffect(() => {
-    if (!isGlobalReady) {
-      // User clicked link -> Start TUTUP (CLOSING) if currently open or opening
-      if (splashState === "IDLE_OPEN" || splashState === "OPENING") {
-        setSplashState("CLOSING");
-      }
-    } else {
-      // Page data ready -> Start BUKA (OPENING) ONLY IF closing is fully finished (WAITING state)
-      if (splashState === "WAITING") {
-        setSplashState("OPENING");
-      }
-    }
-  }, [isGlobalReady, splashState]);
-
-  const handleClosingComplete = () => {
-    if (splashState === "CLOSING") {
-      if (isGlobalReady) {
-        setSplashState("OPENING");
-      } else {
-        setSplashState("WAITING");
-      }
-    }
-  };
-
-  const handleOpeningComplete = () => {
-    if (splashState === "OPENING") {
-      setSplashState("IDLE_OPEN");
-    }
-  };
-
-  // Transisi Tutup (CLOSING): r=targetRadius -> r=0 (Tutup cepat 0.35s agar tidak ada flicker halaman)
-  const closeTransition = {
-    duration: 0.35,
+  // Transisi Tutup (IN): Menutup lingkaran dari r=targetRadius ke r=0 (Tutup Dulu)
+  const inTransition = {
+    duration: 0.65,
     ease: [0.65, 0, 0.35, 1] as import("framer-motion").Easing
   };
 
-  // Transisi Buka (OPENING): r=0 -> r=targetRadius (Buka mulus 0.75s)
-  const openTransition = {
-    duration: 0.75,
+  // Transisi Buka (OUT): Membuka lingkaran dari r=0 ke r=targetRadius (Baru Buka)
+  const outTransition = {
+    duration: 0.95,
     ease: [0.87, 0, 0.13, 1] as import("framer-motion").Easing
   };
-
-  const currentRadius = (splashState === "CLOSING" || splashState === "WAITING") ? 0 : targetRadius;
-  const currentTransition = splashState === "CLOSING" ? closeTransition : splashState === "OPENING" ? openTransition : { duration: 0 };
-  const showLoader = splashState !== "IDLE_OPEN";
 
   return (
     <div className="fixed inset-0 z-[9999] pointer-events-none" style={{ contain: "strict", willChange: "opacity, transform" }}>
@@ -99,12 +66,8 @@ export function SplashScreen() {
                 cx="437"
                 cy="497"
                 fill="black"
-                animate={{ r: currentRadius }}
-                transition={currentTransition}
-                onAnimationComplete={() => {
-                  if (splashState === "CLOSING") handleClosingComplete();
-                  if (splashState === "OPENING") handleOpeningComplete();
-                }}
+                animate={{ r: isGlobalReady ? targetRadius : 0 }}
+                transition={isGlobalReady ? outTransition : inTransition}
               />
             </svg>
           </mask>
@@ -123,11 +86,11 @@ export function SplashScreen() {
 
       {/* Loading Indicator - Placed AFTER the SVG so it renders on top of the solid white background */}
       <AnimatePresence>
-        {showLoader && (
+        {!isGlobalReady && (
           <motion.div 
             initial={{ opacity: 0 }} 
-            animate={{ opacity: 1, transition: { delay: 0.15 } }} 
-            exit={{ opacity: 0, transition: { duration: 0.2 } }} 
+            animate={{ opacity: 1, transition: { delay: 0.25 } }} 
+            exit={{ opacity: 0 }} 
             className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-10"
           >
             <Loader2 className="w-8 h-8 text-[#2B4C3B] animate-spin" />
