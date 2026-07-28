@@ -1,12 +1,13 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const LoadingContext = createContext({
   isGlobalReady: false,
   isTransitioning: false,
   triggerTransition: () => {},
+  navigateTo: (url: string) => {},
   registerBlocker: (id: string) => {},
   removeBlocker: (id: string) => {}
 });
@@ -15,6 +16,7 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
   const [blockers, setBlockers] = useState<Set<string>>(new Set());
   const [isTransitioning, setIsTransitioning] = useState(true);
   const pathname = usePathname();
+  const router = useRouter();
   const [prevPath, setPrevPath] = useState(pathname);
 
   const triggerTransition = useCallback(() => {
@@ -22,11 +24,31 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
     setBlockers(new Set());
   }, []);
 
+  const navigateTo = useCallback((url: string) => {
+    const targetPath = url.split('?')[0].split('#')[0];
+    const currentPath = window.location.pathname;
+    const isInternalHub = currentPath.startsWith('/hub') && targetPath.startsWith('/hub');
+
+    if (targetPath === currentPath || isInternalHub) {
+      router.push(url);
+      return;
+    }
+
+    triggerTransition();
+    setTimeout(() => {
+      router.push(url);
+    }, 350);
+  }, [router, triggerTransition]);
+
   // Global Click Interceptor: Catch link clicks at 0ms BEFORE Next.js fetches RSC payload
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
       const target = (e.target as HTMLElement).closest('a, [data-navigate]');
       if (!target) return;
+
+      if (target.getAttribute('target') === '_blank') return;
 
       const href = target.getAttribute('href') || target.getAttribute('data-navigate');
       if (!href) return;
@@ -38,7 +60,12 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
         if (targetPath !== currentPath) {
           const isInternalHub = currentPath.startsWith('/hub') && targetPath.startsWith('/hub');
           if (!isInternalHub) {
+            e.preventDefault();
+            e.stopPropagation();
             triggerTransition();
+            setTimeout(() => {
+              router.push(href);
+            }, 350);
           }
         }
       }
@@ -46,7 +73,7 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
 
     document.addEventListener('click', handleClick, { capture: true });
     return () => document.removeEventListener('click', handleClick, { capture: true });
-  }, [triggerTransition]);
+  }, [router, triggerTransition]);
 
   // Synchronous route change detection during render tick (0ms - zero blink/flicker)
   if (prevPath !== pathname) {
@@ -86,7 +113,7 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
   const isGlobalReady = !isTransitioning && blockers.size === 0;
 
   return (
-    <LoadingContext.Provider value={{ isGlobalReady, isTransitioning, triggerTransition, registerBlocker, removeBlocker }}>
+    <LoadingContext.Provider value={{ isGlobalReady, isTransitioning, triggerTransition, navigateTo, registerBlocker, removeBlocker }}>
       {children}
     </LoadingContext.Provider>
   );
