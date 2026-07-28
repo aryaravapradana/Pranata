@@ -38,9 +38,10 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
     }
 
     triggerTransition();
+    // Wait 520ms for the closing curtain animation (500ms) to 100% cover the screen before switching routes
     setTimeout(() => {
       router.push(url);
-    }, 650);
+    }, 520);
   }, [router, triggerTransition]);
 
   // Global Click Interceptor: Catch link clicks at 0ms BEFORE Next.js fetches RSC payload
@@ -69,9 +70,10 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
             e.preventDefault();
             e.stopPropagation();
             triggerTransition();
+            // Wait 520ms for closing curtain to 100% cover screen before router.push
             setTimeout(() => {
               router.push(href);
-            }, 650);
+            }, 520);
           }
         }
       }
@@ -98,7 +100,7 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
     if (isTransitioning) {
       const timer = setTimeout(() => {
         setIsTransitioning(false);
-      }, 900);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [pathname, isTransitioning]);

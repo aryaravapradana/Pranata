@@ -36,15 +36,15 @@ export function SplashScreen() {
     setTargetRadius(requiredRadius);
   }, []);
 
-  // Transisi Tutup (IN): Menutup lingkaran dari r=targetRadius ke r=0 (Tutup Mulus 0.7s)
+  // Transisi Tutup (IN): Menutup lingkaran dari r=targetRadius ke r=0 (Tutup Mulus 0.5s)
   const inTransition = {
-    duration: 0.7,
+    duration: 0.5,
     ease: [0.65, 0, 0.35, 1] as import("framer-motion").Easing
   };
 
-  // Transisi Buka (OUT): Membuka lingkaran dari r=0 ke r=targetRadius (Buka Sinematik 1.15s)
+  // Transisi Buka (OUT): Membuka lingkaran dari r=0 ke r=targetRadius (Buka Sinematik 0.85s)
   const outTransition = {
-    duration: 1.15,
+    duration: 0.85,
     ease: [0.87, 0, 0.13, 1] as import("framer-motion").Easing
   };
 
