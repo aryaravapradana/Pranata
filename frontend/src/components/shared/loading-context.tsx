@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 const LoadingContext = createContext({
@@ -14,14 +14,14 @@ const LoadingContext = createContext({
 
 export const LoadingProvider = ({ children }: { children: React.ReactNode }) => {
   const [blockers, setBlockers] = useState<Set<string>>(new Set());
-  const [isTransitioning, setIsTransitioning] = useState(true);
+  const [phase, setPhase] = useState<'IDLE' | 'CLOSING' | 'LOADING_PAGE'>('IDLE');
   const pathname = usePathname();
   const router = useRouter();
   const [prevPath, setPrevPath] = useState(pathname);
+  const closingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const triggerTransition = useCallback(() => {
-    setIsTransitioning(true);
-    setBlockers(new Set());
+    setPhase('CLOSING');
   }, []);
 
   const navigateTo = useCallback((url: string) => {
@@ -37,12 +37,13 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
       return;
     }
 
-    triggerTransition();
-    // Wait 520ms for the closing curtain animation (500ms) to 100% cover the screen before switching routes
-    setTimeout(() => {
+    setPhase('CLOSING');
+    if (closingTimeoutRef.current) clearTimeout(closingTimeoutRef.current);
+    closingTimeoutRef.current = setTimeout(() => {
+      setPhase('LOADING_PAGE');
       router.push(url);
     }, 520);
-  }, [router, triggerTransition]);
+  }, [router]);
 
   // Global Click Interceptor: Catch link clicks at 0ms BEFORE Next.js fetches RSC payload
   useEffect(() => {
@@ -69,9 +70,10 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
           if (!isInternalHub) {
             e.preventDefault();
             e.stopPropagation();
-            triggerTransition();
-            // Wait 520ms for closing curtain to 100% cover screen before router.push
-            setTimeout(() => {
+            setPhase('CLOSING');
+            if (closingTimeoutRef.current) clearTimeout(closingTimeoutRef.current);
+            closingTimeoutRef.current = setTimeout(() => {
+              setPhase('LOADING_PAGE');
               router.push(href);
             }, 520);
           }
@@ -81,29 +83,64 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
 
     document.addEventListener('click', handleClick, { capture: true });
     return () => document.removeEventListener('click', handleClick, { capture: true });
-  }, [router, triggerTransition]);
+  }, [router]);
 
-  // Synchronous route change detection during render tick (0ms - zero blink/flicker)
+  // Listen to browser Back / Forward buttons (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      const currentPath = window.location.pathname;
+      const isInternalHub = currentPath.startsWith('/hub') && !currentPath.includes('/intelligence');
+      if (!isInternalHub) {
+        setPhase('CLOSING');
+        if (closingTimeoutRef.current) clearTimeout(closingTimeoutRef.current);
+        closingTimeoutRef.current = setTimeout(() => {
+          setPhase('LOADING_PAGE');
+        }, 520);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Synchronous route change detection during render tick
   if (prevPath !== pathname) {
+    setPrevPath(pathname);
     const isInternalHub = prevPath?.startsWith('/hub') && 
                           pathname?.startsWith('/hub') && 
                           !pathname?.includes('/intelligence') && 
                           !prevPath?.includes('/intelligence');
-    setPrevPath(pathname);
     if (!isInternalHub) {
-      setIsTransitioning(true);
-      setBlockers(new Set());
+      if (phase !== 'CLOSING') {
+        setPhase('CLOSING');
+        if (closingTimeoutRef.current) clearTimeout(closingTimeoutRef.current);
+        closingTimeoutRef.current = setTimeout(() => {
+          setPhase('LOADING_PAGE');
+        }, 520);
+      }
     }
   }
 
+  // Phase transition to IDLE: Only when in LOADING_PAGE and blockers === 0
   useEffect(() => {
-    if (isTransitioning) {
+    if (phase === 'LOADING_PAGE' && blockers.size === 0) {
       const timer = setTimeout(() => {
-        setIsTransitioning(false);
-      }, 500);
+        setPhase('IDLE');
+      }, 80);
       return () => clearTimeout(timer);
     }
-  }, [pathname, isTransitioning]);
+  }, [phase, blockers.size]);
+
+  // Fallback safety timer: If stuck in CLOSING or LOADING_PAGE for > 3.5s, force IDLE
+  useEffect(() => {
+    if (phase !== 'IDLE') {
+      const safetyTimer = setTimeout(() => {
+        setPhase('IDLE');
+        setBlockers(new Set());
+      }, 3500);
+      return () => clearTimeout(safetyTimer);
+    }
+  }, [phase]);
 
   const registerBlocker = useCallback((id: string) => {
     setBlockers(prev => {
@@ -121,7 +158,8 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
     });
   }, []);
 
-  const isGlobalReady = !isTransitioning && blockers.size === 0;
+  const isGlobalReady = phase === 'IDLE';
+  const isTransitioning = phase !== 'IDLE';
 
   return (
     <LoadingContext.Provider value={{ isGlobalReady, isTransitioning, triggerTransition, navigateTo, registerBlocker, removeBlocker }}>
@@ -146,13 +184,11 @@ export const usePageLoading = (isLoading: boolean = false) => {
     const id = 'page-load';
     if (isLoading) {
       registerBlocker(id);
+      return () => {
+        removeBlocker(id);
+      };
     } else {
-      // Small delay to ensure DOM is painted before splash screen opens
-      const timer = setTimeout(() => removeBlocker(id), 100);
-      return () => clearTimeout(timer);
+      removeBlocker(id);
     }
-    
-    // Cleanup on unmount
-    return () => removeBlocker(id);
   }, [isLoading, pathname, isTransitioning, registerBlocker, removeBlocker]);
 };

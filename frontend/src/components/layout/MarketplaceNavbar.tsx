@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
+import UserDropdown from "./UserDropdown";
+
 export default function MarketplaceNavbar({ 
   searchQuery, 
   setSearchQuery,
@@ -103,21 +105,7 @@ export default function MarketplaceNavbar({
             )}
           </AnimatePresence>
         </Link>
-        <Link 
-          href="/profile" 
-          onMouseEnter={() => router.prefetch("/profile")}
-          className="flex items-center gap-2 transition-transform hover:scale-105 pl-1 cursor-pointer"
-        >
-          <div className="w-7 h-7 min-[380px]:w-8 min-[380px]:h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#E8E3D2] overflow-hidden shadow-sm flex items-center justify-center">
-            {(profile?.avatarUrl || profile?.avatar) ? (
-              <img src={profile.avatarUrl || profile.avatar} alt="Profile" className="w-full h-full object-cover" decoding="async" />
-            ) : (
-              <div className="w-full h-full bg-[#3A6B49] flex items-center justify-center text-white font-bold text-xs sm:text-lg">
-                {(profile?.fullName || profile?.username || 'U').charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-        </Link>
+        <UserDropdown profile={profile} />
       </div>
     </header>
   );

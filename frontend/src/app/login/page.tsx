@@ -9,6 +9,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Bird, Eye, EyeOff, Loader2 } from "lucide-react";
 import { RegisterForm } from "./RegisterForm";
 
+import { useGlobalLoading } from "@/components/shared/loading-context";
+
 function AuthContent() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -18,18 +20,19 @@ function AuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [authMode, setAuthMode] = useState<'login' | 'register'>(searchParams.get('mode') === 'register' ? 'register' : 'login');
+  const { navigateTo } = useGlobalLoading();
 
   useEffect(() => {
     const sessionStr = localStorage.getItem("farmpro_session");
     if (sessionStr) {
       const session = JSON.parse(sessionStr);
       if (session.role === 'PRODUCER') {
-        router.push('/hub');
+        navigateTo('/hub');
       } else {
-        router.push('/market');
+        navigateTo('/market');
       }
     }
-  }, [router]);
+  }, [router, navigateTo]);
 
   const switchMode = (mode: 'login' | 'register') => {
     setAuthMode(mode);
@@ -66,9 +69,9 @@ function AuthContent() {
       localStorage.setItem("farmpro_session", JSON.stringify(data));
       Cookies.set("auth-token", data.token, { expires: 7, path: '/' });
       if (data.role === "BUYER") {
-        router.push("/market");
+        navigateTo("/market");
       } else {
-        router.push("/hub");
+        navigateTo("/hub");
       }
     } catch (err: any) {
       setError(err.message);

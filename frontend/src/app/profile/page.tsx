@@ -4,11 +4,12 @@ import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
   User, Lock, Camera, CheckCircle, AlertCircle, ChevronLeft,
-  Eye, EyeOff, Save, Loader2, Store, MapPin, Phone, ImageIcon
+  Eye, EyeOff, Save, Loader2, Store, MapPin, Phone, ImageIcon, AlertTriangle, X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoading, useGlobalLoading } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 import { uploadImage } from "@/lib/supabaseStorage";
 
@@ -111,6 +112,7 @@ export default function AccountSettingsPage() {
   const [checkingUsername, setCheckingUsername] = useState(false);
 
   const [sessionRole, setSessionRole] = useState<string | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const sessionStr = localStorage.getItem("farmpro_session");
@@ -584,11 +586,7 @@ export default function AccountSettingsPage() {
           </div>
           <motion.button 
             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-            onClick={() => { 
-              import("js-cookie").then(Cookies => Cookies.default.remove("auth-token"));
-              localStorage.removeItem("farmpro_session"); 
-              window.location.href = "/"; 
-            }}
+            onClick={() => setShowLogoutModal(true)}
             className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-[#E11D48] font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-[#E11D48]/20 hover:bg-[#E11D48] hover:text-white transition-colors shadow-sm cursor-pointer text-center active:scale-95"
           >
             Keluar dari Akun
@@ -596,6 +594,67 @@ export default function AccountSettingsPage() {
         </motion.div>
         </div>
       </main>
+
+      {/* Logout Confirmation Modal */}
+      <AnimatePresence>
+        {showLogoutModal && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLogoutModal(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-sm bg-white rounded-2xl sm:rounded-[2rem] p-6 sm:p-8 border border-[#E8E3D2] shadow-2xl z-10 text-center space-y-4"
+            >
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="absolute top-4 right-4 p-2 rounded-full text-[#7A8678] hover:text-[#1C241E] hover:bg-[#F8F6F0] transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+
+              <div className="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <AlertTriangle size={28} />
+              </div>
+
+              <div>
+                <h3 className="text-xl font-black text-[#1C241E] mb-2">Keluar dari Akun?</h3>
+                <p className="text-xs sm:text-sm font-medium text-[#5A635B] leading-relaxed">
+                  Apakah Anda yakin ingin keluar dari akun ini? Sesi Anda di perangkat ini akan diakhiri.
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowLogoutModal(false)}
+                  className="flex-1 py-3 px-4 rounded-xl border-2 border-[#DDE2D6] text-[#1C241E] font-bold text-xs sm:text-sm hover:bg-[#F8F6F0] transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    Cookies.remove("auth-token");
+                    localStorage.removeItem("farmpro_session");
+                    window.location.href = "/";
+                  }}
+                  className="flex-1 py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-red-600/30 cursor-pointer active:scale-95"
+                >
+                  Ya, Keluar
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -66,7 +66,8 @@ export function SplashScreen() {
                 cx="437"
                 cy="497"
                 fill="black"
-                animate={{ r: isGlobalReady ? targetRadius : 0 }}
+                initial={{ r: 0 }}
+                animate={{ r: isGlobalReady ? (targetRadius || 15000) : 0 }}
                 transition={isGlobalReady ? outTransition : inTransition}
               />
             </svg>

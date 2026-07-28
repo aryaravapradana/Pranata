@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Store, ShoppingCart, Beef, Bird, Tractor, Droplet, Circle, MoreHorizontal, ArrowRight, Check, X, Eye, EyeOff } from "lucide-react";
+import { useGlobalLoading } from "@/components/shared/loading-context";
 
 const LIVESTOCK_OPTIONS = [
   { id: "SAPI", label: "Sapi", icon: Beef },
@@ -35,6 +36,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: { onSuccess: () => 
   const [loading, setLoading] = useState(false);
   
   const router = useRouter();
+  const { navigateTo } = useGlobalLoading();
 
   // Debounced Username Checker
   useEffect(() => {
@@ -131,9 +133,9 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: { onSuccess: () => 
         Cookies.set("auth-token", data.token, { expires: 7, path: '/' });
       }
       if (data.role === "BUYER") {
-        router.push("/market");
+        navigateTo("/market");
       } else {
-        router.push("/hub");
+        navigateTo("/hub");
       }
     } catch (err: any) {
       setError(err.message || "Gagal menyelesaikan pendaftaran");
