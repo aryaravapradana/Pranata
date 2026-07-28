@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Bird, Heart, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { EditorialGallery } from "@/components/ui/editorial-gallery";
 import { FeaturesRopeSection } from "@/components/ui/features-rope-section";
 import { AnimatedDekorasi } from "@/components/ui/animated-dekorasi";

@@ -47,13 +47,6 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
-// ── Strict Rate Limiter for Auth endpoints (prevents brute-force) ──
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  message: { error: 'Terlalu banyak percobaan login, coba lagi dalam 15 menit.' },
-});
-
 // ── Status Endpoint (public) ──
 app.get('/api/status', (req: Request, res: Response) => {
   res.json({ status: 'OK', service: 'Pranata API', version: '2.0.0' });

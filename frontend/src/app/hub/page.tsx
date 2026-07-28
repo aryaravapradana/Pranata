@@ -355,7 +355,12 @@ export default function MainDashboard() {
                 </div>
                 
                 <div className="flex-1 flex flex-col gap-2.5 sm:gap-3 mt-2 overflow-y-auto pr-1">
-                  {orders.filter(o => o.status !== 'COMPLETED').slice(0, 2).length > 0 ? (
+                  {!isLoaded ? (
+                    <div className="animate-pulse space-y-2 py-1">
+                      <div className="h-12 bg-white/20 rounded-xl w-full"></div>
+                      <div className="h-12 bg-white/20 rounded-xl w-full"></div>
+                    </div>
+                  ) : orders.filter(o => o.status !== 'COMPLETED').slice(0, 2).length > 0 ? (
                     orders.filter(o => o.status !== 'COMPLETED').slice(0, 2).map((order, i) => (
                       <div key={i} className="flex justify-between items-center p-2.5 sm:p-3 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 transition-colors shadow-sm backdrop-blur-md">
                         <div className="flex-1 min-w-0 pr-2">
@@ -413,6 +418,14 @@ export default function MainDashboard() {
                 {/* Event List (Kiri Bawah) */}
                 <div className="max-h-32 sm:max-h-36 md:max-h-none overflow-y-auto min-h-0 pr-1 sm:pr-2 space-y-2 pb-1 hide-scrollbar">
                   {(() => {
+                    if (!isLoaded) {
+                      return (
+                        <div className="animate-pulse space-y-2 py-1">
+                          <div className="h-10 bg-white/20 rounded-xl w-full"></div>
+                          <div className="h-10 bg-white/20 rounded-xl w-full"></div>
+                        </div>
+                      );
+                    }
                     const startOfToday = new Date();
                     startOfToday.setHours(0, 0, 0, 0);
 
