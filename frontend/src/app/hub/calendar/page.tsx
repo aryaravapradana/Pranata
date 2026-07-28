@@ -372,11 +372,11 @@ export default function CalendarPage() {
       <main className="max-w-7xl mx-auto px-3.5 sm:px-6 md:px-8 lg:px-12 w-full flex-1 mb-8 md:mb-12">
         <AnimatePresence mode="wait">
           <motion.div
-            key={viewMode}
-            initial={{ opacity: 0, y: 12, scale: 0.99 }}
+            key={`${viewMode}-${activeDateObj.getFullYear()}-${activeDateObj.getMonth()}-${viewMode === 'Day' ? activeDay : (viewMode === 'Week' ? (weekDays[0]?.date || '') : '')}`}
+            initial={{ opacity: 0, y: 8, scale: 0.995 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -12, scale: 0.99 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
+            exit={{ opacity: 0, y: -8, scale: 0.995 }}
+            transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1.0] }}
           >
             {/* Days Header (Only for Week View) */}
             {viewMode === 'Week' && (
@@ -396,10 +396,19 @@ export default function CalendarPage() {
                             setActiveDateObj(d.fullDate);
                           }
                         }}
-                        className={`flex flex-col items-center justify-center py-2 sm:py-3.5 md:py-4 rounded-xl sm:rounded-2xl md:rounded-3xl transition-all ${activeDay === d.date ? 'bg-pranata text-white shadow-lg' : 'bg-white text-[#1C241E] border border-[#E8E3D2] hover:border-[#B4C179]'}`}
+                        className={`relative flex flex-col items-center justify-center py-2 sm:py-3.5 md:py-4 rounded-xl sm:rounded-2xl md:rounded-3xl transition-all cursor-pointer ${
+                          activeDay === d.date ? 'text-white' : 'bg-white text-[#1C241E] border border-[#E8E3D2] hover:border-[#B4C179]'
+                        }`}
                       >
-                        <span className={`text-[10px] sm:text-xs md:text-sm font-bold mb-0.5 ${activeDay === d.date ? 'text-[#A4C4A8]' : 'text-[#7A8678]'}`}>{d.day}</span>
-                        <span className="text-lg sm:text-2xl md:text-3xl font-black">{d.date}</span>
+                        {activeDay === d.date && (
+                          <motion.div
+                            layoutId="activeWeekDayPill"
+                            className="absolute inset-0 bg-pranata rounded-xl sm:rounded-2xl md:rounded-3xl shadow-lg z-0"
+                            transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                          />
+                        )}
+                        <span className={`relative z-10 text-[10px] sm:text-xs md:text-sm font-bold mb-0.5 ${activeDay === d.date ? 'text-[#A4C4A8]' : 'text-[#7A8678]'}`}>{d.day}</span>
+                        <span className="relative z-10 text-lg sm:text-2xl md:text-3xl font-black">{d.date}</span>
                       </button>
                     ))}
                   </div>
@@ -497,7 +506,13 @@ export default function CalendarPage() {
                       const now = new Date();
                       const isToday = day === now.getDate() && activeDateObj.getMonth() === now.getMonth() && activeDateObj.getFullYear() === now.getFullYear();
                       return (
-                        <div key={i} onClick={() => { setActiveDay(day); setViewMode('Day'); }} className={`min-h-[56px] sm:min-h-[80px] md:min-h-[110px] lg:min-h-[120px] rounded-lg sm:rounded-xl md:rounded-2xl p-1 sm:p-2 md:p-3 border-2 ${isToday ? 'border-[#2B4C3B] bg-[#F8F6F0]' : 'border-transparent hover:border-[#DDE2D6] bg-white shadow-xs'} cursor-pointer transition-colors relative overflow-hidden group`}>
+                        <motion.div 
+                          key={i} 
+                          whileHover={{ scale: 1.02, y: -2 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => { setActiveDay(day); setViewMode('Day'); }} 
+                          className={`min-h-[56px] sm:min-h-[80px] md:min-h-[110px] lg:min-h-[120px] rounded-lg sm:rounded-xl md:rounded-2xl p-1 sm:p-2 md:p-3 border-2 ${isToday ? 'border-[#2B4C3B] bg-[#F8F6F0]' : 'border-transparent hover:border-[#DDE2D6] bg-white shadow-xs'} cursor-pointer transition-all relative overflow-hidden group`}
+                        >
                           <div className={`mb-0.5 sm:mb-1 text-xs sm:text-base md:text-lg ${isToday ? 'font-black text-[#C25939]' : 'font-medium text-[#5A635B]'}`}>{day}</div>
                           <div className="space-y-0.5 sm:space-y-1 relative z-10">
                             {dayEvents.map((e, idx) => (
@@ -507,7 +522,7 @@ export default function CalendarPage() {
                           <div className="absolute -bottom-10 -right-10 opacity-0 group-hover:opacity-5 transition-opacity">
                             <CalendarIcon size={80} />
                           </div>
-                        </div>
+                        </motion.div>
                       )
                     })}
                   </div>
@@ -778,9 +793,15 @@ function EventCard({ event, onClick }: { event: any, onClick: () => void }) {
   const style = event.style || getEventStyle(event.type);
 
   return (
-    <div 
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.92, y: 4 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.92, y: -4 }}
+      whileHover={{ scale: 1.02, zIndex: 30 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       onClick={onClick}
-      className={`absolute w-[calc(100%-6px)] mx-[3px] rounded-xl sm:rounded-2xl p-2 sm:p-2.5 md:p-3 flex flex-col cursor-pointer transition-all hover:scale-[1.02] shadow-sm border-2 overflow-hidden pointer-events-auto ${style.bg}`}
+      className={`absolute w-[calc(100%-6px)] mx-[3px] rounded-xl sm:rounded-2xl p-2 sm:p-2.5 md:p-3 flex flex-col cursor-pointer shadow-sm border-2 overflow-hidden pointer-events-auto ${style.bg}`}
       style={{ top: `${topPixels}px`, height: `${heightPixels}px`, zIndex: 20 }}
     >
       <h3 className="font-extrabold text-xs sm:text-sm leading-tight mb-1 break-words line-clamp-2">{event.title}</h3>
@@ -790,6 +811,6 @@ function EventCard({ event, onClick }: { event: any, onClick: () => void }) {
           {style.label}
         </span>
       </div>
-    </div>
+    </motion.div>
   );
 }
