@@ -139,19 +139,19 @@ export default function SellerOrdersPage() {
             {orders.map((o) => (
               <div key={o.id} className="bg-white border border-[#E8E3D2] rounded-[1.5rem] p-5 shadow-[0_4px_24px_-8px_rgba(43,76,59,0.08)]">
                 {/* Header */}
-                <div className="flex justify-between items-start mb-4 border-b border-[#E8E3D2] pb-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 border-b border-[#E8E3D2] pb-4">
                   <div>
                     <p className="text-xs font-bold text-[#7A8678] mb-1 flex items-center gap-1.5">
                       <User size={14} className="text-[#A4B0A7]" />
                       Pembeli: {o.buyer?.fullName || o.buyer?.username || "Unknown"}
                     </p>
-                    <p className="text-[10px] text-[#A4B0A7] flex items-center gap-2">
+                    <p className="text-[10px] text-[#A4B0A7] flex items-center gap-2 flex-wrap">
                       <span className="font-bold text-[#1C241E]">Order #{o.id.substring(o.id.length - 8).toUpperCase()}</span>
                       <span>•</span>
                       <span>{new Date(o.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                     </p>
                   </div>
-                  <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wide flex items-center gap-1.5 ${STATUS_COLORS[o.status]}`}>
+                  <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wide flex items-center gap-1.5 shrink-0 ${STATUS_COLORS[o.status]}`}>
                     {o.status === "PENDING" && <Clock size={12} />}
                     {o.status === "PAID" && <CheckCircle size={12} />}
                     {o.status === "SHIPPED" && <Truck size={12} />}

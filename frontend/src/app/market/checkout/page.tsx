@@ -258,7 +258,7 @@ export default function CheckoutPage() {
             <h3 className="text-sm font-black text-[#5A635B] uppercase tracking-wider mb-4 flex items-center gap-2">
               <Truck size={16} className="text-[#767C15]" /> Metode Pengiriman
             </h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { label: "Kargo Express", sub: "2-3 Hari • Rp 45.000", id: "kargo", fee: 45000 },
                 { label: "Lokal Kurir", sub: "Same Day • Rp 15.000", id: "lokal", fee: 15000 },

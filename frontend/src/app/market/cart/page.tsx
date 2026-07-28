@@ -225,37 +225,37 @@ function ActivityContent() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              <h1 className="text-4xl md:text-[3.5rem] font-black tracking-tight text-[#1C241E] mb-6">
+              <h1 className="text-2xl sm:text-4xl md:text-[3.5rem] font-black tracking-tight text-[#1C241E] mb-4 sm:mb-6">
                 Keranjang
               </h1>
 
               {/* Stepper for Cart */}
-              <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-[#1C241E] mb-12">
-                <span className="text-[#1C241E]">1. Keranjang</span>
-                <div className="w-8 sm:w-16 h-px bg-[#DDE2D6]"></div>
-                <span className="text-[#A4B0A7] font-semibold">2. Checkout</span>
-                <div className="w-8 sm:w-16 h-px bg-[#DDE2D6]"></div>
-                <span className="text-[#A4B0A7] font-semibold">3. Pembayaran</span>
+              <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-bold text-[#1C241E] mb-8 sm:mb-12 overflow-x-auto hide-scrollbar">
+                <span className="text-[#1C241E] shrink-0">1. Keranjang</span>
+                <div className="w-6 sm:w-16 h-px bg-[#DDE2D6] shrink-0"></div>
+                <span className="text-[#A4B0A7] font-semibold shrink-0">2. Checkout</span>
+                <div className="w-6 sm:w-16 h-px bg-[#DDE2D6] shrink-0"></div>
+                <span className="text-[#A4B0A7] font-semibold shrink-0">3. Pembayaran</span>
               </div>
 
               {cart.length === 0 ? (
-                <div className="text-center py-20 border-2 border-dashed border-[#DDE2D6] rounded-[2rem] bg-white max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
-                  <h3 className="text-xl font-black text-[#5A635B] mb-2">Keranjang Kosong</h3>
-                  <p className="text-[#A4B0A7] text-sm font-medium mb-6">Belum ada produk yang kamu tambahkan.</p>
+                <div className="text-center py-16 sm:py-20 border-2 border-dashed border-[#DDE2D6] rounded-[2rem] bg-white max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
+                  <h3 className="text-lg sm:text-xl font-black text-[#5A635B] mb-2">Keranjang Kosong</h3>
+                  <p className="text-[#A4B0A7] text-xs sm:text-sm font-medium mb-6">Belum ada produk yang kamu tambahkan.</p>
                   <button
                     onClick={() => router.push("/market")}
-                    className="px-8 py-3.5 bg-pranata text-white font-black rounded-full hover:bg-[#1E362A] transition-colors shadow-lg"
+                    className="px-6 py-3 sm:px-8 sm:py-3.5 bg-pranata text-white font-black text-xs sm:text-sm rounded-full hover:bg-[#1E362A] transition-colors shadow-lg active:scale-95 cursor-pointer"
                   >
                     Mulai Belanja
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16 items-start">
                   {/* Cart Items */}
-                  <div className="lg:col-span-2 flex flex-col gap-8">
+                  <div className="lg:col-span-2 flex flex-col gap-6 sm:gap-8">
                     {cart.map((item) => (
-                      <div key={item.id} className="flex flex-col sm:flex-row gap-6 pb-8 border-b border-[#E8E3D2]">
-                        <div className="w-32 h-32 rounded-[1.5rem] bg-[#F1EBE1] flex-shrink-0 overflow-hidden flex items-center justify-center text-5xl relative">
+                      <div key={item.id} className="flex flex-row gap-3.5 sm:gap-6 pb-6 sm:pb-8 border-b border-[#E8E3D2]">
+                        <div className="w-20 h-20 sm:w-32 sm:h-32 rounded-xl sm:rounded-[1.5rem] bg-[#F1EBE1] flex-shrink-0 overflow-hidden flex items-center justify-center text-3xl sm:text-5xl relative">
                           {item.product?.imageUrls && item.product.imageUrls.length > 0 ? (
                             <img src={item.product.imageUrls[0]} alt={item.product.title} className="w-full h-full object-cover"  loading="lazy" decoding="async" />
                           ) : (
