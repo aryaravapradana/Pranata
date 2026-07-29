@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Store, ShieldAlert, Sparkles, CheckCircle2, ArrowRight, X } from "lucide-react";
+import { AlertTriangle, ArrowRight, X } from "lucide-react";
 
 interface SellerWarningModalProps {
   isOpen: boolean;
@@ -69,43 +69,24 @@ export function SellerWarningModal({ isOpen, onClose, onConfirmUpgrade }: Seller
               <X size={18} />
             </button>
 
-            {/* Warning Icon Badge */}
-            <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-amber-50 border-2 border-amber-200/80 flex items-center justify-center text-amber-600 mb-5 shadow-sm relative">
-              <Store size={32} className="text-[#2B4C3B]" />
-              <div className="absolute -bottom-1 -right-1 bg-amber-500 text-white p-1 rounded-full shadow-md">
-                <ShieldAlert size={14} />
-              </div>
+            {/* Triangle Warning Icon Badge */}
+            <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-amber-50 border-2 border-amber-200/80 flex items-center justify-center text-amber-500 mb-5 shadow-sm">
+              <AlertTriangle size={36} className="text-amber-500" />
             </div>
 
             {/* Content Header */}
             <h3 className="text-xl sm:text-2xl font-black text-[#1C241E] tracking-tight leading-snug mb-2.5">
               Kamu Belum Terdaftar Sebagai Penjual!
             </h3>
-            <p className="text-xs sm:text-sm text-[#5A635B] font-medium leading-relaxed mb-6">
+            <p className="text-xs sm:text-sm text-[#5A635B] font-medium leading-relaxed mb-8">
               Akses fitur eksklusif <span className="font-extrabold text-[#2B4C3B]">Pranata Hub</span> & <span className="font-extrabold text-[#2B4C3B]">Intelligence</span> memerlukan akun penjual terverifikasi. Daftarkan toko peternakanmu untuk mulai berjualan dan mengelola produk.
             </p>
-
-            {/* Quick Benefits List */}
-            <div className="bg-[#F8F6F0] rounded-2xl p-4 border border-[#E8E3D2]/80 space-y-2.5 mb-6 text-left">
-              <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-[#1C241E]">
-                <CheckCircle2 size={16} className="text-[#2B4C3B] shrink-0" />
-                <span>Manajemen Produk & Pesanan Real-time</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-[#1C241E]">
-                <CheckCircle2 size={16} className="text-[#2B4C3B] shrink-0" />
-                <span>Analitik Bisnis & Prediksi Cerdas (AI)</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-[#1C241E]">
-                <CheckCircle2 size={16} className="text-[#2B4C3B] shrink-0" />
-                <span>Pendaftaran Gratis (Kurang dari 1 menit)</span>
-              </div>
-            </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <button
                 onClick={onClose}
-                className="w-full sm:w-1/2 py-3 px-5 rounded-full border border-[#E8E3D2] bg-white hover:bg-[#F8F6F0] text-[#5A635B] font-bold text-xs sm:text-sm transition-all shadow-xs active:scale-95 cursor-pointer order-2 sm:order-1"
+                className="w-full sm:w-1/2 py-3.5 px-5 rounded-full border border-[#E8E3D2] bg-white hover:bg-[#F8F6F0] text-[#5A635B] font-bold text-xs sm:text-sm transition-all shadow-xs active:scale-95 cursor-pointer order-2 sm:order-1"
               >
                 Nanti Saja
               </button>
