@@ -1,10 +1,14 @@
-import { logger } from './logger';
+import { logger } from "./logger";
 
 export class JobQueue<T> {
   private queue: T[] = [];
   private processing = false;
 
-  constructor(private executor: (job: T) => Promise<void>) {}
+  constructor(
+    private executor: (
+      job: T,
+    ) => Promise<void>,
+  ) {}
 
   async add(job: T): Promise<void> {
     this.queue.push(job);
@@ -21,7 +25,11 @@ export class JobQueue<T> {
       try {
         await this.executor(job);
       } catch (error) {
-        logger.error('Job execution failed', error, { job });
+        logger.error(
+          "Job execution failed",
+          error,
+          { job },
+        );
       }
     }
 

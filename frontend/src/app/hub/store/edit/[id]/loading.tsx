@@ -1,11 +1,21 @@
-import { Skeleton, DashboardNavbarSkeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import {
+  Skeleton,
+  DashboardNavbarSkeleton,
+} from "@/components/ui/skeleton";
 
 export default function EditProductLoading() {
   return (
     <div className="min-h-screen bg-[#F8F6F0] w-full flex flex-col">
       <DashboardNavbarSkeleton />
 
-      <main className="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 space-y-6 flex-1">
+      <main
+        className={cn(
+          "max-w-4xl mx-auto w-full",
+          "px-4 sm:px-6 py-6",
+          "space-y-6 flex-1",
+        )}
+      >
         {/* Header Breadcrumbs */}
         <div className="space-y-2">
           <Skeleton className="h-4 w-32 rounded-md" />
@@ -13,13 +23,24 @@ export default function EditProductLoading() {
         </div>
 
         {/* Form Container */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E8E3D2] space-y-6 shadow-xs">
+        <div
+          className={cn(
+            "bg-white rounded-3xl p-6",
+            "sm:p-8 border border-[#E8E3D2]",
+            "space-y-6 shadow-xs",
+          )}
+        >
           {/* Image Preview Skeleton */}
           <div className="space-y-2">
             <Skeleton className="h-4 w-32 rounded-md" />
             <div className="flex gap-3">
               <Skeleton className="w-24 h-24 rounded-2xl" />
-              <Skeleton className="w-24 h-24 rounded-2xl border-2 border-dashed border-[#E8E3D2]" />
+              <Skeleton
+                className={cn(
+                  "w-24 h-24 rounded-2xl",
+                  "border-2 border-dashed border-[#E8E3D2]",
+                )}
+              />
             </div>
           </div>
 

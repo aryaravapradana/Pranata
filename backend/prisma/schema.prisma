@@ -16,21 +16,21 @@ model SellerEvent {
   eventDate   DateTime
   type        String   @default("ROUTINE") // ROUTINE, HARVEST, TASK
   sellerId    String
-  
-  seller      Profile  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  seller    Profile  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([sellerId])
 }
 
 model Transaction {
   id          String   @id @default(uuid())
-  type        String   // EXPENSE, REVENUE
-  category    String   // FEED, VACCINE, SALES, UTILITIES
+  type        String // EXPENSE, REVENUE
+  category    String // FEED, VACCINE, SALES, UTILITIES
   amount      Float
   description String?
-  userId      String   // Map to Supabase Auth User ID
+  userId      String // Map to Supabase Auth User ID
   date        DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -39,11 +39,11 @@ model Transaction {
 }
 
 model CommodityPrice {
-  id          String   @id @default(uuid())
-  commodity   String   // CORN, SOYBEAN, RICE_BRAN
-  pricePerKg  Float
-  region      String
-  recordedAt  DateTime @default(now())
+  id         String   @id @default(uuid())
+  commodity  String // CORN, SOYBEAN, RICE_BRAN
+  pricePerKg Float
+  region     String
+  recordedAt DateTime @default(now())
 
   @@index([commodity])
 }
@@ -54,52 +54,52 @@ enum Role {
 }
 
 model Profile {
-  id          String   @id @default(uuid())
-  username    String   @unique
-  password    String
-  email       String?
-  role        Role     @default(BUYER)
-  fullName    String?
-  farmName    String?
-  location    String?
-  contact     String?
-  avatarUrl   String?
-  bannerUrl   String?
+  id             String   @id @default(uuid())
+  username       String   @unique
+  password       String
+  email          String?
+  role           Role     @default(BUYER)
+  fullName       String?
+  farmName       String?
+  location       String?
+  contact        String?
+  avatarUrl      String?
+  bannerUrl      String?
   livestockTypes String[] @default([])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   products       Product[]
-  ordersAsBuyer  Order[] @relation("BuyerOrders")
-  ordersAsSeller Order[] @relation("SellerOrders")
+  ordersAsBuyer  Order[]       @relation("BuyerOrders")
+  ordersAsSeller Order[]       @relation("SellerOrders")
   sellerEvents   SellerEvent[]
   cartItems      CartItem[]
 }
 
 model Product {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   sellerId    String
   title       String
   description String?
-  category    String   @default("Lainnya")
+  category    String    @default("Lainnya")
   price       Float
-  stock       Int      @default(0)
-  minOrder    Int      @default(1)
-  unit        String   @default("kg") // kg, ekor, liter
-  imageUrls   String[] @default([])
+  stock       Int       @default(0)
+  minOrder    Int       @default(1)
+  unit        String    @default("kg") // kg, ekor, liter
+  imageUrls   String[]  @default([])
   grade       String?
   aiAnalysis  String?
   deletedAt   DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  seller     Profile     @relation(fields: [sellerId], references: [id])
+  orderItems OrderItem[]
+  cartItems  CartItem[]
 
   @@index([sellerId])
   @@index([sellerId, deletedAt])
   @@index([deletedAt])
-
-  seller      Profile  @relation(fields: [sellerId], references: [id])
-  orderItems  OrderItem[]
-  cartItems   CartItem[]
 }
 
 enum OrderStatus {
@@ -111,28 +111,28 @@ enum OrderStatus {
 }
 
 model Order {
-  id          String      @id @default(uuid())
-  buyerId     String
-  sellerId    String
-  totalAmount Float
-  shippingAddress String?
-  shippingMethod  String?
-  paymentMethod   String?
-  shippingFee     Float       @default(0)
-  platformFee     Float       @default(0)
+  id                   String      @id @default(uuid())
+  buyerId              String
+  sellerId             String
+  totalAmount          Float
+  shippingAddress      String?
+  shippingMethod       String?
+  paymentMethod        String?
+  shippingFee          Float       @default(0)
+  platformFee          Float       @default(0)
   requestedArrivalDate DateTime?
-  status      OrderStatus @default(PENDING)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  status               OrderStatus @default(PENDING)
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  buyer  Profile     @relation("BuyerOrders", fields: [buyerId], references: [id])
+  seller Profile     @relation("SellerOrders", fields: [sellerId], references: [id])
+  items  OrderItem[]
 
   @@index([buyerId])
   @@index([sellerId])
   @@index([buyerId, createdAt(sort: Desc)])
   @@index([sellerId, createdAt(sort: Desc)])
-
-  buyer       Profile     @relation("BuyerOrders", fields: [buyerId], references: [id])
-  seller      Profile     @relation("SellerOrders", fields: [sellerId], references: [id])
-  items       OrderItem[]
 }
 
 model OrderItem {
@@ -143,20 +143,20 @@ model OrderItem {
   priceAtTime Float
   createdAt   DateTime @default(now())
 
-  order       Order    @relation(fields: [orderId], references: [id])
-  product     Product  @relation(fields: [productId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 }
 
 model CartItem {
-  id          String   @id @default(uuid())
-  buyerId     String
-  productId   String
-  quantity    Int      @default(1)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(uuid())
+  buyerId   String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  buyer       Profile  @relation(fields: [buyerId], references: [id], onDelete: Cascade)
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  buyer   Profile @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([buyerId, productId])
   @@index([buyerId])

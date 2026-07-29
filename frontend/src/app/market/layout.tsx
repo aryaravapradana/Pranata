@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Pranata Market",
-  description: "Pasar Ternak & Hasil Tani Terverifikasi Direct",
+  description:
+    "Pasar Ternak & Hasil Tani Terverifikasi Direct",
   icons: {
     icon: "/logomarks/basic-logomark.webp",
-    shortcut: "/logomarks/basic-logomark.webp",
+    shortcut:
+      "/logomarks/basic-logomark.webp",
     apple: "/logomarks/basic-logomark.webp",
   },
 };

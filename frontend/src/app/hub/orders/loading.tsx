@@ -1,11 +1,22 @@
-import { Skeleton, DashboardNavbarSkeleton, OrderCardSkeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import {
+  Skeleton,
+  DashboardNavbarSkeleton,
+  OrderCardSkeleton,
+} from "@/components/ui/skeleton";
 
 export default function HubOrdersLoading() {
   return (
     <div className="min-h-screen bg-[#F8F6F0] w-full flex flex-col">
       <DashboardNavbarSkeleton />
 
-      <main className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-6 space-y-6 flex-1">
+      <main
+        className={cn(
+          "max-w-5xl mx-auto w-full",
+          "px-4 sm:px-6 py-6",
+          "space-y-6 flex-1",
+        )}
+      >
         {/* Header Bar */}
         <div className="space-y-2">
           <Skeleton className="h-8 w-48 rounded-xl" />
@@ -15,7 +26,10 @@ export default function HubOrdersLoading() {
         {/* Tab Filter Pills */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1">
           {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} className="h-10 w-28 shrink-0 rounded-2xl" />
+            <Skeleton
+              key={i}
+              className="h-10 w-28 shrink-0 rounded-2xl"
+            />
           ))}
         </div>
 

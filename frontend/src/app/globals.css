@@ -5,116 +5,138 @@
 @custom-variant dark (&:is(.dark *));
 
 @font-face {
-  font-family: 'ClearfaceStd';
-  src: url('/fonts/clearface/ClearfaceStd-Regular.woff2') format('woff2');
+  font-family: "ClearfaceStd";
+  src: url("/fonts/clearface/ClearfaceStd-Regular.woff2")
+    format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'ClearfaceStd';
-  src: url('/fonts/clearface/ClearfaceStd-Bold.woff2') format('woff2');
+  font-family: "ClearfaceStd";
+  src: url("/fonts/clearface/ClearfaceStd-Bold.woff2")
+    format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'ClearfaceStd';
-  src: url('/fonts/clearface/ClearfaceStd-Heavy.woff2') format('woff2');
+  font-family: "ClearfaceStd";
+  src: url("/fonts/clearface/ClearfaceStd-Heavy.woff2")
+    format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'ClearfaceStd';
-  src: url('/fonts/clearface/ClearfaceStd-Black.woff2') format('woff2');
+  font-family: "ClearfaceStd";
+  src: url("/fonts/clearface/ClearfaceStd-Black.woff2")
+    format("woff2");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Rustic Delight';
-  src: url('/fonts/Rustic%20Delight/Rustic%20Delight.ttf') format('truetype');
+  font-family: "Rustic Delight";
+  src: url("/fonts/Rustic%20Delight/Rustic%20Delight.ttf")
+    format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SFUIDisplay';
-  src: url('/fonts/SF%20UI/sf-ui-display-light-58646b33e0551.otf') format('opentype');
+  font-family: "SFUIDisplay";
+  src: url("/fonts/SF%20UI/sf-ui-display-light-58646b33e0551.otf")
+    format("opentype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'SFUIDisplay';
-  src: url('/fonts/SF%20UI/sf-ui-display-medium-58646be638f96.otf') format('opentype');
+  font-family: "SFUIDisplay";
+  src: url("/fonts/SF%20UI/sf-ui-display-medium-58646be638f96.otf")
+    format("opentype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'SFUIDisplay';
-  src: url('/fonts/SF%20UI/sf-ui-display-semibold-58646eddcae92.otf') format('opentype');
+  font-family: "SFUIDisplay";
+  src: url("/fonts/SF%20UI/sf-ui-display-semibold-58646eddcae92.otf")
+    format("opentype");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'SFUIDisplay';
-  src: url('/fonts/SF%20UI/sf-ui-display-bold-58646a511e3d9.otf') format('opentype');
+  font-family: "SFUIDisplay";
+  src: url("/fonts/SF%20UI/sf-ui-display-bold-58646a511e3d9.otf")
+    format("opentype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'SFUIDisplay';
-  src: url('/fonts/SF%20UI/sf-ui-display-heavy-586470160b9e5.otf') format('opentype');
+  font-family: "SFUIDisplay";
+  src: url("/fonts/SF%20UI/sf-ui-display-heavy-586470160b9e5.otf")
+    format("opentype");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'SFUIDisplay';
-  src: url('/fonts/SF%20UI/sf-ui-display-black-58646a6b80d5a.otf') format('opentype');
+  font-family: "SFUIDisplay";
+  src: url("/fonts/SF%20UI/sf-ui-display-black-58646a6b80d5a.otf")
+    format("opentype");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
 @theme {
-  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-serif: var(--font-playfair), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans:
+    "Nunito", ui-sans-serif, system-ui,
+    sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+  --font-serif:
+    var(--font-playfair), ui-serif, Georgia,
+    Cambria, "Times New Roman", Times, serif;
 
   /* Pranata Exact Background Colors */
-  --color-rust: #C25939;
-  --color-vibrant: #F5990D;
-  --color-olive: #767C15;
-  --color-forest: #32452C;
-  --color-sage: #B4C179;
+  --color-rust: #c25939;
+  --color-vibrant: #f5990d;
+  --color-olive: #767c15;
+  --color-forest: #32452c;
+  --color-sage: #b4c179;
 
-  --animate-aurora: aurora 60s linear infinite;
+  --animate-aurora: aurora 60s linear
+    infinite;
 }
 
 @keyframes aurora {
   from {
-    background-position: 50% 50%, 50% 50%;
+    background-position:
+      50% 50%,
+      50% 50%;
   }
   to {
-    background-position: 350% 50%, 350% 50%;
+    background-position:
+      350% 50%,
+      350% 50%;
   }
 }
 
 @layer base {
   :root {
-    --background: #F8F6F0; /* Earthy warm off-white */
-    --foreground: #1C241E; /* Deep forest green-black text */
+    --background: #f8f6f0; /* Earthy warm off-white */
+    --foreground: #1c241e; /* Deep forest green-black text */
   }
 
   /* CRITICAL FIX: Disable browser scroll anchoring to prevent SVG bounding box updates from teleporting the scroll position */
-  html, body {
+  html,
+  body {
     overflow-anchor: none;
     overscroll-behavior-y: none; /* also prevents rubber-banding on Mac/Windows precision touchpads which breaks GSAP */
   }
@@ -141,9 +163,11 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'SFUIDisplay', sans-serif;
+    font-family: "SFUIDisplay", sans-serif;
     letter-spacing: -0.01em;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
   }
 
   html {
@@ -151,63 +175,79 @@
   }
 
   h1 {
-    font-family: 'Rustic Delight', serif !important;
+    font-family:
+      "Rustic Delight", serif !important;
     letter-spacing: 0.03em !important;
     line-height: 1.2 !important;
   }
 
   .font-rustic {
-    font-family: 'Rustic Delight', serif !important;
+    font-family:
+      "Rustic Delight", serif !important;
     letter-spacing: 0.03em !important;
   }
 
   h2 {
-    font-family: 'SFUIDisplay', system-ui, sans-serif !important;
+    font-family:
+      "SFUIDisplay", system-ui, sans-serif !important;
     font-weight: 900 !important;
     letter-spacing: -0.02em !important;
   }
 
   h2 {
-    font-family: 'SFUIDisplay', system-ui, sans-serif !important;
+    font-family:
+      "SFUIDisplay", system-ui, sans-serif !important;
     font-weight: 900 !important;
     letter-spacing: -0.02em !important;
   }
 
   h3 {
-    font-family: 'SFUIDisplay', system-ui, sans-serif !important;
+    font-family:
+      "SFUIDisplay", system-ui, sans-serif !important;
     font-weight: 800 !important;
     letter-spacing: -0.015em !important;
   }
 
   h4 {
-    font-family: 'SFUIDisplay', system-ui, sans-serif !important;
+    font-family:
+      "SFUIDisplay", system-ui, sans-serif !important;
     font-weight: 700 !important;
     letter-spacing: -0.01em !important;
   }
 
   h5 {
-    font-family: 'SFUIDisplay', system-ui, sans-serif !important;
+    font-family:
+      "SFUIDisplay", system-ui, sans-serif !important;
     font-weight: 600 !important;
     letter-spacing: -0.01em !important;
   }
 
   h6 {
-    font-family: 'SFUIDisplay', system-ui, sans-serif !important;
+    font-family:
+      "SFUIDisplay", system-ui, sans-serif !important;
     font-weight: 500 !important;
     letter-spacing: -0.01em !important;
   }
 }
 
 @utility bg-pranata {
-  background-image: linear-gradient(to bottom right, #4A7C59, #2B4C3B);
+  background-image: linear-gradient(
+    to bottom right,
+    #4a7c59,
+    #2b4c3b
+  );
 }
 
 .puffy-shadow {
-  box-shadow: 0 12px 36px -6px rgba(14, 165, 233, 0.08), 0 4px 12px -4px rgba(14, 165, 233, 0.04);
+  box-shadow:
+    0 12px 36px -6px rgba(14, 165, 233, 0.08),
+    0 4px 12px -4px rgba(14, 165, 233, 0.04);
 }
 
 .puffy-shadow-hover {
-  box-shadow: 0 20px 40px -8px rgba(14, 165, 233, 0.12), 0 8px 16px -4px rgba(14, 165, 233, 0.06);
+  box-shadow:
+    0 20px 40px -8px rgba(14, 165, 233, 0.12),
+    0 8px 16px -4px rgba(14, 165, 233, 0.06);
 }
 
 /* Hide main page scrollbar */
@@ -218,7 +258,8 @@ body::-webkit-scrollbar {
   height: 0 !important;
 }
 
-html, body {
+html,
+body {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }
@@ -243,30 +284,30 @@ html, body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #F8F6F0 !important;
+  background: #f8f6f0 !important;
   border-radius: 9999px !important;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #4A7C59 !important;
+  background: #4a7c59 !important;
   border-radius: 9999px !important;
-  border: 2px solid #F8F6F0 !important;
+  border: 2px solid #f8f6f0 !important;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #2B4C3B !important;
+  background: #2b4c3b !important;
 }
 
 .custom-scrollbar {
   -ms-overflow-style: auto !important;
   scrollbar-width: thin !important;
-  scrollbar-color: #4A7C59 #F8F6F0 !important;
+  scrollbar-color: #4a7c59 #f8f6f0 !important;
 }
 
 .skeleton-shimmer {
   position: relative;
   overflow: hidden;
-  background-color: #E8E3D2;
+  background-color: #e8e3d2;
 }
 
 .skeleton-shimmer::after {
@@ -284,21 +325,35 @@ html, body {
     rgba(255, 255, 255, 0)
   );
   animation: shimmer 1.5s infinite;
-  content: '';
+  content: "";
 }
 
-.contain-content { contain: content; }
+.contain-content {
+  contain: content;
+}
 
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(
+    --sidebar-border
+  );
+  --color-sidebar-accent-foreground: var(
+    --sidebar-accent-foreground
+  );
+  --color-sidebar-accent: var(
+    --sidebar-accent
+  );
+  --color-sidebar-primary-foreground: var(
+    --sidebar-primary-foreground
+  );
+  --color-sidebar-primary: var(
+    --sidebar-primary
+  );
+  --color-sidebar-foreground: var(
+    --sidebar-foreground
+  );
   --color-sidebar: var(--sidebar);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
@@ -309,17 +364,29 @@ html, body {
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-foreground: var(
+    --accent-foreground
+  );
   --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
+  --color-muted-foreground: var(
+    --muted-foreground
+  );
   --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-foreground: var(
+    --secondary-foreground
+  );
   --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-foreground: var(
+    --primary-foreground
+  );
   --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
+  --color-popover-foreground: var(
+    --popover-foreground
+  );
   --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
+  --color-card-foreground: var(
+    --card-foreground
+  );
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
@@ -360,9 +427,13 @@ html, body {
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary-foreground: oklch(
+    0.985 0 0
+  );
   --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-accent-foreground: oklch(
+    0.205 0 0
+  );
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 }
@@ -393,23 +464,34 @@ html, body {
   --chart-5: oklch(0.269 0 0);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(
+    0.488 0.243 264.376
+  );
+  --sidebar-primary-foreground: oklch(
+    0.985 0 0
+  );
   --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-accent-foreground: oklch(
+    0.985 0 0
+  );
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
 
 /* --- PERFORMANCE OPTIMIZATIONS --- */
-html, body {
+html,
+body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
 /* Eliminate 300ms mobile touch tap delay on interactive controls */
-a, button, input, select, textarea {
+a,
+button,
+input,
+select,
+textarea {
   touch-action: manipulation;
 }
 
@@ -428,4 +510,3 @@ a, button, input, select, textarea {
 .performance-contain {
   contain: strict;
 }
-

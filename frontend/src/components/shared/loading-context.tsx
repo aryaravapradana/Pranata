@@ -1,103 +1,157 @@
 "use client";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
+import {
+  usePathname,
+  useRouter,
+} from "next/navigation";
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-
-export type TransitionPhase = 'INITIAL' | 'IDLE' | 'CLOSING' | 'COVERED' | 'OPENING';
+export type TransitionPhase =
+  | "INITIAL"
+  | "IDLE"
+  | "CLOSING"
+  | "COVERED"
+  | "OPENING";
 
 const LoadingContext = createContext({
   isGlobalReady: true,
   isTransitioning: false,
-  phase: 'IDLE' as TransitionPhase,
+  phase: "IDLE" as TransitionPhase,
   triggerTransition: () => {},
   navigateTo: (url: string) => {},
   registerBlocker: (id: string) => {},
-  removeBlocker: (id: string) => {}
+  removeBlocker: (id: string) => {},
 });
 
-export const LoadingProvider = ({ children }: { children: React.ReactNode }) => {
-  const [blockers, setBlockers] = useState<Set<string>>(new Set(['nav-lock']));
-  const [phase, setPhase] = useState<TransitionPhase>('INITIAL');
+export const LoadingProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [blockers, setBlockers] = useState<
+    Set<string>
+  >(new Set(["nav-lock"]));
+  const [phase, setPhase] =
+    useState<TransitionPhase>("INITIAL");
   const pathname = usePathname();
   const router = useRouter();
-  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const transitionTimeoutRef =
+    useRef<NodeJS.Timeout | null>(null);
 
   const clearPendingTimeout = () => {
     if (transitionTimeoutRef.current) {
-      clearTimeout(transitionTimeoutRef.current);
+      clearTimeout(
+        transitionTimeoutRef.current,
+      );
       transitionTimeoutRef.current = null;
     }
   };
 
-  const registerBlocker = useCallback((id: string) => {
-    setBlockers(prev => {
-      const next = new Set(prev);
-      next.add(id);
-      return next;
-    });
-  }, []);
+  const registerBlocker = useCallback(
+    (id: string) => {
+      setBlockers((prev) => {
+        const next = new Set(prev);
+        next.add(id);
+        return next;
+      });
+    },
+    [],
+  );
 
-  const removeBlocker = useCallback((id: string) => {
-    setBlockers(prev => {
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
-  }, []);
+  const removeBlocker = useCallback(
+    (id: string) => {
+      setBlockers((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    },
+    [],
+  );
 
   // STEP 1: TUTUP DULU (550ms) -> STEP 2: GANTI (router.push) -> STAY COVERED UNTIL DATA IS LOADED (blockers.size === 0)
-  const startNavigationSequence = useCallback((url: string) => {
-    const targetPath = url.split('?')[0].split('#')[0];
-    const currentPath = window.location.pathname;
-    const isInternalHub = currentPath.startsWith('/hub') && 
-                          targetPath.startsWith('/hub') && 
-                          !targetPath.includes('/intelligence') && 
-                          !currentPath.includes('/intelligence');
+  const startNavigationSequence =
+    useCallback(
+      (url: string) => {
+        const targetPath = url
+          .split("?")[0]
+          .split("#")[0];
+        const currentPath =
+          window.location.pathname;
+        const isInternalHub =
+          currentPath.startsWith("/hub") &&
+          targetPath.startsWith("/hub") &&
+          !targetPath.includes(
+            "/intelligence",
+          ) &&
+          !currentPath.includes(
+            "/intelligence",
+          );
 
-    if (isInternalHub) {
-      router.push(url);
-      return;
-    }
+        if (isInternalHub) {
+          router.push(url);
+          return;
+        }
 
-    clearPendingTimeout();
-    // Lock navigation immediately BEFORE animation starts so blockers.size is NEVER 0 during transition
-    registerBlocker('nav-lock');
+        clearPendingTimeout();
+        // Lock navigation immediately BEFORE animation starts so blockers.size is NEVER 0 during transition
+        registerBlocker("nav-lock");
 
-    // 1. TUTUP DULU: Animate splash screen hole to r=0 (solid white screen + logo)
-    setPhase('CLOSING');
+        // 1. TUTUP DULU: Animate splash screen hole to r=0 (solid white screen + logo)
+        setPhase("CLOSING");
 
-    // 2. GANTI: At 550ms, screen is 100% solid white. NOW swap route in DOM.
-    transitionTimeoutRef.current = setTimeout(() => {
-      setPhase('COVERED');
-      router.push(url);
+        // 2. GANTI: At 550ms, screen is 100% solid white. NOW swap route in DOM.
+        transitionTimeoutRef.current =
+          setTimeout(() => {
+            setPhase("COVERED");
+            router.push(url);
 
-      // Release nav-lock 120ms after route push so destination page's usePageLoading(true) has mounted
-      transitionTimeoutRef.current = setTimeout(() => {
-        removeBlocker('nav-lock');
-      }, 120);
-    }, 550);
-  }, [router, registerBlocker, removeBlocker]);
+            // Release nav-lock 120ms after route push so destination page's usePageLoading(true) has mounted
+            transitionTimeoutRef.current =
+              setTimeout(() => {
+                removeBlocker("nav-lock");
+              }, 120);
+          }, 550);
+      },
+      [
+        router,
+        registerBlocker,
+        removeBlocker,
+      ],
+    );
 
-  const navigateTo = useCallback((url: string) => {
-    startNavigationSequence(url);
-  }, [startNavigationSequence]);
+  const navigateTo = useCallback(
+    (url: string) => {
+      startNavigationSequence(url);
+    },
+    [startNavigationSequence],
+  );
 
-  const triggerTransition = useCallback(() => {
-    clearPendingTimeout();
-    registerBlocker('nav-lock');
-    setPhase('CLOSING');
-    transitionTimeoutRef.current = setTimeout(() => {
-      setPhase('COVERED');
-      transitionTimeoutRef.current = setTimeout(() => {
-        removeBlocker('nav-lock');
-      }, 120);
-    }, 550);
-  }, [registerBlocker, removeBlocker]);
+  const triggerTransition =
+    useCallback(() => {
+      clearPendingTimeout();
+      registerBlocker("nav-lock");
+      setPhase("CLOSING");
+      transitionTimeoutRef.current =
+        setTimeout(() => {
+          setPhase("COVERED");
+          transitionTimeoutRef.current =
+            setTimeout(() => {
+              removeBlocker("nav-lock");
+            }, 120);
+        }, 550);
+    }, [registerBlocker, removeBlocker]);
 
   // Initial mount: Release initial nav-lock after mount tick
   useEffect(() => {
     const timer = setTimeout(() => {
-      removeBlocker('nav-lock');
+      removeBlocker("nav-lock");
     }, 100);
     return () => clearTimeout(timer);
   }, [removeBlocker]);
@@ -105,23 +159,53 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
   // Global Click Interceptor: Catch link & navigate clicks BEFORE Next.js page swap
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (
+        e.metaKey ||
+        e.ctrlKey ||
+        e.shiftKey ||
+        e.altKey
+      )
+        return;
 
-      const target = (e.target as HTMLElement).closest('a, [data-navigate], [href]');
+      const target = (
+        e.target as HTMLElement
+      ).closest(
+        "a, [data-navigate], [href]",
+      );
       if (!target) return;
 
-      if (target.getAttribute('target') === '_blank') return;
+      if (
+        target.getAttribute("target") ===
+        "_blank"
+      )
+        return;
 
-      const href = target.getAttribute('href') || target.getAttribute('data-navigate');
+      const href =
+        target.getAttribute("href") ||
+        target.getAttribute("data-navigate");
       if (!href) return;
 
-      if (href.startsWith('/') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
-        const fullCurrentUrl = window.location.pathname + window.location.search;
+      if (
+        href.startsWith("/") &&
+        !href.startsWith("#") &&
+        !href.startsWith("mailto:") &&
+        !href.startsWith("tel:")
+      ) {
+        const fullCurrentUrl =
+          window.location.pathname +
+          window.location.search;
         if (href !== fullCurrentUrl) {
-          const isInternalHub = window.location.pathname.startsWith('/hub') && 
-                                href.startsWith('/hub') && 
-                                !href.includes('/intelligence') && 
-                                !window.location.pathname.includes('/intelligence');
+          const isInternalHub =
+            window.location.pathname.startsWith(
+              "/hub",
+            ) &&
+            href.startsWith("/hub") &&
+            !href.includes(
+              "/intelligence",
+            ) &&
+            !window.location.pathname.includes(
+              "/intelligence",
+            );
           if (!isInternalHub) {
             e.preventDefault();
             e.stopPropagation();
@@ -131,59 +215,98 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
       }
     };
 
-    document.addEventListener('click', handleClick, { capture: true });
-    return () => document.removeEventListener('click', handleClick, { capture: true });
+    document.addEventListener(
+      "click",
+      handleClick,
+      {
+        capture: true,
+      },
+    );
+    return () =>
+      document.removeEventListener(
+        "click",
+        handleClick,
+        {
+          capture: true,
+        },
+      );
   }, [startNavigationSequence]);
 
   // STEP 3: BARU BUKA -> ONLY OPEN Splash Screen WHEN ALL DATA IS 100% LOADED (blockers.size === 0)
   useEffect(() => {
-    if ((phase === 'INITIAL' || phase === 'COVERED') && blockers.size === 0) {
+    if (
+      (phase === "INITIAL" ||
+        phase === "COVERED") &&
+      blockers.size === 0
+    ) {
       clearPendingTimeout();
       // 80ms tick allows React DOM to paint the real UI underneath the white splash cover
-      transitionTimeoutRef.current = setTimeout(() => {
-        setPhase('OPENING');
-        transitionTimeoutRef.current = setTimeout(() => {
-          setPhase('IDLE');
-        }, 950);
-      }, 80);
+      transitionTimeoutRef.current =
+        setTimeout(() => {
+          setPhase("OPENING");
+          transitionTimeoutRef.current =
+            setTimeout(() => {
+              setPhase("IDLE");
+            }, 950);
+        }, 80);
       return () => clearPendingTimeout();
     }
   }, [phase, blockers.size]);
 
   // Fallback safety timer: If API hangs or takes > 4.5s, force splash screen to resolve to IDLE
   useEffect(() => {
-    if (phase !== 'IDLE') {
+    if (phase !== "IDLE") {
       const safetyTimer = setTimeout(() => {
-        setPhase('IDLE');
+        setPhase("IDLE");
         setBlockers(new Set());
       }, 4500);
       return () => clearTimeout(safetyTimer);
     }
   }, [phase]);
 
-  const isGlobalReady = phase === 'IDLE';
-  const isTransitioning = phase !== 'IDLE';
+  const isGlobalReady = phase === "IDLE";
+  const isTransitioning = phase !== "IDLE";
 
   return (
-    <LoadingContext.Provider value={{ isGlobalReady, isTransitioning, phase, triggerTransition, navigateTo, registerBlocker, removeBlocker }}>
+    <LoadingContext.Provider
+      value={{
+        isGlobalReady,
+        isTransitioning,
+        phase,
+        triggerTransition,
+        navigateTo,
+        registerBlocker,
+        removeBlocker,
+      }}
+    >
       {children}
     </LoadingContext.Provider>
   );
 };
 
-export const useGlobalLoading = () => useContext(LoadingContext);
+export const useGlobalLoading = () =>
+  useContext(LoadingContext);
 
 // Custom hook for pages to signal when they are done fetching data
-export const usePageLoading = (isLoading: boolean = false) => {
-  const { registerBlocker, removeBlocker, isTransitioning } = useGlobalLoading();
+export const usePageLoading = (
+  isLoading: boolean = false,
+) => {
+  const {
+    registerBlocker,
+    removeBlocker,
+    isTransitioning,
+  } = useGlobalLoading();
   const pathname = usePathname();
-  
+
   useEffect(() => {
-    if (pathname?.startsWith('/hub') && !isTransitioning) {
+    if (
+      pathname?.startsWith("/hub") &&
+      !isTransitioning
+    ) {
       return;
     }
 
-    const id = 'page-load';
+    const id = "page-load";
     if (isLoading) {
       registerBlocker(id);
       return () => {
@@ -192,5 +315,11 @@ export const usePageLoading = (isLoading: boolean = false) => {
     } else {
       removeBlocker(id);
     }
-  }, [isLoading, pathname, isTransitioning, registerBlocker, removeBlocker]);
+  }, [
+    isLoading,
+    pathname,
+    isTransitioning,
+    registerBlocker,
+    removeBlocker,
+  ]);
 };

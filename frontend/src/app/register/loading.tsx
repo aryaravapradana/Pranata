@@ -1,9 +1,23 @@
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function RegisterLoading() {
   return (
-    <div className="min-h-screen bg-[#F8F6F0] w-full flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E8E3D2] w-full max-w-md space-y-6 shadow-md">
+    <div
+      className={cn(
+        "min-h-screen bg-[#F8F6F0] w-full",
+        "flex items-center justify-center",
+        "p-4",
+      )}
+    >
+      <div
+        className={cn(
+          "bg-white rounded-3xl p-6",
+          "sm:p-8 border border-[#E8E3D2]",
+          "w-full max-w-md space-y-6",
+          "shadow-md",
+        )}
+      >
         <div className="flex flex-col items-center space-y-3">
           <Skeleton className="w-14 h-14 rounded-2xl" />
           <Skeleton className="h-7 w-44 rounded-xl" />
