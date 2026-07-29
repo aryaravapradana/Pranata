@@ -32,14 +32,14 @@ export default function BrandLogoSwitcher({
   const getLogoSrc = () => {
     switch (currentApp) {
       case 'hub':
-        return "/logos/hub/hub-black.webp";
+        return "/logos/hub/hub-black.webp?v=2";
       case 'intelligence':
-        return "/logos/intelligence/intelligence-black.webp";
+        return "/logos/intelligence/intelligence-black.webp?v=2";
       case 'basic':
-        return "/logos/basic/logo black.webp";
+        return "/logos/basic/logo black.webp?v=2";
       case 'market':
       default:
-        return "/logos/market/market-black.webp";
+        return "/logos/market/market-black.webp?v=2";
     }
   };
 
@@ -93,7 +93,7 @@ export default function BrandLogoSwitcher({
                 }`}
               >
                 <div className="h-6 flex items-center">
-                  <img src="/logos/basic/logo black.webp" alt="Pranata Basic" className="h-full object-contain" decoding="async" />
+                  <img src="/logos/basic/logo black.webp?v=2" alt="Pranata Basic" className="h-full object-contain" decoding="async" />
                 </div>
                 {currentApp === 'basic' && <Check size={16} className="text-[#2B4C3B] shrink-0 ml-2" />}
               </button>
@@ -106,7 +106,7 @@ export default function BrandLogoSwitcher({
                 }`}
               >
                 <div className="h-6 flex items-center">
-                  <img src="/logos/market/market-black.webp" alt="Pranata Market" className="h-full object-contain" decoding="async" />
+                  <img src="/logos/market/market-black.webp?v=2" alt="Pranata Market" className="h-full object-contain" decoding="async" />
                 </div>
                 {currentApp === 'market' && <Check size={16} className="text-[#2B4C3B] shrink-0 ml-2" />}
               </button>
@@ -121,7 +121,7 @@ export default function BrandLogoSwitcher({
               >
                 <div className="h-6 flex items-center gap-2">
                   <img 
-                    src="/logos/hub/hub-black.webp" 
+                    src="/logos/hub/hub-black.webp?v=2" 
                     alt="Pranata Hub" 
                     className={`h-full object-contain ${!isProducer ? 'grayscale' : ''}`} 
                     decoding="async" 
@@ -148,7 +148,7 @@ export default function BrandLogoSwitcher({
               >
                 <div className="h-6 flex items-center gap-2">
                   <img 
-                    src="/logos/intelligence/intelligence-black.webp" 
+                    src="/logos/intelligence/intelligence-black.webp?v=2" 
                     alt="Pranata Intelligence" 
                     className={`h-full object-contain ${!isProducer ? 'grayscale' : ''}`} 
                     decoding="async" 

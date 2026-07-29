@@ -272,7 +272,7 @@ export function SellerOnboardingModal({ isOpen, onClose, onSuccess }: SellerOnbo
               {/* Header Badge */}
               <div className="flex items-center gap-2 pr-6">
                 <span className="bg-[#EEF2E6] text-[#2B4C3B] text-xs font-black px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-xs">
-                  <img src="/logos/hub/hub-black.webp" alt="Pranata Hub" className="h-4 w-auto object-contain inline-block" decoding="async" />
+                  <img src="/logos/hub/hub-black.webp?v=2" alt="Pranata Hub" className="h-4 w-auto object-contain inline-block" decoding="async" />
                 </span>
                 <span className="text-[11px] font-extrabold text-[#7A8678]">Langkah {step} dari 2</span>
               </div>
