@@ -29,17 +29,18 @@ export default function BrandLogoSwitcher({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const getLogoSrc = () => {
+  const renderCurrentLogo = () => {
+    const v = "?v=2";
     switch (currentApp) {
       case 'hub':
-        return "/logos/hub/hub-black.webp?v=2";
+        return <img src={"/logos/hub/hub-black.webp" + v} alt="Pranata Hub" className="h-[26px] w-auto object-contain object-left" decoding="async" />;
       case 'intelligence':
-        return "/logos/intelligence/intelligence-black.webp?v=2";
+        return <img src={"/logos/intelligence/intelligence-black.webp" + v} alt="Pranata Intelligence" className="h-[32px] w-auto object-contain object-left" decoding="async" />;
       case 'basic':
-        return "/logos/basic/logo black.webp?v=2";
+        return <img src={"/logos/basic/logo black.webp" + v} alt="Pranata Basic" className="h-[32px] w-auto object-contain object-left" decoding="async" />;
       case 'market':
       default:
-        return "/logos/market/market-black.webp?v=2";
+        return <img src={"/logos/market/market-black.webp" + v} alt="Pranata Market" className="h-[26px] w-auto object-contain object-left" decoding="async" />;
     }
   };
 
@@ -68,8 +69,8 @@ export default function BrandLogoSwitcher({
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 -ml-1.5 rounded-2xl border border-transparent hover:border-[#E8E3D2] hover:bg-[#F8F6F0] transition-all cursor-pointer group focus:outline-none shadow-xs"
         >
-          <div className="h-6.5 min-[380px]:h-7.5 sm:h-8">
-            <img src={getLogoSrc()} alt="Pranata Logo" className="h-full object-contain" decoding="async" />
+          <div className="h-8 flex items-center justify-start">
+            {renderCurrentLogo()}
           </div>
           <div className="flex items-center justify-center w-5.5 h-5.5 sm:w-6 sm:h-6 rounded-full bg-[#EEF2E6] text-[#2B4C3B] border border-[#2B4C3B]/25 group-hover:bg-[#2B4C3B] group-hover:text-white group-hover:border-[#2B4C3B] group-hover:scale-105 transition-all shadow-xs shrink-0">
             <ChevronDown size={13} strokeWidth={2.5} className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
@@ -83,17 +84,17 @@ export default function BrandLogoSwitcher({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 6, scale: 0.95 }}
               transition={{ duration: 0.16, ease: "easeOut" }}
-              className="absolute left-0 mt-2 w-56 bg-white border border-[#E8E3D2] rounded-2xl shadow-xl z-50 overflow-hidden py-1.5"
+              className="absolute left-0 mt-2 w-60 bg-white border border-[#E8E3D2] rounded-2xl shadow-xl z-50 overflow-hidden py-2 space-y-0.5"
             >
               {/* Option 1: Pranata Basic */}
               <button
                 onClick={() => { setIsOpen(false); navigateTo("/"); }}
-                className={`w-full px-4 py-2.5 flex items-center justify-between transition-colors cursor-pointer ${
+                className={`w-full px-3.5 py-2 flex items-center justify-between transition-colors cursor-pointer ${
                   currentApp === 'basic' ? 'bg-[#F8F6F0]' : 'hover:bg-[#F8F6F0]'
                 }`}
               >
-                <div className="h-6 flex items-center">
-                  <img src="/logos/basic/logo black.webp?v=2" alt="Pranata Basic" className="h-full object-contain" decoding="async" />
+                <div className="h-8 flex items-center justify-start shrink-0">
+                  <img src="/logos/basic/logo black.webp?v=2" alt="Pranata Basic" className="h-[32px] w-auto object-contain object-left" decoding="async" />
                 </div>
                 {currentApp === 'basic' && <Check size={16} className="text-[#2B4C3B] shrink-0 ml-2" />}
               </button>
@@ -101,12 +102,12 @@ export default function BrandLogoSwitcher({
               {/* Option 2: Market */}
               <button
                 onClick={() => { setIsOpen(false); navigateTo("/market"); }}
-                className={`w-full px-4 py-2.5 flex items-center justify-between transition-colors cursor-pointer ${
+                className={`w-full px-3.5 py-2 flex items-center justify-between transition-colors cursor-pointer ${
                   currentApp === 'market' ? 'bg-[#F8F6F0]' : 'hover:bg-[#F8F6F0]'
                 }`}
               >
-                <div className="h-6 flex items-center">
-                  <img src="/logos/market/market-black.webp?v=2" alt="Pranata Market" className="h-full object-contain" decoding="async" />
+                <div className="h-8 flex items-center justify-start shrink-0">
+                  <img src="/logos/market/market-black.webp?v=2" alt="Pranata Market" className="h-[26px] w-auto object-contain object-left" decoding="async" />
                 </div>
                 {currentApp === 'market' && <Check size={16} className="text-[#2B4C3B] shrink-0 ml-2" />}
               </button>
@@ -115,15 +116,15 @@ export default function BrandLogoSwitcher({
               <button
                 onClick={handleHubClick}
                 title={!isProducer ? "Kamu belum mendaftar sebagai penjual" : undefined}
-                className={`w-full px-4 py-2.5 flex items-center justify-between transition-all cursor-pointer ${
+                className={`w-full px-3.5 py-2 flex items-center justify-between transition-all cursor-pointer ${
                   currentApp === 'hub' ? 'bg-[#EEF2E6]' : 'hover:bg-[#F8F6F0]'
                 } ${!isProducer ? 'opacity-60' : ''}`}
               >
-                <div className="h-6 flex items-center gap-2">
+                <div className="h-8 flex items-center justify-start shrink-0">
                   <img 
                     src="/logos/hub/hub-black.webp?v=2" 
                     alt="Pranata Hub" 
-                    className={`h-full object-contain ${!isProducer ? 'grayscale' : ''}`} 
+                    className={`h-[26px] w-auto object-contain object-left ${!isProducer ? 'grayscale' : ''}`} 
                     decoding="async" 
                   />
                 </div>
@@ -142,15 +143,15 @@ export default function BrandLogoSwitcher({
               <button
                 onClick={handleIntelligenceClick}
                 title={!isProducer ? "Kamu belum mendaftar sebagai penjual" : undefined}
-                className={`w-full px-4 py-2.5 flex items-center justify-between transition-all cursor-pointer ${
+                className={`w-full px-3.5 py-2 flex items-center justify-between transition-all cursor-pointer ${
                   currentApp === 'intelligence' ? 'bg-[#EEF2E6]' : 'hover:bg-[#F8F6F0]'
                 } ${!isProducer ? 'opacity-60' : ''}`}
               >
-                <div className="h-6 flex items-center gap-2">
+                <div className="h-8 flex items-center justify-start shrink-0">
                   <img 
                     src="/logos/intelligence/intelligence-black.webp?v=2" 
                     alt="Pranata Intelligence" 
-                    className={`h-full object-contain ${!isProducer ? 'grayscale' : ''}`} 
+                    className={`h-[32px] w-auto object-contain object-left ${!isProducer ? 'grayscale' : ''}`} 
                     decoding="async" 
                   />
                 </div>
