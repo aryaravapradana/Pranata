@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Home, Package } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useGlobalLoading } from "@/components/shared/loading-context";
 
 export default function CheckoutSuccessPage() {
-  const router = useRouter();
+  const { navigateTo } = useGlobalLoading();
 
   return (
-    <div className="min-h-screen bg-[#F8F6F0] flex flex-col items-center justify-center p-4" >
+    <div className="min-h-screen bg-[#F8F6F0] flex flex-col items-center justify-center p-4">
       
       <motion.div
         initial={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -33,15 +33,15 @@ export default function CheckoutSuccessPage() {
 
         <div className="flex flex-col gap-3">
           <button 
-            onClick={() => router.push("/market/cart?tab=orders")}
-            className="w-full bg-[#1C241E] hover:bg-pranata text-white py-4 rounded-full font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+            onClick={() => navigateTo("/market/cart?tab=orders")}
+            className="w-full bg-[#1C241E] hover:bg-pranata text-white py-4 rounded-full font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
           >
             <Package size={18} /> Lacak Pesanan Saya
           </button>
           
           <button 
-            onClick={() => router.push("/market")}
-            className="w-full bg-white hover:bg-[#F8F6F0] text-[#1C241E] py-4 rounded-full font-bold border-2 border-[#E8E3D2] transition-colors flex items-center justify-center gap-2"
+            onClick={() => navigateTo("/market")}
+            className="w-full bg-white hover:bg-[#F8F6F0] text-[#1C241E] py-4 rounded-full font-bold border-2 border-[#E8E3D2] transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
             <Home size={18} /> Kembali ke Beranda
           </button>

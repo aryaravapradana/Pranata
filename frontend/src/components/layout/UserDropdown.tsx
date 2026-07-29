@@ -1,15 +1,17 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { User, Home, LogOut, AlertTriangle, X } from "lucide-react";
+import { User, Home, LogOut, AlertTriangle, X, Store } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useGlobalLoading } from "@/components/shared/loading-context";
 import Cookies from "js-cookie";
+import { SellerOnboardingModal } from "@/components/modals/SellerOnboardingModal";
 
 export default function UserDropdown({ profile }: { profile: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -172,6 +174,11 @@ export default function UserDropdown({ profile }: { profile: any }) {
         </AnimatePresence>,
         document.body
       )}
+
+      <SellerOnboardingModal
+        isOpen={showOnboardingModal}
+        onClose={() => setShowOnboardingModal(false)}
+      />
     </div>
   );
 }

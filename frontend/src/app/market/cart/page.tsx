@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import React, { useState, useEffect, Suspense } from "react";
 import { Search, ShoppingCart, Menu, Zap, Trash2, Package, ChevronLeft, Clock, CheckCircle, Truck, Store, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePageLoading } from "@/components/shared/loading-context";
+import { usePageLoading, useGlobalLoading } from "@/components/shared/loading-context";
 import { useRouter, useSearchParams } from "next/navigation";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 
@@ -36,6 +36,7 @@ function ActivityContent() {
   );
 
   const [loading, setLoading] = useState(true);
+  const { navigateTo } = useGlobalLoading();
   
   // Cart state
   const [cart, setCart] = useState<any[]>([]);
@@ -243,7 +244,7 @@ function ActivityContent() {
                   <h3 className="text-lg sm:text-xl font-black text-[#5A635B] mb-2">Keranjang Kosong</h3>
                   <p className="text-[#A4B0A7] text-xs sm:text-sm font-medium mb-6">Belum ada produk yang kamu tambahkan.</p>
                   <button
-                    onClick={() => router.push("/market")}
+                    onClick={() => navigateTo("/market")}
                     className="px-6 py-3 sm:px-8 sm:py-3.5 bg-pranata text-white font-black text-xs sm:text-sm rounded-full hover:bg-[#1E362A] transition-colors shadow-lg active:scale-95 cursor-pointer"
                   >
                     Mulai Belanja
@@ -360,7 +361,7 @@ function ActivityContent() {
                     </div>
                     
                     <button 
-                      onClick={() => router.push("/market/checkout")}
+                      onClick={() => navigateTo("/market/checkout")}
                       className="w-full bg-[#1C241E] hover:bg-pranata text-white py-4 rounded-full font-bold transition-all shadow-lg shadow-[#1C241E]/20 hover:shadow-[#2B4C3B]/30 hover:-translate-y-0.5"
                     >
                       Lanjut ke Pembayaran
@@ -394,7 +395,7 @@ function ActivityContent() {
                   <h2 className="text-2xl font-black text-[#1C241E] mb-2">Belum ada pesanan</h2>
                   <p className="text-[#5A635B] mb-6 font-medium">Kamu belum memiliki riwayat pesanan.</p>
                   <button
-                    onClick={() => router.push("/market")}
+                    onClick={() => navigateTo("/market")}
                     className="px-6 py-3 bg-pranata text-white font-black rounded-2xl hover:bg-[#1E362A] transition-colors"
                   >
                     Mulai Belanja

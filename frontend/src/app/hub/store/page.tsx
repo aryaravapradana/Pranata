@@ -5,8 +5,9 @@ import { Footer } from "@/components/layout/Footer";
 import { useState, useEffect } from "react";
 import { Store, Package, Plus, CheckCircle, Image as ImageIcon, Info, X, Edit2, Trash2, Sparkles, ChevronRight, ChevronLeft, Crown, Star, AlertTriangle, Loader2, ShieldCheck, Tag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePageLoading } from "@/components/shared/loading-context";
+import { usePageLoading, useGlobalLoading } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
+import { ProductGridSkeleton } from "@/components/ui/skeleton";
 
 const getGradeStyle = (gradeStr: string) => {
   const g = (gradeStr || "").toLowerCase().trim();
@@ -39,6 +40,7 @@ export default function StoreDashboardPage() {
 
   usePageLoading(initialLoading);
   const router = useRouter();
+  const { navigateTo } = useGlobalLoading();
 
   useEffect(() => {
     loadData(1, true);
@@ -58,7 +60,7 @@ export default function StoreDashboardPage() {
     const session = JSON.parse(sessionStr);
     
     if (session.role === 'BUYER') {
-      router.push("/market");
+      navigateTo("/market");
       return;
     }
     
@@ -185,19 +187,7 @@ export default function StoreDashboardPage() {
             Daftar Produk Aktif
           </h2>
           {gridLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                <div key={i} className="bg-white border border-[#DDE2D6] rounded-2xl sm:rounded-3xl p-4 sm:p-5">
-                  <div className="h-36 sm:h-40 w-full rounded-xl sm:rounded-2xl skeleton-shimmer bg-[#E8E3D2] mb-3 sm:mb-4" />
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="w-1/2 h-5 sm:h-6 rounded-md skeleton-shimmer bg-[#E8E3D2]" />
-                    <div className="w-16 h-5 sm:h-6 rounded-full skeleton-shimmer bg-[#E8E3D2]" />
-                  </div>
-                  <div className="w-full h-3 rounded-md skeleton-shimmer bg-[#E8E3D2] mb-3" />
-                  <div className="w-1/3 h-7 sm:h-8 rounded-md skeleton-shimmer bg-[#E8E3D2]" />
-                </div>
-              ))}
-            </div>
+            <ProductGridSkeleton count={8} />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {products.length === 0 && <p className="text-[#5A635B] text-sm">Belum ada produk aktif.</p>}

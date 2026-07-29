@@ -1,6 +1,43 @@
 import { Request, Response } from 'express';
 import prisma from '../config/prisma';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+export const upgradeToSeller = async (req: Request, res: Response) => {
+  const { userId, farmName, location, contact } = req.body;
+  const targetId = userId || req.user?.id;
+  if (!targetId) {
+    return res.status(400).json({ error: 'User ID wajib diisi' });
+  }
+  if (!farmName || !farmName.trim()) {
+    return res.status(400).json({ error: 'Nama peternakan / toko wajib diisi' });
+  }
+
+  try {
+    const updated = await prisma.profile.update({
+      where: { id: targetId },
+      data: {
+        role: 'PRODUCER',
+        farmName: farmName.trim(),
+        location: location ? location.trim() : null,
+        contact: contact ? contact.trim() : null,
+      }
+    });
+
+    const JWT_SECRET = process.env.JWT_SECRET || 'pranata-secret-key-2026-jwt';
+    const token = jwt.sign(
+      { id: updated.id, role: updated.role, username: updated.username },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    const { password: _, ...safeProfile } = updated;
+    return res.json({ ...safeProfile, token });
+  } catch (error: any) {
+    console.error('[upgradeToSeller error]:', error);
+    return res.status(500).json({ error: 'Gagal melakukan upgrade ke Penjual', details: error?.message });
+  }
+};
 
 export const checkUsername = async (req: Request, res: Response) => {
   const { username } = req.query;

@@ -6,11 +6,11 @@ import {
   Store, ShoppingCart, ArrowLeft, ShieldCheck, MapPin,
   CheckCircle, Package, Star, ChevronLeft, X,
   ChevronDown, ChevronUp, Heart, Crown, Info, Loader2,
-  Share2, ArrowRight, ChevronRight, Check, Sparkles, Tag, AlertTriangle
+  Share2, ArrowRight, ChevronRight, Check, Sparkles, Tag, AlertTriangle, Edit3
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePageLoading } from "@/components/shared/loading-context";
+import { usePageLoading, useGlobalLoading } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 import { ImageSwiper } from "@/components/ui/image-swiper";
@@ -79,17 +79,25 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
   const [product, setProduct] = useState<any>(null);
   const [seller, setSeller] = useState<any>(null);
+  const [sessionUser, setSessionUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
   usePageLoading(loading);
   const router = useRouter();
+  const { navigateTo } = useGlobalLoading();
   const [quantity, setQuantity] = useState(1);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
   const [liked, setLiked] = useState(false);
   const [fullscreenImg, setFullscreenImg] = useState<string | null>(null);
 
-  useEffect(() => { loadProduct(); }, [productId]);
+  useEffect(() => {
+    const sessionStr = localStorage.getItem("pranata_session") || localStorage.getItem("farmpro_session");
+    if (sessionStr) {
+      setSessionUser(JSON.parse(sessionStr));
+    }
+    loadProduct(); 
+  }, [productId]);
 
   const loadProduct = async () => {
     setLoading(true);
@@ -199,6 +207,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const maxQ = product?.stock || 0;
   const minQ = maxQ === 0 ? 0 : Math.min(product?.minOrder || 1, maxQ);
   const totalPrice = (product?.price || 0) * quantity;
+  const isOwnProduct = Boolean(sessionUser && product && sessionUser.id === product.sellerId);
 
   if (loading) return (
     <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E]">
@@ -235,7 +244,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       <div className="text-center px-4">
         <Package size={56} className="mx-auto text-[#C4BAA8] mb-4" />
         <p className="font-black text-xl text-[#5A635B]">Produk tidak ditemukan.</p>
-        <button onClick={() => router.push("/market")} className="mt-4 text-[#2B4C3B] font-bold underline">
+        <button onClick={() => navigateTo("/market")} className="mt-4 text-[#2B4C3B] font-bold underline">
           Kembali ke Marketplace
         </button>
       </div>
@@ -259,7 +268,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         {/* Mobile Sticky Top Header Row */}
         <div className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-[#E8E3D2] py-3 px-4 shadow-sm flex items-center justify-between">
           <button 
-            onClick={() => router.push("/market")}
+            onClick={() => navigateTo("/market")}
             className="w-9 h-9 rounded-full bg-white border border-[#E8E3D2] flex items-center justify-center text-[#1C241E] hover:bg-[#F8F6F0] active:scale-95 transition-all shadow-sm"
           >
             <ArrowLeft size={18} className="stroke-[2.5]" />
@@ -396,63 +405,77 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#F8F6F0]/95 backdrop-blur-xl border-t border-[#E8E3D2] px-3.5 py-3 shadow-2xl">
           <div className="max-w-md mx-auto flex items-center gap-2.5">
             
-            {/* Quantity Stepper */}
-            <div className="flex items-center space-x-1.5 bg-white border border-[#E8E3D2] rounded-full p-1 shadow-sm shrink-0">
-              <button 
-                onClick={() => updateCartQuantityInBackend(quantity - 1)}
-                disabled={maxQ === 0 || quantity <= minQ}
-                className="w-8 h-8 rounded-full bg-[#F8F6F0] text-[#1C241E] font-black text-sm flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
-              >
-                -
-              </button>
-
-              <span className="text-xs font-black text-[#1C241E] w-5 text-center">
-                {maxQ === 0 ? 0 : quantity}
-              </span>
-
-              <button 
-                onClick={() => updateCartQuantityInBackend(quantity + 1)}
-                disabled={maxQ === 0 || quantity >= maxQ}
-                className="w-8 h-8 rounded-full bg-[#2B4C3B] text-white font-black text-sm flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
-              >
-                +
-              </button>
-            </div>
-
-            {/* Action Button - Strictly 1 Line */}
-            <motion.button
-              whileHover={{ scale: maxQ > 0 ? 1.02 : 1 }}
-              whileTap={{ scale: maxQ > 0 ? 0.94 : 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              onClick={handleAddToCart}
-              disabled={maxQ === 0 || isSubmitting}
-              className={`flex-1 h-11 px-3.5 sm:px-4 rounded-full font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-md transition-all whitespace-nowrap active:scale-95 cursor-pointer ${
-                maxQ === 0 
-                  ? 'bg-gray-400 opacity-60 text-white cursor-not-allowed'
-                  : addedSuccess
-                  ? 'bg-[#1E362A] text-white shadow-emerald-900/30 ring-2 ring-[#B4C179]'
-                  : 'bg-gradient-to-r from-[#2B4C3B] via-[#32452C] to-[#1E362A] hover:brightness-110 text-white shadow-[#2B4C3B]/30'
-              }`}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 size={15} className="animate-spin shrink-0 text-white" />
-                  <span className="whitespace-nowrap text-white">Menyimpan...</span>
-                </>
-              ) : addedSuccess ? (
-                <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex items-center gap-1.5">
-                  <Check size={15} className="shrink-0 text-[#B4C179]" />
-                  <span className="whitespace-nowrap text-white">Berhasil!</span>
-                </motion.div>
-              ) : (
-                <div className="flex items-center gap-1.5 whitespace-nowrap">
-                  <ShoppingCart size={15} className="shrink-0 text-white" />
-                  <span className="whitespace-nowrap text-white">
-                    {maxQ === 0 ? "Stok Habis" : "Tambah ke Keranjang"}
+            {isOwnProduct ? (
+              <Link href={`/hub/store/edit/${product.id}`} className="w-full">
+                <button className="w-full h-11 px-4 rounded-full bg-[#2B4C3B] hover:bg-[#1E362A] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95 transition-all">
+                  <Edit3 size={16} />
+                  <span className="flex items-center gap-1.5">
+                    Edit produk ini di
+                    <img src="/logos/hub/hub-white.webp" alt="Pranata Hub" className="h-4.5 w-auto object-contain inline-block" decoding="async" />
                   </span>
+                </button>
+              </Link>
+            ) : (
+              <>
+                {/* Quantity Stepper */}
+                <div className="flex items-center space-x-1.5 bg-white border border-[#E8E3D2] rounded-full p-1 shadow-sm shrink-0">
+                  <button 
+                    onClick={() => updateCartQuantityInBackend(quantity - 1)}
+                    disabled={maxQ === 0 || quantity <= minQ}
+                    className="w-8 h-8 rounded-full bg-[#F8F6F0] text-[#1C241E] font-black text-sm flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
+                  >
+                    -
+                  </button>
+
+                  <span className="text-xs font-black text-[#1C241E] w-5 text-center">
+                    {maxQ === 0 ? 0 : quantity}
+                  </span>
+
+                  <button 
+                    onClick={() => updateCartQuantityInBackend(quantity + 1)}
+                    disabled={maxQ === 0 || quantity >= maxQ}
+                    className="w-8 h-8 rounded-full bg-[#2B4C3B] text-white font-black text-sm flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
+                  >
+                    +
+                  </button>
                 </div>
-              )}
-            </motion.button>
+
+                {/* Action Button - Strictly 1 Line */}
+                <motion.button
+                  whileHover={{ scale: maxQ > 0 ? 1.02 : 1 }}
+                  whileTap={{ scale: maxQ > 0 ? 0.94 : 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  onClick={handleAddToCart}
+                  disabled={maxQ === 0 || isSubmitting}
+                  className={`flex-1 h-11 px-3.5 sm:px-4 rounded-full font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-md transition-all whitespace-nowrap active:scale-95 cursor-pointer ${
+                    maxQ === 0 
+                      ? 'bg-gray-400 opacity-60 text-white cursor-not-allowed'
+                      : addedSuccess
+                      ? 'bg-[#1E362A] text-white shadow-emerald-900/30 ring-2 ring-[#B4C179]'
+                      : 'bg-gradient-to-r from-[#2B4C3B] via-[#32452C] to-[#1E362A] hover:brightness-110 text-white shadow-[#2B4C3B]/30'
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 size={15} className="animate-spin shrink-0 text-white" />
+                      <span className="whitespace-nowrap text-white">Menyimpan...</span>
+                    </>
+                  ) : addedSuccess ? (
+                    <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex items-center gap-1.5">
+                      <Check size={15} className="shrink-0 text-[#B4C179]" />
+                      <span className="whitespace-nowrap text-white">Berhasil!</span>
+                    </motion.div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                      <ShoppingCart size={15} className="shrink-0 text-white" />
+                      <span className="whitespace-nowrap text-white">
+                        {maxQ === 0 ? "Stok Habis" : "Tambah ke Keranjang"}
+                      </span>
+                    </div>
+                  )}
+                </motion.button>
+              </>
+            )}
           </div>
         </div>
 
@@ -463,7 +486,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       <div className="hidden md:block max-w-7xl mx-auto pt-8 pb-16 relative z-10 px-4 md:px-8 lg:px-12">
         <div className="mb-6">
           <button 
-            onClick={() => router.push("/market")} 
+            onClick={() => navigateTo("/market")} 
             className="inline-flex items-center gap-2 bg-white border border-[#E8E3D2] hover:bg-[#F8F6F0] text-[#1C241E] hover:text-[#2B4C3B] font-bold text-sm px-4 py-2 rounded-full transition-colors shadow-sm"
           >
             <ChevronLeft size={18} /> Kembali ke Marketplace
@@ -602,56 +625,70 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
             {/* Desktop Action Buttons */}
             <div className="flex gap-4">
-              <div className="flex items-center space-x-3 bg-white border border-[#E8E3D2] rounded-2xl px-4 py-2 shadow-sm">
-                <button 
-                  onClick={() => updateCartQuantityInBackend(quantity - 1)}
-                  disabled={maxQ === 0 || quantity <= minQ}
-                  className="w-10 h-10 rounded-full bg-[#F8F6F0] text-[#1C241E] font-black text-lg flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
-                >
-                  -
-                </button>
+              {isOwnProduct ? (
+                <Link href={`/hub/store/edit/${product.id}`} className="flex-1">
+                  <button className="w-full h-14 rounded-2xl bg-[#2B4C3B] hover:bg-[#1E362A] text-white font-black text-base shadow-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer">
+                    <Edit3 size={20} />
+                    <span className="flex items-center gap-2">
+                      Edit produk ini di
+                      <img src="/logos/hub/hub-white.webp" alt="Pranata Hub" className="h-6 w-auto object-contain inline-block" decoding="async" />
+                    </span>
+                  </button>
+                </Link>
+              ) : (
+                <>
+                  <div className="flex items-center space-x-3 bg-white border border-[#E8E3D2] rounded-2xl px-4 py-2 shadow-sm">
+                    <button 
+                      onClick={() => updateCartQuantityInBackend(quantity - 1)}
+                      disabled={maxQ === 0 || quantity <= minQ}
+                      className="w-10 h-10 rounded-full bg-[#F8F6F0] text-[#1C241E] font-black text-lg flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
+                    >
+                      -
+                    </button>
 
-                <span className="text-base font-black text-[#1C241E] w-8 text-center">
-                  {maxQ === 0 ? 0 : quantity}
-                </span>
+                    <span className="text-base font-black text-[#1C241E] w-8 text-center">
+                      {maxQ === 0 ? 0 : quantity}
+                    </span>
 
-                <button 
-                  onClick={() => updateCartQuantityInBackend(quantity + 1)}
-                  disabled={maxQ === 0 || quantity >= maxQ}
-                  className="w-10 h-10 rounded-full bg-[#2B4C3B] text-white font-black text-lg flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
-                >
-                  +
-                </button>
-              </div>
-
-              <motion.button 
-                whileHover={{ scale: maxQ > 0 ? 1.025 : 1 }}
-                whileTap={{ scale: maxQ > 0 ? 0.94 : 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                onClick={handleAddToCart}
-                disabled={maxQ === 0 || isSubmitting}
-                className={`flex-1 h-14 rounded-2xl font-black text-base shadow-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
-                  maxQ === 0 
-                    ? 'bg-gray-400 opacity-60 text-white cursor-not-allowed shadow-none' 
-                    : addedSuccess
-                    ? 'bg-[#1E362A] text-white shadow-emerald-900/30 ring-2 ring-[#B4C179]'
-                    : 'bg-gradient-to-r from-[#2B4C3B] via-[#32452C] to-[#1E362A] hover:brightness-110 text-white shadow-[#2B4C3B]/30'
-                }`}
-              >
-                {isSubmitting ? (
-                  <Loader2 size={20} className="animate-spin text-white" />
-                ) : addedSuccess ? (
-                  <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="flex items-center gap-2">
-                    <Check size={20} className="text-[#B4C179]" />
-                    <span className="text-white">Sukses Ditambahkan!</span>
-                  </motion.div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <ShoppingCart size={20} className="text-white" />
-                    <span className="text-white">{maxQ === 0 ? 'Stok Habis' : 'Tambah ke Keranjang'}</span>
+                    <button 
+                      onClick={() => updateCartQuantityInBackend(quantity + 1)}
+                      disabled={maxQ === 0 || quantity >= maxQ}
+                      className="w-10 h-10 rounded-full bg-[#2B4C3B] text-white font-black text-lg flex items-center justify-center active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
+                    >
+                      +
+                    </button>
                   </div>
-                )}
-              </motion.button>
+
+                  <motion.button 
+                    whileHover={{ scale: maxQ > 0 ? 1.025 : 1 }}
+                    whileTap={{ scale: maxQ > 0 ? 0.94 : 1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    onClick={handleAddToCart}
+                    disabled={maxQ === 0 || isSubmitting}
+                    className={`flex-1 h-14 rounded-2xl font-black text-base shadow-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
+                      maxQ === 0 
+                        ? 'bg-gray-400 opacity-60 text-white cursor-not-allowed shadow-none' 
+                        : addedSuccess
+                        ? 'bg-[#1E362A] text-white shadow-emerald-900/30 ring-2 ring-[#B4C179]'
+                        : 'bg-gradient-to-r from-[#2B4C3B] via-[#32452C] to-[#1E362A] hover:brightness-110 text-white shadow-[#2B4C3B]/30'
+                    }`}
+                  >
+                    {isSubmitting ? (
+                      <Loader2 size={20} className="animate-spin text-white" />
+                    ) : addedSuccess ? (
+                      <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="flex items-center gap-2">
+                        <Check size={20} className="text-[#B4C179]" />
+                        <span className="text-white">Sukses Ditambahkan!</span>
+                      </motion.div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <ShoppingCart size={20} className="text-white" />
+                        <span className="text-white">{maxQ === 0 ? 'Stok Habis' : 'Tambah ke Keranjang'}</span>
+                      </div>
+                    )}
+                  </motion.button>
+                </>
+              )}
             </div>
 
           </div>

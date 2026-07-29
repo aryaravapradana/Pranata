@@ -9,6 +9,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import UserDropdown from "./UserDropdown";
 
+import BrandLogoSwitcher from "./BrandLogoSwitcher";
+
 export default function MarketplaceNavbar({ 
   searchQuery, 
   setSearchQuery,
@@ -30,7 +32,25 @@ export default function MarketplaceNavbar({
 
   useEffect(() => {
     const sessionStr = localStorage.getItem("pranata_session") || localStorage.getItem("farmpro_session");
-    if (sessionStr) setProfile(JSON.parse(sessionStr));
+    if (sessionStr) {
+      const parsed = JSON.parse(sessionStr);
+      setProfile(parsed);
+
+      if (parsed.id) {
+        const API_BASE = getApiBaseUrl();
+        fetchApi(`${API_BASE}/api/profile/${parsed.id}`)
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data && data.role) {
+              const updatedSession = { ...parsed, ...data };
+              setProfile(updatedSession);
+              localStorage.setItem("pranata_session", JSON.stringify(updatedSession));
+              localStorage.setItem("farmpro_session", JSON.stringify(updatedSession));
+            }
+          })
+          .catch(() => {});
+      }
+    }
 
     const checkCart = async () => {
       if (!sessionStr) return;
@@ -60,11 +80,7 @@ export default function MarketplaceNavbar({
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">{leftContent}</div>
       ) : (
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          <Link href="/market" className="flex items-center gap-1.5 group">
-            <div className="h-6.5 min-[380px]:h-7.5 sm:h-8 group-hover:scale-105 transition-transform">
-              <img src="/logos/market/market-black.webp" alt="Pranata" className="h-full object-contain" decoding="async" />
-            </div>
-          </Link>
+          <BrandLogoSwitcher currentApp="market" isProducer={profile?.role === "PRODUCER"} />
         </div>
       )}
 

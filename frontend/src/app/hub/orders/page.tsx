@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { useState, useEffect } from "react";
 import { ChevronLeft, Package, Clock, User, ChevronRight, CheckCircle, Truck, MapPin, Search, Filter, Calendar, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePageLoading } from "@/components/shared/loading-context";
+import { usePageLoading, useGlobalLoading } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
 
 const API_BASE = getApiBaseUrl();
@@ -33,6 +33,7 @@ export default function SellerOrdersPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   usePageLoading(loading);
+  const { navigateTo } = useGlobalLoading();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -46,7 +47,7 @@ export default function SellerOrdersPage() {
         
         // If not a PRODUCER, they shouldn't be here
         if (parsedSession.role !== "PRODUCER") {
-          router.push("/market/cart?tab=orders");
+          navigateTo("/market/cart?tab=orders");
           return;
         }
 

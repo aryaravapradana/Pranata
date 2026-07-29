@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DateWheelPicker } from "@/components/ui/date-wheel-picker";
 import { TimeWheelPicker } from "@/components/ui/time-wheel-picker";
+import { usePageLoading } from "@/components/shared/loading-context";
 
 const API_BASE = getApiBaseUrl();
 
@@ -40,6 +41,8 @@ const getEventStyle = (typeStr: string) => {
 const HOURS_24 = Array.from({ length: 24 }).map((_, i) => `${i.toString().padStart(2, '0')}:00`);
 
 export default function CalendarPage() {
+  const [loading, setLoading] = useState(true);
+  usePageLoading(loading);
   const [activeDay, setActiveDay] = useState(new Date().getDate());
   const [activeDateObj, setActiveDateObj] = useState(new Date());
   
@@ -146,7 +149,8 @@ export default function CalendarPage() {
         });
         setEvents(uiEvents);
       })
-      .catch(console.error);
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
   };
 
   // Generate Days for Week View (Current Week)

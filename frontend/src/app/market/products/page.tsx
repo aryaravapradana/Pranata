@@ -9,7 +9,7 @@ import {
   X, SlidersHorizontal, Sparkles, TrendingDown, TrendingUp, Layers, Check, ShieldCheck, Tag, AlertTriangle 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePageLoading } from "@/components/shared/loading-context";
+import { usePageLoading, useGlobalLoading } from "@/components/shared/loading-context";
 import { useRouter, useSearchParams } from "next/navigation";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 import { ProductGridSkeleton } from "@/components/ui/skeleton";
@@ -213,6 +213,7 @@ function MarketplaceProductsContent() {
   const [loading, setLoading] = useState(true);
   const [cartCount, setCartCount] = useState(0);
   const router = useRouter();
+  const { navigateTo } = useGlobalLoading();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -499,7 +500,7 @@ function MarketplaceProductsContent() {
                     key={p.id} 
                     p={p} 
                     index={i} 
-                    onClick={() => router.push(`/market/product/${p.id}`)}
+                    onClick={() => navigateTo(`/market/product/${p.id}`)}
                     cartQty={qty}
                     onUpdateQuantity={(e, delta) => handleUpdateQuantity(e, p, delta)} 
                   />

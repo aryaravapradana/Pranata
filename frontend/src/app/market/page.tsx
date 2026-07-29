@@ -29,11 +29,11 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePageLoading } from "@/components/shared/loading-context";
+import { usePageLoading, useGlobalLoading } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
-import { ProductGridSkeleton } from "@/components/ui/skeleton";
+import { NavbarSkeleton, MarketHeroSkeleton, CategoryCardsSkeleton, ProductGridSkeleton, Skeleton } from "@/components/ui/skeleton";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -228,6 +228,7 @@ const CustomDropdown = ({ value, options, onChange, icon: Icon, placeholder, ali
 // ─── Main Marketplace Page ────────────────────────────────────────────────────
 export default function MarketplacePage() {
   const router = useRouter();
+  const { navigateTo } = useGlobalLoading();
   const [profile, setProfile] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -404,22 +405,19 @@ export default function MarketplacePage() {
   }, [cartItems]);
 
   if (loading) return (
-    <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E]">
-      <div className="px-4 pt-4 md:px-8">
-        <div className="bg-pranata rounded-[2rem] p-4 flex items-center justify-between shadow-md">
-          <div className="flex items-center gap-4">
-            <div className="w-8 h-8 rounded-full skeleton-shimmer bg-[#3A6B49]" />
-            <div className="w-24 h-6 rounded-md skeleton-shimmer bg-[#3A6B49] hidden sm:block" />
+    <div className="min-h-screen bg-[#F8F6F0] w-full flex flex-col overflow-x-clip">
+      <NavbarSkeleton />
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 pt-0 sm:pt-4 space-y-4 sm:space-y-6 pb-28">
+        <MarketHeroSkeleton />
+        <CategoryCardsSkeleton />
+        <section className="pt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-7 w-56 rounded-xl" />
+            <Skeleton className="h-9 w-32 rounded-full" />
           </div>
-          <div className="flex-1 max-w-xl mx-4 hidden md:block">
-            <div className="w-full h-11 rounded-full skeleton-shimmer bg-[#3A6B49]" />
-          </div>
-          <div className="flex items-center gap-4 sm:gap-6">
-            <div className="w-10 h-10 rounded-full skeleton-shimmer bg-[#3A6B49]" />
-            <div className="w-10 h-10 rounded-full skeleton-shimmer bg-[#3A6B49]" />
-          </div>
-        </div>
-      </div>
+          <ProductGridSkeleton count={8} />
+        </section>
+      </main>
     </div>
   );
 
@@ -565,7 +563,7 @@ export default function MarketplacePage() {
 
               {hasMore && (
                 <button 
-                  onClick={() => router.push(`/market/products?category=${selectedCategory}`)} 
+                  onClick={() => navigateTo(`/market/products?category=${selectedCategory}`)} 
                   className="text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 bg-gradient-to-br from-[#8FA76B] to-[#405D46] px-4 py-2 sm:px-5 sm:py-2.5 rounded-full hover:opacity-95 hover:scale-[1.02] active:scale-95 transition-all shadow-sm"
                 >
                   <span>Lihat Semua</span>
@@ -593,7 +591,7 @@ export default function MarketplacePage() {
                     key={p.id}
                     p={p} 
                     index={i} 
-                    onClick={() => router.push(`/market/product/${p.id}`)}
+                    onClick={() => navigateTo(`/market/product/${p.id}`)}
                     cartQty={qty}
                     onUpdateQuantity={(e, delta) => handleUpdateQuantity(e, p, delta)} 
                   />
@@ -605,7 +603,7 @@ export default function MarketplacePage() {
           {/* Mobile Bottom "Lihat Semua Produk" Button */}
           <div className="pt-4 sm:hidden">
             <button 
-              onClick={() => router.push(`/market/products?category=${encodeURIComponent(selectedCategory)}`)} 
+              onClick={() => navigateTo(`/market/products?category=${encodeURIComponent(selectedCategory)}`)} 
               className="w-full bg-[#C25939] hover:bg-[#A34529] active:scale-95 text-white font-extrabold text-sm py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#C25939]/20 transition-all"
             >
               <span>Lihat Semua Produk</span>

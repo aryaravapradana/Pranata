@@ -30,6 +30,8 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       wheelMultiplier: 1,
     });
 
+    (window as any).__lenis = lenis;
+
     // KEY FIX: Whenever ScrollTrigger refreshes (e.g. after adding a pin spacer),
     // tell Lenis to recalculate its scroll limits so it knows about the new height.
     ScrollTrigger.addEventListener("refresh", () => lenis.resize());

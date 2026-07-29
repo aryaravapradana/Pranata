@@ -40,6 +40,7 @@ export const checkout = async (req: Request, res: Response) => {
   const { buyerId, sellerId, items, shippingAddress, shippingMethod, paymentMethod, shippingFee, platformFee, requestedArrivalDate } = parse.data;
 
   if (req.user?.id !== buyerId) return res.status(403).json({ error: 'Forbidden' });
+  if (buyerId === sellerId) return res.status(400).json({ error: 'Anda tidak dapat membeli produk Anda sendiri' });
 
   const itemsSubtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const totalAmount = itemsSubtotal + shippingFee + platformFee;

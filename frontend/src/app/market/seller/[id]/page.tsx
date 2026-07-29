@@ -4,7 +4,7 @@ import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
 import { useState, useEffect, use } from "react";
 import { Store, ArrowLeft, ShieldCheck, MapPin, Phone, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { usePageLoading } from "@/components/shared/loading-context";
+import { usePageLoading, useGlobalLoading } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 import { Footer } from "@/components/layout/Footer";
@@ -26,6 +26,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ id: st
   
   usePageLoading(initialLoading);
   const router = useRouter();
+  const { navigateTo } = useGlobalLoading();
 
   useEffect(() => { loadData(1, true); }, [sellerId]);
 
@@ -106,7 +107,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ id: st
       <div className="text-center">
         <Store size={48} className="mx-auto text-[#C4BAA8] mb-3 sm:w-14 sm:h-14" />
         <p className="font-black text-lg sm:text-xl text-[#5A635B]">Toko tidak ditemukan.</p>
-        <button onClick={() => router.push("/market")} className="mt-3 sm:mt-4 text-[#2B4C3B] font-bold text-sm sm:text-base underline">Kembali ke Pasar</button>
+        <button onClick={() => navigateTo("/market")} className="mt-3 sm:mt-4 text-[#2B4C3B] font-bold text-sm sm:text-base underline">Kembali ke Pasar</button>
       </div>
     </div>
   );
@@ -119,7 +120,7 @@ export default function SellerProfilePage({ params }: { params: Promise<{ id: st
 
       <div className="relative z-10 max-w-7xl mx-auto pt-4 sm:pt-6 pb-16 sm:pb-24 space-y-6 sm:space-y-8 px-3.5 sm:px-6 md:px-8 lg:px-12">
         <div>
-          <button onClick={() => router.push("/market")} className="inline-flex items-center gap-1.5 sm:gap-2 bg-white border border-[#E8E3D2] hover:bg-[#F8F6F0] text-[#1C241E] hover:text-[#2B4C3B] font-bold text-xs sm:text-sm px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full transition-colors shadow-sm active:scale-95">
+          <button onClick={() => navigateTo("/market")} className="inline-flex items-center gap-1.5 sm:gap-2 bg-white border border-[#E8E3D2] hover:bg-[#F8F6F0] text-[#1C241E] hover:text-[#2B4C3B] font-bold text-xs sm:text-sm px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full transition-colors shadow-sm active:scale-95">
             <ChevronLeft size={16} /> Kembali
           </button>
         </div>

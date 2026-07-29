@@ -11,9 +11,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePageLoading } from "@/components/shared/loading-context";
 
+import { SellerOnboardingModal } from "@/components/modals/SellerOnboardingModal";
+
 export default function MainDashboard() {
   const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
+  const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(false);
   
   // Data States
   const [orders, setOrders] = useState<any[]>([]);
@@ -142,17 +145,16 @@ export default function MainDashboard() {
 
   useEffect(() => {
     // 1. Session Auth
-    const sessionStr = localStorage.getItem("farmpro_session");
+    const sessionStr = localStorage.getItem("pranata_session") || localStorage.getItem("farmpro_session");
     if (!sessionStr) {
       router.push("/login");
       return;
     }
     const session = JSON.parse(sessionStr);
-    if (session.role === 'BUYER') {
-      router.push("/market");
-      return;
-    }
     setProfile(session);
+    if (session.role === 'BUYER') {
+      setShowOnboardingModal(true);
+    }
 
     // 2. Fetch Orders, Products, & Prices
     const API_BASE = getApiBaseUrl();
@@ -692,6 +694,11 @@ export default function MainDashboard() {
       <div className="mt-16">
         <Footer />
       </div>
+
+      <SellerOnboardingModal 
+        isOpen={showOnboardingModal}
+        onClose={() => setShowOnboardingModal(false)}
+      />
     </div>
   );
 }

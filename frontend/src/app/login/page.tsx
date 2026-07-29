@@ -22,17 +22,15 @@ function AuthContent() {
   const [authMode, setAuthMode] = useState<'login' | 'register'>(searchParams.get('mode') === 'register' ? 'register' : 'login');
   const { navigateTo } = useGlobalLoading();
 
+  // Sync mode with query params
   useEffect(() => {
-    const sessionStr = localStorage.getItem("pranata_session") || localStorage.getItem("farmpro_session");
-    if (sessionStr) {
-      const session = JSON.parse(sessionStr);
-      if (session.role === 'PRODUCER') {
-        navigateTo('/hub');
-      } else {
-        navigateTo('/market');
-      }
+    const mode = searchParams.get('mode');
+    if (mode === 'register') {
+      setAuthMode('register');
+    } else {
+      setAuthMode('login');
     }
-  }, [router, navigateTo]);
+  }, [searchParams]);
 
   const switchMode = (mode: 'login' | 'register') => {
     setAuthMode(mode);
@@ -69,11 +67,7 @@ function AuthContent() {
       localStorage.setItem("pranata_session", JSON.stringify(data));
       localStorage.setItem("farmpro_session", JSON.stringify(data));
       Cookies.set("auth-token", data.token, { expires: 7, path: '/' });
-      if (data.role === "BUYER") {
-        navigateTo("/market");
-      } else {
-        navigateTo("/hub");
-      }
+      navigateTo("/market");
     } catch (err: any) {
       setError(err.message);
     } finally {

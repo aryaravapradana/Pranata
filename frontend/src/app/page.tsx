@@ -64,7 +64,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3.5 mt-3 sm:mt-2.5 w-full sm:w-auto">
               {session ? (
                 <>
-                  <Link href={session.role === 'PRODUCER' ? '/hub' : '/market'} className="w-full sm:w-auto">
+                  <Link href="/market" className="w-full sm:w-auto">
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}

@@ -7,7 +7,7 @@ import os from 'os';
 
 const port = process.env.PORT || 4000;
 
-if (cluster.isPrimary) {
+if (cluster.isPrimary && process.env.NODE_ENV === 'production') {
   const workerCount = Math.max(1, Math.min(os.cpus().length, 4));
   console.log(`🚀 Primary cluster setting up ${workerCount} worker processes...`);
 
@@ -21,7 +21,7 @@ if (cluster.isPrimary) {
   });
 } else {
   const server = app.listen(port, () => {
-    console.log(`Worker ${process.pid} running on http://localhost:${port}`);
+    console.log(`Server running on http://localhost:${port} (PID: ${process.pid})`);
   });
 
   // Optimize HTTP keep-alive connections for performance

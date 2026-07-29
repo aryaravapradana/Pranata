@@ -36,6 +36,12 @@ export const updateCartItem = async (req: Request, res: Response) => {
   const { productId, quantity } = parse.data;
 
   try {
+    const product = await prisma.product.findUnique({ where: { id: productId } });
+    if (!product) return res.status(404).json({ error: 'Produk tidak ditemukan' });
+    if (product.sellerId === buyerId) {
+      return res.status(400).json({ error: 'Anda tidak dapat membeli produk Anda sendiri' });
+    }
+
     const cartItem = await prisma.cartItem.upsert({
       where: { buyerId_productId: { buyerId, productId } },
       update: { quantity },

@@ -5,7 +5,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
+import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
 import UserDropdown from "./UserDropdown";
+
+import BrandLogoSwitcher from "./BrandLogoSwitcher";
 
 const NAV_ITEMS = [
   { name: "Hub", href: "/hub" },
@@ -22,7 +25,23 @@ export default function DashboardNavbar() {
   useEffect(() => {
     const sessionStr = localStorage.getItem("pranata_session") || localStorage.getItem("farmpro_session");
     if (sessionStr) {
-      setProfile(JSON.parse(sessionStr));
+      const parsed = JSON.parse(sessionStr);
+      setProfile(parsed);
+
+      if (parsed.id) {
+        const API_BASE = getApiBaseUrl();
+        fetchApi(`${API_BASE}/api/profile/${parsed.id}`)
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data && data.role) {
+              const updatedSession = { ...parsed, ...data };
+              setProfile(updatedSession);
+              localStorage.setItem("pranata_session", JSON.stringify(updatedSession));
+              localStorage.setItem("farmpro_session", JSON.stringify(updatedSession));
+            }
+          })
+          .catch(() => {});
+      }
     }
   }, []);
 
@@ -40,9 +59,7 @@ export default function DashboardNavbar() {
           
           {/* Brand Logo - Kiri */}
           <div className="flex items-center justify-start">
-            <Link href="/hub" className="h-7 md:h-8 transition-transform hover:scale-105">
-              <img src="/logos/hub/hub-black.webp" alt="Pranata" className="h-full object-contain" loading="lazy" decoding="async" />
-            </Link>
+            <BrandLogoSwitcher currentApp="hub" isProducer={profile?.role === "PRODUCER"} />
           </div>
 
           {/* Navigasi Utama - Desktop Only (Tengah Presisi Layar dengan Animated Pill) */}
