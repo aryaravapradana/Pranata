@@ -6,6 +6,7 @@ import { ChevronDown, Check, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGlobalLoading } from "@/components/shared/loading-context";
 import { SellerOnboardingModal } from "@/components/modals/SellerOnboardingModal";
+import { SellerWarningModal } from "@/components/modals/SellerWarningModal";
 
 export default function BrandLogoSwitcher({ 
   currentApp, 
@@ -15,6 +16,7 @@ export default function BrandLogoSwitcher({
   isProducer?: boolean 
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { navigateTo } = useGlobalLoading();
@@ -49,7 +51,7 @@ export default function BrandLogoSwitcher({
     if (isProducer) {
       navigateTo("/hub");
     } else {
-      setShowOnboardingModal(true);
+      setShowWarningModal(true);
     }
   };
 
@@ -58,7 +60,7 @@ export default function BrandLogoSwitcher({
     if (isProducer) {
       navigateTo("/hub/intelligence");
     } else {
-      setShowOnboardingModal(true);
+      setShowWarningModal(true);
     }
   };
 
@@ -169,6 +171,12 @@ export default function BrandLogoSwitcher({
           )}
         </AnimatePresence>
       </div>
+
+      <SellerWarningModal
+        isOpen={showWarningModal}
+        onClose={() => setShowWarningModal(false)}
+        onConfirmUpgrade={() => setShowOnboardingModal(true)}
+      />
 
       <SellerOnboardingModal
         isOpen={showOnboardingModal}
