@@ -43,6 +43,7 @@ export const LoadingProvider = ({
   const router = useRouter();
   const transitionTimeoutRef =
     useRef<NodeJS.Timeout | null>(null);
+  const isFirstMount = useRef(true);
 
   const clearPendingTimeout = () => {
     if (transitionTimeoutRef.current) {
@@ -79,25 +80,10 @@ export const LoadingProvider = ({
   const startNavigationSequence =
     useCallback(
       (url: string) => {
-        const targetPath = url
-          .split("?")[0]
-          .split("#")[0];
-        const currentPath =
-          window.location.pathname;
-        const isInternalHub =
-          currentPath.startsWith("/hub") &&
-          targetPath.startsWith("/hub") &&
-          !targetPath.includes(
-            "/intelligence",
-          ) &&
-          !currentPath.includes(
-            "/intelligence",
-          );
-
-        if (isInternalHub) {
-          router.push(url);
-          return;
-        }
+        const fullCurrentUrl =
+          window.location.pathname +
+          window.location.search;
+        if (url === fullCurrentUrl) return;
 
         clearPendingTimeout();
         // Lock navigation immediately BEFORE animation starts so blockers.size is NEVER 0 during transition
@@ -112,11 +98,11 @@ export const LoadingProvider = ({
             setPhase("COVERED");
             router.push(url);
 
-            // Release nav-lock 120ms after route push so destination page's usePageLoading(true) has mounted
+            // Safety fallback: if route change or page mount hangs, force release nav-lock after 3.5s
             transitionTimeoutRef.current =
               setTimeout(() => {
                 removeBlocker("nav-lock");
-              }, 120);
+              }, 3500);
           }, 550);
       },
       [
@@ -144,7 +130,7 @@ export const LoadingProvider = ({
           transitionTimeoutRef.current =
             setTimeout(() => {
               removeBlocker("nav-lock");
-            }, 120);
+            }, 3500);
         }, 550);
     }, [registerBlocker, removeBlocker]);
 
@@ -152,9 +138,28 @@ export const LoadingProvider = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       removeBlocker("nav-lock");
-    }, 100);
+    }, 150);
     return () => clearTimeout(timer);
   }, [removeBlocker]);
+
+  // Release nav-lock ONLY AFTER Next.js DOM route swap has actually completed (pathname changed)
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+
+    if (
+      phase === "COVERED" ||
+      phase === "CLOSING"
+    ) {
+      // 120ms tick allows new route component to mount and invoke usePageLoading(true) before nav-lock is released
+      const timer = setTimeout(() => {
+        removeBlocker("nav-lock");
+      }, 120);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, removeBlocker]);
 
   // Global Click Interceptor: Catch link & navigate clicks BEFORE Next.js page swap
   useEffect(() => {
@@ -195,22 +200,9 @@ export const LoadingProvider = ({
           window.location.pathname +
           window.location.search;
         if (href !== fullCurrentUrl) {
-          const isInternalHub =
-            window.location.pathname.startsWith(
-              "/hub",
-            ) &&
-            href.startsWith("/hub") &&
-            !href.includes(
-              "/intelligence",
-            ) &&
-            !window.location.pathname.includes(
-              "/intelligence",
-            );
-          if (!isInternalHub) {
-            e.preventDefault();
-            e.stopPropagation();
-            startNavigationSequence(href);
-          }
+          e.preventDefault();
+          e.stopPropagation();
+          startNavigationSequence(href);
         }
       }
     };
@@ -296,16 +288,8 @@ export const usePageLoading = (
     removeBlocker,
     isTransitioning,
   } = useGlobalLoading();
-  const pathname = usePathname();
 
   useEffect(() => {
-    if (
-      pathname?.startsWith("/hub") &&
-      !isTransitioning
-    ) {
-      return;
-    }
-
     const id = "page-load";
     if (isLoading) {
       registerBlocker(id);
@@ -317,7 +301,6 @@ export const usePageLoading = (
     }
   }, [
     isLoading,
-    pathname,
     isTransitioning,
     registerBlocker,
     removeBlocker,
