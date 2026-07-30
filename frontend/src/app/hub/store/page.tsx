@@ -37,7 +37,7 @@ import {
   usePageLoading,
   useGlobalLoading,
 } from "@/components/shared/loading-context";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ProductGridSkeleton } from "@/components/ui/skeleton";
 
 const CustomDropdown = ({
@@ -292,10 +292,13 @@ export default function StoreDashboardPage() {
 
   usePageLoading(initialLoading);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { navigateTo } = useGlobalLoading();
 
   useEffect(() => {
-    loadData(1, true);
+    const pageParam = parseInt(searchParams.get("page") || "1") || 1;
+    setCurrentPage(pageParam);
+    loadData(pageParam, true);
   }, []);
 
   const loadData = async (
@@ -307,9 +310,9 @@ export default function StoreDashboardPage() {
     }
     setGridLoading(true);
 
-    const sessionStr = localStorage.getItem(
-      "farmpro_session",
-    );
+    const sessionStr =
+      localStorage.getItem("farmpro_session") ||
+      localStorage.getItem("pranata_session");
     if (!sessionStr) {
       router.push("/login");
       return;
@@ -731,6 +734,10 @@ export default function StoreDashboardPage() {
                             p.imageUrls[0]
                           }
                           alt={p.title}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              "https://images.unsplash.com/photo-1595856728084-2b63897d2644?q=80&w=600&auto=format&fit=crop";
+                          }}
                           className={cn(
                             "w-full h-full object-cover",
                             "group-hover:scale-105 transition-transform duration-500",
@@ -920,7 +927,7 @@ export default function StoreDashboardPage() {
                       <button
                         onClick={() =>
                           router.push(
-                            `/hub/store/edit/${p.id}`,
+                            `/hub/store/edit/${p.id}?page=${currentPage}`,
                           )
                         }
                         className={cn(
@@ -993,6 +1000,7 @@ export default function StoreDashboardPage() {
                       const prev =
                         currentPage - 1;
                       setCurrentPage(prev);
+                      router.replace(`/hub/store?page=${prev}`, { scroll: false });
                       loadData(prev, false);
                       document
                         .getElementById(
@@ -1044,6 +1052,7 @@ export default function StoreDashboardPage() {
                             setCurrentPage(
                               pageNum,
                             );
+                            router.replace(`/hub/store?page=${pageNum}`, { scroll: false });
                             loadData(
                               pageNum,
                               false,
@@ -1087,6 +1096,7 @@ export default function StoreDashboardPage() {
                       const next =
                         currentPage + 1;
                       setCurrentPage(next);
+                      router.replace(`/hub/store?page=${next}`, { scroll: false });
                       loadData(next, false);
                       document
                         .getElementById(

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import {
   useRouter,
   useParams,
+  useSearchParams,
 } from "next/navigation";
 import {
   ArrowLeft,
@@ -87,6 +88,8 @@ const getGradeStyle = (gradeStr: string) => {
 
 export default function EditProductPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnPage = searchParams.get("page") || "1";
   const params = useParams();
   const productId = params?.id as string;
   const [profile, setProfile] =
@@ -369,7 +372,7 @@ export default function EditProductPage() {
           }),
         },
       );
-      router.push("/hub/store");
+      router.push(`/hub/store?page=${returnPage}`);
     } catch (err) {
       alert("Gagal mengupdate produk.");
       setIsSubmitting(false);
@@ -396,7 +399,7 @@ export default function EditProductPage() {
         <div className="flex items-center gap-3 sm:gap-4">
           <button
             onClick={() =>
-              router.push("/hub/store")
+              router.push(`/hub/store?page=${returnPage}`)
             }
             className={cn(
               "text-[#5A635B] hover:text-[#2B4C3B] p-2.5",

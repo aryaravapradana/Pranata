@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Sparkles,
@@ -84,6 +84,8 @@ const getGradeStyle = (gradeStr: string) => {
 
 export default function NewProductPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnPage = searchParams.get("page") || "1";
   const [profile, setProfile] =
     useState<any>(null);
 
@@ -316,7 +318,7 @@ export default function NewProductPage() {
           }),
         },
       );
-      router.push("/hub/store");
+      router.push(`/hub/store?page=${returnPage}`);
     } catch (err) {
       alert("Gagal membuat produk.");
       setIsSubmitting(false);
@@ -343,7 +345,7 @@ export default function NewProductPage() {
             onClick={() =>
               stepperStep === 2
                 ? setStepperStep(1)
-                : router.push("/hub/store")
+                : router.push(`/hub/store?page=${returnPage}`)
             }
             className={cn(
               "text-[#5A635B] hover:text-[#2B4C3B] p-2.5",
