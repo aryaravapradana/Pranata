@@ -3,6 +3,7 @@ import {
   getCache,
   setCache,
   delCache,
+  flushCache,
 } from "../utils/cache";
 import prisma from "../config/prisma";
 import { z } from "zod";
@@ -197,6 +198,11 @@ export const checkout = async (
       buyerId: order.buyerId,
       sellerId: order.sellerId,
     });
+
+    // Invalidate order and product caches so buyers & sellers see fresh stock and order lists
+    delCache(`orders_BUYER_${order.buyerId}`);
+    delCache(`orders_PRODUCER_${order.sellerId}`);
+    flushCache();
 
     return res.status(201).json(order);
   } catch (error: any) {

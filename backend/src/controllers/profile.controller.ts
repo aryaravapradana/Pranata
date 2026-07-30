@@ -314,8 +314,16 @@ export const createEvent = async (
       description,
       eventDate,
       type,
-      sellerId,
+      sellerId: bodySellerId,
     } = req.body;
+    const sellerId = bodySellerId || req.user?.id;
+    if (!sellerId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    if (req.user?.id !== sellerId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const event =
       await prisma.sellerEvent.create({
         data: {
@@ -343,6 +351,17 @@ export const updateEvent = async (
 ) => {
   try {
     const id = req.params.id as string;
+    const existing = await prisma.sellerEvent.findUnique({
+      where: { id },
+      select: { sellerId: true },
+    });
+    if (!existing) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+    if (existing.sellerId !== req.user?.id) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const {
       title,
       description,
@@ -355,7 +374,7 @@ export const updateEvent = async (
         data: {
           title,
           description,
-          eventDate: new Date(eventDate),
+          eventDate: eventDate ? new Date(eventDate) : undefined,
           type,
         },
       });
@@ -376,6 +395,17 @@ export const deleteEvent = async (
 ) => {
   try {
     const id = req.params.id as string;
+    const existing = await prisma.sellerEvent.findUnique({
+      where: { id },
+      select: { sellerId: true },
+    });
+    if (!existing) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+    if (existing.sellerId !== req.user?.id) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     await prisma.sellerEvent.delete({
       where: { id },
     });
