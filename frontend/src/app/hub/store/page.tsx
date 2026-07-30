@@ -49,7 +49,7 @@ const CustomDropdown = ({
   align = "right",
 }: {
   value: string;
-  options: { label: any; value: string }[];
+  options: { label: any; value: string; icon?: string; image?: string }[];
   onChange: (val: string) => void;
   icon: any;
   placeholder?: string;
@@ -70,8 +70,8 @@ const CustomDropdown = ({
     return () => document.removeEventListener("mousedown", handleOutside);
   }, []);
 
-  const displayValue =
-    options.find((o) => o.value === value)?.label || placeholder || value;
+  const selectedOpt = options.find((o) => o.value === value);
+  const displayValue = selectedOpt?.label || placeholder || value;
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -89,7 +89,13 @@ const CustomDropdown = ({
         )}
       >
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <Icon size={14} className="text-[#32452C] shrink-0" />
+          {selectedOpt?.image ? (
+            <img src={selectedOpt.image} alt={displayValue} className="w-4 h-4 object-contain shrink-0" />
+          ) : selectedOpt?.icon ? (
+            <span className="text-xs shrink-0">{selectedOpt.icon}</span>
+          ) : (
+            <Icon size={14} className="text-[#32452C] shrink-0" />
+          )}
           <span className="truncate max-w-[110px] sm:max-w-[140px]">{displayValue}</span>
         </div>
         <ChevronRight
@@ -119,7 +125,12 @@ const CustomDropdown = ({
                     : "text-[#5A635B] hover:bg-[#F8F6F0] hover:text-[#1C241E]"
                 }`}
               >
-                {opt.label}
+                {opt.image ? (
+                  <img src={opt.image} alt={opt.value} className="w-4 h-4 object-contain shrink-0" />
+                ) : opt.icon ? (
+                  <span className="text-xs shrink-0">{opt.icon}</span>
+                ) : null}
+                <span className="truncate">{opt.label}</span>
               </button>
             ))}
           </motion.div>
@@ -211,18 +222,30 @@ export default function StoreDashboardPage() {
   const [selectedCategory, setSelectedCategory] = useState("Semua Kategori");
   const [sortBy, setSortBy] = useState("Terbaru");
 
-  // Dynamic Category Options from current products
+  // Category Icons & Images Mapping (Matching Market)
   const categoryOptions = useMemo(() => {
-    const defaultCategories = ["Daging", "Telur", "Susu", "Ternak (Hidup)", "Lainnya"];
-    const existingCategories = Array.from(
-      new Set(products.map((p) => p.category).filter(Boolean))
-    );
-    const combined = Array.from(new Set([...defaultCategories, ...existingCategories]));
+    const categoryMeta: Record<string, { icon?: string; image?: string }> = {
+      "Semua Kategori": { icon: "🌾" },
+      Daging: { image: "/icons/daging.webp", icon: "🥩" },
+      Telur: { image: "/icons/telor.webp", icon: "🥚" },
+      Susu: { image: "/icons/susu.webp", icon: "🥛" },
+    };
 
-    return [
-      { label: "Semua Kategori", value: "Semua Kategori" },
-      ...combined.map((cat) => ({ label: cat, value: cat })),
-    ];
+    const mainCategories = ["Semua Kategori", "Daging", "Telur", "Susu"];
+    const extraCategories = Array.from(
+      new Set(products.map((p) => p.category).filter((c) => c && !mainCategories.includes(c)))
+    );
+    const combined = [...mainCategories, ...extraCategories];
+
+    return combined.map((cat) => {
+      const meta = categoryMeta[cat] || {};
+      return {
+        label: cat,
+        value: cat,
+        icon: meta.icon,
+        image: meta.image,
+      };
+    });
   }, [products]);
 
   const sortOptions = [
