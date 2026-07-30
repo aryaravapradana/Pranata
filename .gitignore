@@ -6,6 +6,7 @@ build/
 
 # Skills & AI workspace folders
 agentic-awesome-skills/
+.agents/
 
 # Environment & local secrets
 .env
