@@ -45,11 +45,11 @@ app.use(
       "Content-Type, Authorization, X-Requested-With, Accept, Origin, X-CSRF-Token",
     );
 
-    // Add smart Cache-Control for GET requests
+    // Set no-cache for dynamic API GET requests so browser always gets fresh data after mutations
     if (req.method === "GET") {
       res.setHeader(
         "Cache-Control",
-        "public, max-age=15, stale-while-revalidate=60",
+        "no-cache, private, must-revalidate",
       );
     }
 

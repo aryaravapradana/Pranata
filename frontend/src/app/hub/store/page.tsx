@@ -6,7 +6,7 @@ import {
 } from "@/lib/apiClient";
 import { Footer } from "@/components/layout/Footer";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   Store,
   Package,
@@ -26,6 +26,8 @@ import {
   Loader2,
   ShieldCheck,
   Tag,
+  Search,
+  SlidersHorizontal,
 } from "lucide-react";
 import {
   motion,
@@ -37,6 +39,95 @@ import {
 } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
 import { ProductGridSkeleton } from "@/components/ui/skeleton";
+
+const CustomDropdown = ({
+  value,
+  options,
+  onChange,
+  icon: Icon,
+  placeholder,
+  align = "right",
+}: {
+  value: string;
+  options: { label: any; value: string }[];
+  onChange: (val: string) => void;
+  icon: any;
+  placeholder?: string;
+  align?: "left" | "right";
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      )
+        setIsOpen(false);
+    };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, []);
+
+  const displayValue =
+    options.find((o) => o.value === value)?.label || placeholder || value;
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "flex items-center justify-between",
+          "gap-2 sm:gap-3 bg-white",
+          "border border-[#E8E3D2] text-[#2B4C3B]",
+          "font-extrabold text-xs sm:text-sm",
+          "rounded-full py-2 px-3.5",
+          "sm:py-2.5 sm:pl-4 sm:pr-3",
+          "hover:bg-[#F8F6F0] transition-all shadow-xs",
+          "shrink-0 cursor-pointer",
+        )}
+      >
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <Icon size={14} className="text-[#32452C] shrink-0" />
+          <span className="truncate max-w-[110px] sm:max-w-[140px]">{displayValue}</span>
+        </div>
+        <ChevronRight
+          size={14}
+          className={`text-[#A4B0A7] transition-transform duration-300 shrink-0 ${isOpen ? "rotate-90" : "rotate-0"}`}
+        />
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.96 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className={`absolute ${align === "left" ? "left-0" : "left-0 sm:left-auto sm:right-0"} mt-2 w-52 sm:w-56 bg-white border border-[#E8E3D2] rounded-2xl p-2 shadow-xl z-50 overflow-hidden`}
+          >
+            {options.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-3.5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-colors flex items-center gap-2 cursor-pointer ${
+                  value === opt.value
+                    ? "bg-[#2B4C3B] text-white"
+                    : "text-[#5A635B] hover:bg-[#F8F6F0] hover:text-[#1C241E]"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const getGradeStyle = (gradeStr: string) => {
   const g = (gradeStr || "")
@@ -114,6 +205,67 @@ export default function StoreDashboardPage() {
   ] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] =
     useState(false);
+
+  // Search, Sort & Category Filter State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("Semua Kategori");
+  const [sortBy, setSortBy] = useState("Terbaru");
+
+  // Dynamic Category Options from current products
+  const categoryOptions = useMemo(() => {
+    const defaultCategories = ["Daging", "Telur", "Susu", "Ternak (Hidup)", "Lainnya"];
+    const existingCategories = Array.from(
+      new Set(products.map((p) => p.category).filter(Boolean))
+    );
+    const combined = Array.from(new Set([...defaultCategories, ...existingCategories]));
+
+    return [
+      { label: "Semua Kategori", value: "Semua Kategori" },
+      ...combined.map((cat) => ({ label: cat, value: cat })),
+    ];
+  }, [products]);
+
+  const sortOptions = [
+    { label: "Terbaru", value: "Terbaru" },
+    { label: "Harga Terendah", value: "Harga Terendah" },
+    { label: "Harga Tertinggi", value: "Harga Tertinggi" },
+    { label: "Stok Terbanyak", value: "Stok Terbanyak" },
+    { label: "Stok Tersedikit", value: "Stok Tersedikit" },
+  ];
+
+  const filteredProducts = useMemo(() => {
+    let result = [...products];
+
+    if (selectedCategory && selectedCategory !== "Semua Kategori") {
+      result = result.filter(
+        (p) => (p.category || "").toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter(
+        (p) =>
+          (p.title || "").toLowerCase().includes(q) ||
+          (p.description || "").toLowerCase().includes(q) ||
+          (p.category || "").toLowerCase().includes(q) ||
+          (p.grade || "").toLowerCase().includes(q)
+      );
+    }
+
+    result.sort((a, b) => {
+      if (sortBy === "Harga Terendah") return a.price - b.price;
+      if (sortBy === "Harga Tertinggi") return b.price - a.price;
+      if (sortBy === "Stok Terbanyak") return b.stock - a.stock;
+      if (sortBy === "Stok Tersedikit") return a.stock - b.stock;
+      return (
+        new Date(b.createdAt || 0).getTime() -
+        new Date(a.createdAt || 0).getTime()
+      );
+    });
+
+    return result;
+  }, [products, selectedCategory, searchQuery, sortBy]);
 
   usePageLoading(initialLoading);
   const router = useRouter();
@@ -445,12 +597,82 @@ export default function StoreDashboardPage() {
             "sm:scroll-mt-28",
           )}
         >
-          {/* Main List */}
-          <h2 className="text-xl sm:text-2xl font-black text-[#2B4C3B]">
-            Daftar Produk Aktif
-          </h2>
+          {/* Main List Header with Search, Category & Sorter on the Right */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-xl sm:text-2xl font-black text-[#2B4C3B]">
+                Daftar Produk Aktif
+              </h2>
+              <span className="bg-[#E8E3D2]/70 text-[#2B4C3B] font-extrabold text-xs px-2.5 py-1 rounded-full border border-[#E8E3D2]">
+                {filteredProducts.length}
+              </span>
+            </div>
+
+            {/* Right Controls */}
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+              {/* Search Bar */}
+              <div className="relative flex items-center bg-white border border-[#E8E3D2] rounded-full px-3.5 py-2 sm:py-2.5 w-full sm:w-60 md:w-64 shadow-xs focus-within:border-[#2B4C3B] focus-within:ring-2 focus-within:ring-[#2B4C3B]/20 transition-all">
+                <Search size={16} className="text-[#5A635B] shrink-0 mr-2" />
+                <input
+                  type="text"
+                  placeholder="Cari produk Anda..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-transparent text-xs sm:text-sm font-bold text-[#1C241E] placeholder:text-[#5A635B]/60 outline-none"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+
+              {/* Category Picker Dropdown */}
+              <CustomDropdown
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+                icon={Tag}
+                placeholder="Kategori"
+                options={categoryOptions}
+              />
+
+              {/* Sorter Dropdown */}
+              <CustomDropdown
+                value={sortBy}
+                onChange={setSortBy}
+                icon={SlidersHorizontal}
+                placeholder="Urutkan"
+                options={sortOptions}
+              />
+            </div>
+          </div>
+
           {gridLoading ? (
             <ProductGridSkeleton count={8} />
+          ) : filteredProducts.length === 0 ? (
+            <div className="bg-white border border-[#E8E3D2] rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center flex flex-col items-center justify-center space-y-3">
+              <Package size={40} className="text-[#A4B0A7]" />
+              <p className="text-base font-bold text-[#1C241E]">
+                {products.length === 0
+                  ? "Belum ada produk aktif."
+                  : "Tidak ada produk yang cocok dengan pencarian / filter Anda."}
+              </p>
+              {(searchQuery || selectedCategory !== "Semua Kategori") && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedCategory("Semua Kategori");
+                    setSortBy("Terbaru");
+                  }}
+                  className="mt-2 text-xs sm:text-sm font-extrabold text-white bg-[#2B4C3B] px-4 py-2 rounded-full shadow-sm hover:bg-[#1E3629] transition-all cursor-pointer"
+                >
+                  Reset Filter
+                </button>
+              )}
+            </div>
           ) : (
             <div
               className={cn(
@@ -459,12 +681,7 @@ export default function StoreDashboardPage() {
                 "sm:gap-6",
               )}
             >
-              {products.length === 0 && (
-                <p className="text-[#5A635B] text-sm">
-                  Belum ada produk aktif.
-                </p>
-              )}
-              {products.map((p) => (
+              {filteredProducts.map((p) => (
                 <div
                   key={p.id}
                   className={cn(
