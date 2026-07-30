@@ -44,7 +44,20 @@ export default function BrandLogoSwitcher({
   const ref = useRef<HTMLDivElement>(null);
   const { navigateTo } = useGlobalLoading();
 
+  const LOGO_PATHS = [
+    "/logos/basic/logo black.webp?v=2",
+    "/logos/market/market-black.webp?v=2",
+    "/logos/hub/hub-black.webp?v=2",
+    "/logos/intelligence/intelligence-black.webp?v=2",
+  ];
+
   useEffect(() => {
+    // Preload logo images into browser memory cache for instant dropdown opening
+    LOGO_PATHS.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+
     const handleClickOutside = (
       e: MouseEvent,
     ) => {
@@ -74,12 +87,11 @@ export default function BrandLogoSwitcher({
       case "hub":
         return (
           <img
-            src={
-              "/logos/hub/hub-black.webp" + v
-            }
+            src={"/logos/hub/hub-black.webp" + v}
             alt="Pranata Hub"
             className="h-[26px] w-auto object-contain object-left"
-            decoding="async"
+            loading="eager"
+            decoding="sync"
           />
         );
       case "intelligence":
@@ -91,7 +103,8 @@ export default function BrandLogoSwitcher({
             }
             alt="Pranata Intelligence"
             className="h-[32px] w-auto object-contain object-left"
-            decoding="async"
+            loading="eager"
+            decoding="sync"
           />
         );
       case "basic":
@@ -103,7 +116,8 @@ export default function BrandLogoSwitcher({
             }
             alt="Pranata Basic"
             className="h-[32px] w-auto object-contain object-left"
-            decoding="async"
+            loading="eager"
+            decoding="sync"
           />
         );
       case "market":
@@ -116,7 +130,8 @@ export default function BrandLogoSwitcher({
             }
             alt="Pranata Market"
             className="h-[26px] w-auto object-contain object-left"
-            decoding="async"
+            loading="eager"
+            decoding="sync"
           />
         );
     }
@@ -226,7 +241,8 @@ export default function BrandLogoSwitcher({
                     src="/logos/basic/logo black.webp?v=2"
                     alt="Pranata Basic"
                     className="h-[32px] w-auto object-contain object-left"
-                    decoding="async"
+                    loading="eager"
+                    decoding="sync"
                   />
                 </div>
                 {currentApp === "basic" && (
@@ -254,7 +270,8 @@ export default function BrandLogoSwitcher({
                     src="/logos/market/market-black.webp?v=2"
                     alt="Pranata Market"
                     className="h-[26px] w-auto object-contain object-left"
-                    decoding="async"
+                    loading="eager"
+                    decoding="sync"
                   />
                 </div>
                 {currentApp === "market" && (
@@ -284,7 +301,8 @@ export default function BrandLogoSwitcher({
                     src="/logos/hub/hub-black.webp?v=2"
                     alt="Pranata Hub"
                     className={`h-[26px] w-auto object-contain object-left ${!isProducer ? "grayscale" : ""}`}
-                    decoding="async"
+                    loading="eager"
+                    decoding="sync"
                   />
                 </div>
 
@@ -336,7 +354,8 @@ export default function BrandLogoSwitcher({
                     src="/logos/intelligence/intelligence-black.webp?v=2"
                     alt="Pranata Intelligence"
                     className={`h-[32px] w-auto object-contain object-left ${!isProducer ? "grayscale" : ""}`}
-                    decoding="async"
+                    loading="eager"
+                    decoding="sync"
                   />
                 </div>
 
@@ -387,6 +406,13 @@ export default function BrandLogoSwitcher({
           setShowOnboardingModal(false)
         }
       />
+
+      {/* Hidden preloader so browser keeps switcher images decoded in memory across page navigations */}
+      <div className="hidden" aria-hidden="true">
+        {LOGO_PATHS.map((src) => (
+          <img key={src} src={src} alt="" loading="eager" decoding="sync" />
+        ))}
+      </div>
     </>
   );
 }

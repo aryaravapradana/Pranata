@@ -576,19 +576,13 @@ export default function StoreDashboardPage() {
           )}
         >
           <div>
-            <h1
-              className={cn(
-                "text-xl sm:text-3xl font-black",
-                "mb-1 sm:mb-2 flex",
-                "items-center gap-2 sm:gap-3",
-              )}
-            >
-              <Store
-                className="text-[#F5990D] shrink-0"
-                size={26}
+            <div className="mb-2 flex items-center">
+              <img
+                src="/logos/market/market-white.webp"
+                alt="Pranata Market"
+                className="h-7 sm:h-9 w-auto object-contain"
               />
-              <span>Toko Saya</span>
-            </h1>
+            </div>
             <p className="text-xs sm:text-sm text-[#DDE2D6] font-medium">
               Kelola daftar produk dan
               pesanan masuk secara langsung
@@ -601,16 +595,16 @@ export default function StoreDashboardPage() {
               router.push("/hub/store/new");
             }}
             className={cn(
-              "w-full sm:w-auto bg-[#F5990D]",
-              "hover:bg-[#C25939] text-white px-5",
+              "w-full sm:w-auto bg-white",
+              "hover:bg-[#F8F6F0] text-[#124024] px-5",
               "py-3 rounded-xl font-extrabold",
               "flex items-center justify-center",
               "gap-2 shadow-lg transition-all",
               "text-xs sm:text-sm active:scale-95",
-              "shrink-0",
+              "shrink-0 cursor-pointer",
             )}
           >
-            <Plus size={18} />{" "}
+            <Plus size={18} className="text-[#124024]" />{" "}
             <span>Tambah Produk</span>
           </button>
         </div>
