@@ -1,5 +1,9 @@
 <div align="center">
-  <img src="frontend/public/logos/basic/logo-white.webp" alt="Pranata Logo" width="280" />
+  <a href="https://pranata.online" target="_blank">
+    <img src="frontend/public/logos/basic/logo-white.webp" alt="Pranata Logo" width="280" />
+  </a>
+  <br />
+  <a href="https://pranata.online" target="_blank"><b>pranata.online</b></a>
   <br /><br />
   <p>
     <a href="#tentang-pranata">Tentang</a> •
@@ -14,7 +18,7 @@
 
 ## Tentang Pranata
 
-**Pranata** adalah platform ekosistem digital peternakan terpadu yang menghubungkan peternak lokal secara langsung dengan konsumen dan pembeli bisnis (_B2B/B2C_) tanpa perantara tengkulak. Dibuat untuk menciptakan rantai pasok hasil ternak yang transparan dan efisien, memberikan harga yang lebih adil bagi peternak, serta memberdayakan operasional harian peternak melalui manajemen transaksi digital, pencatatan produksi, dan analisis bisnis berbasis _Artificial Intelligence_ (AI Assistant).
+**Pranata** adalah platform ekosistem digital peternakan terpadu yang menghubungkan peternak lokal secara langsung dengan konsumen dan pembeli bisnis (*B2B/B2C*) tanpa perantara tengkulak. Dibuat untuk menciptakan rantai pasok hasil ternak yang transparan dan efisien, memberikan harga yang lebih adil bagi peternak, serta memberdayakan operasional harian peternak melalui manajemen transaksi digital, pencatatan produksi, dan analisis bisnis berbasis *Artificial Intelligence* (AI Assistant).
 
 ---
 
@@ -22,10 +26,10 @@
 
 Gunakan akun dummy berikut untuk mencoba dan mendemonstrasikan seluruh fitur pada platform **Pranata**:
 
-| Role                      | Username         | Password      | Keterangan                                                                     |
-| :------------------------ | :--------------- | :------------ | :----------------------------------------------------------------------------- |
-| **Peternak (Producer)**   | `peternak_dummy` | `password123` | Akun demo peternak lengkap dengan data toko, transaksi, dan jadwal operasional |
-| **Peternak (Alternatif)** | `aryaternak1`    | `password123` | Akun peternak dengan katalog produk siap jual                                  |
+| Role | Username | Password | Keterangan |
+| :--- | :--- | :--- | :--- |
+| **Peternak (Producer)** | `peternak_dummy` | `password123` | Akun demo peternak lengkap dengan data toko, transaksi, dan jadwal operasional |
+| **Peternak (Alternatif)** | `aryaternak1` | `password123` | Akun peternak dengan katalog produk siap jual |
 
 ---
 
@@ -37,40 +41,40 @@ Pranata menyediakan 3 modul utama yang saling terintegrasi dalam satu platform:
 
 <img src="frontend/public/logos/market/market-white.webp" alt="Pranata Market Logo" style="height: 44px; max-height: 44px; width: auto;" />
 
-- **Katalog Produk Segar**  
+* **Katalog Produk Segar**  
   Penjualan langsung hasil peternakan (daging segar, telur, susu, hingga ternak hidup).
-- **Filter & Pencarian Pintar**  
-  Pencarian berdasarkan kategori produk, wilayah/lokasi peternak, serta _grade_ kualitas (Premium, Grade A, Grade B, Grade C).
-- **Keranjang Belanja & Checkout**  
+* **Filter & Pencarian Pintar**  
+  Pencarian berdasarkan kategori produk, wilayah/lokasi peternak, serta *grade* kualitas (Premium, Grade A, Grade B, Grade C).
+* **Keranjang Belanja & Checkout**  
   Transaksi yang efisien dan langsung terhubung dengan profil peternak.
-- **Profil Penjual & Transparansi**  
+* **Profil Penjual & Transparansi**  
   Halaman publik toko peternak untuk melihat asal-usul peternakan dan riwayat produk.
 
 <br />
 
 <img src="frontend/public/logos/hub/hub-white.webp" alt="Pranata Hub Logo" style="height: 44px; max-height: 44px; width: auto;" />
 
-- **Manajemen Produk & Stok**  
-  Tambah, edit, atur variasi harga, unit (_kg_, _ekor_, _liter_), dan stok barang.
-- **Pencatatan Keuangan & Pesanan**  
-  Monitoring transaksi masuk (_revenue_) dan pengeluaran operasional (_pakan, vaksin, utilitas_).
-- **Kalender Operasional Peternakan**  
+* **Manajemen Produk & Stok**  
+  Tambah, edit, atur variasi harga, unit (*kg*, *ekor*, *liter*), dan stok barang.
+* **Pencatatan Keuangan & Pesanan**  
+  Monitoring transaksi masuk (*revenue*) dan pengeluaran operasional (*pakan, vaksin, utilitas*).
+* **Kalender Operasional Peternakan**  
   Penjadwalan rutinitas peternakan (jadwal panen, pemberian vaksin, dan tugas harian).
-- **Peta Interaktif Peternakan**  
+* **Peta Interaktif Peternakan**  
   Visualisasi peta lokasi peternakan lokal terintegrasi.
-- **Pantauan Harga Komoditas Real-Time**  
+* **Pantauan Harga Komoditas Real-Time**  
   Monitoring simulasi data harga komoditas pangan nasional (jagung, dedak padi, kedelai).
 
 <br />
 
 <img src="frontend/public/logos/intelligence/intelligence-white.webp" alt="Pranata Intelligence Logo" style="height: 44px; max-height: 44px; width: auto;" />
 
-- **Asisten AI Interaktif**  
-  Konsultasi peternakan 24/7 didukung oleh _Large Language Model_ (Google Gemini AI).
-- **Analisis Keputusan Bisnis**  
+* **Asisten AI Interaktif**  
+  Konsultasi peternakan 24/7 didukung oleh *Large Language Model* (Google Gemini AI).
+* **Analisis Keputusan Bisnis**  
   Rekomendasi optimalisasi produksi, proyeksi pakan, dan penanganan kesehatan hewan.
-- **Gradasi Kualitas Otomatis**  
-  Pemrosesan AI untuk membantu penentuan _grade_ produk dan estimasi nilai jual hasil ternak.
+* **Gradasi Kualitas Otomatis**  
+  Pemrosesan AI untuk membantu penentuan *grade* produk dan estimasi nilai jual hasil ternak.
 
 ---
 
@@ -79,7 +83,6 @@ Pranata menyediakan 3 modul utama yang saling terintegrasi dalam satu platform:
 Platform Pranata dibangun menggunakan arsitektur modern yang responsif, cepat, dan scalable:
 
 ### Frontend
-
 - ![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white) **Framework React App Router**
 - ![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) **UI Library**
 - ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white) **Type-Safe Language**
@@ -89,7 +92,6 @@ Platform Pranata dibangun menggunakan arsitektur modern yang responsif, cepat, d
 - ![MapLibre](https://img.shields.io/badge/MapLibre_GL-0477BF?style=for-the-badge&logo=maplibre&logoColor=white) **Interactive Geographic Maps**
 
 ### Backend & Database
-
 - ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white) **JavaScript Runtime Environment**
 - ![Express.js](https://img.shields.io/badge/Express.js_v5-000000?style=for-the-badge&logo=express&logoColor=white) **Web Framework**
 - ![Prisma](https://img.shields.io/badge/Prisma_ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white) **Next-generation ORM**
@@ -97,7 +99,6 @@ Platform Pranata dibangun menggunakan arsitektur modern yang responsif, cepat, d
 - ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white) **Storage & Backend Infrastructure**
 
 ### Artificial Intelligence
-
 - ![Google Gemini](https://img.shields.io/badge/Google_Gemini_AI-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white) **LLM Engine & AI SDK Integrations**
 
 ---
