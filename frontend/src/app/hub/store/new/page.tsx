@@ -1344,49 +1344,7 @@ export default function NewProductPage() {
                         />
                       </div>
 
-                      {benchmarkPrice &&
-                        newProduct.price >
-                          benchmarkPrice && (
-                          <motion.div
-                            initial={{
-                              opacity: 0,
-                              height: 0,
-                            }}
-                            animate={{
-                              opacity: 1,
-                              height: "auto",
-                            }}
-                            className={cn(
-                              "mt-4 sm:mt-5 flex",
-                              "items-start gap-3 sm:gap-4",
-                              "bg-amber-50 text-amber-800 p-3.5",
-                              "sm:p-5 rounded-xl sm:rounded-2xl",
-                              "border border-amber-200",
-                            )}
-                          >
-                            <Info
-                              size={18}
-                              className="shrink-0 mt-0.5 text-amber-600 sm:w-5 sm:h-5"
-                            />
-                            <p className="text-xs sm:text-sm font-semibold leading-relaxed">
-                              Harga Anda (
-                              <strong className="text-amber-900 font-black">
-                                Rp{" "}
-                                {newProduct.price.toLocaleString()}
-                              </strong>
-                              ) lebih tinggi
-                              dari rata-rata
-                              pasar (
-                              <strong className="text-amber-900 font-black">
-                                Rp{" "}
-                                {benchmarkPrice.toLocaleString()}
-                              </strong>
-                              ). Ini mungkin
-                              akan mengurangi
-                              minat pembeli.
-                            </p>
-                          </motion.div>
-                        )}
+
                       {benchmarkPrice &&
                         newProduct.price >
                           0 &&
