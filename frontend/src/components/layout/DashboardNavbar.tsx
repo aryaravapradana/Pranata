@@ -146,6 +146,9 @@ export default function DashboardNavbar() {
                   {active && (
                     <motion.div
                       layoutId="desktopNavPill"
+                      transformTemplate={({ x, scaleX }) =>
+                        `translate3d(${x || "0px"}, 0px, 0px) scaleX(${scaleX || 1})`
+                      }
                       className={cn(
                         "absolute inset-0 bg-[#E8E3D2]/65",
                         "rounded-full -z-10 border",
@@ -202,6 +205,9 @@ export default function DashboardNavbar() {
                 {active && (
                   <motion.div
                     layoutId="mobileNavPill"
+                    transformTemplate={({ x, scaleX }) =>
+                      `translate3d(${x || "0px"}, 0px, 0px) scaleX(${scaleX || 1})`
+                    }
                     className={cn(
                       "absolute inset-0 bg-white",
                       "rounded-xl shadow-xs -z-10",
