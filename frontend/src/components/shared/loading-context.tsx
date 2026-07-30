@@ -29,6 +29,17 @@ const LoadingContext = createContext({
   removeBlocker: (id: string) => {},
 });
 
+// Helper: Internal Hub tab switching (/hub, /hub/calendar, /hub/store, /hub/orders) should skip splash screen for smooth tab pill animation
+const isInternalHubRoute = (currentPath: string, targetUrl: string) => {
+  const targetPath = targetUrl.split("?")[0];
+  return (
+    currentPath.startsWith("/hub") &&
+    targetPath.startsWith("/hub") &&
+    !currentPath.includes("/intelligence") &&
+    !targetPath.includes("/intelligence")
+  );
+};
+
 export const LoadingProvider = ({
   children,
 }: {
@@ -86,9 +97,15 @@ export const LoadingProvider = ({
           window.location.search;
         if (url === fullCurrentUrl) return;
 
-        // Skip splash screen ONLY if navigating to the exact same pathname (e.g. inline query param filtering)
         const targetPath = url.split("?")[0];
+        // 1. Skip splash screen if navigating to exact same pathname (e.g. query filter)
         if (targetPath === currentPath) {
+          router.push(url);
+          return;
+        }
+
+        // 2. Skip splash screen for in-app Hub tab switching (/hub, /hub/calendar, /hub/store, /hub/orders)
+        if (isInternalHubRoute(currentPath, url)) {
           router.push(url);
           return;
         }
@@ -197,6 +214,9 @@ export const LoadingProvider = ({
           window.location.pathname +
           window.location.search;
         if (href !== fullCurrentUrl) {
+          if (isInternalHubRoute(window.location.pathname, href)) {
+            return; // Allow Next.js native smooth tab navigation without splash screen interceptor
+          }
           e.preventDefault();
           e.stopPropagation();
           startNavigationSequence(href);
@@ -274,8 +294,17 @@ export const usePageLoading = (
     removeBlocker,
     isTransitioning,
   } = useGlobalLoading();
+  const pathname = usePathname();
 
   useEffect(() => {
+    if (
+      pathname?.startsWith("/hub") &&
+      !pathname?.includes("/intelligence") &&
+      !isTransitioning
+    ) {
+      return;
+    }
+
     const id = "page-load";
     if (isLoading) {
       registerBlocker(id);
@@ -287,6 +316,7 @@ export const usePageLoading = (
     }
   }, [
     isLoading,
+    pathname,
     isTransitioning,
     registerBlocker,
     removeBlocker,
