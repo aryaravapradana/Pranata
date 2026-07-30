@@ -86,11 +86,9 @@ export const LoadingProvider = ({
           window.location.search;
         if (url === fullCurrentUrl) return;
 
-        // Skip splash screen for in-app tab switching within /hub/* or /market/*
-        const isBothHub = currentPath.startsWith("/hub") && url.startsWith("/hub");
-        const isBothMarket = currentPath.startsWith("/market") && url.startsWith("/market");
-
-        if (isBothHub || isBothMarket) {
+        // Skip splash screen ONLY if navigating to the exact same pathname (e.g. inline query param filtering)
+        const targetPath = url.split("?")[0];
+        if (targetPath === currentPath) {
           router.push(url);
           return;
         }
