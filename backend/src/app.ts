@@ -60,14 +60,8 @@ app.use(
   },
 );
 
-// ── Security Headers & Compression ──
+// ── Security Headers (Vercel Edge automatically handles Gzip/Brotli compression) ──
 app.use(helmet({ hidePoweredBy: true }));
-app.use(
-  compression({
-    level: zlib.constants.Z_BEST_SPEED,
-    threshold: 1024,
-  }),
-);
 
 // ── Body Parser ──
 app.use(express.json({ limit: "5mb" }));
@@ -85,10 +79,14 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
-// ── Status Endpoint (public) ──
+// ── Status Endpoint (public, Edge cached) ──
 app.get(
   "/api/status",
   (req: Request, res: Response) => {
+    res.setHeader(
+      "Cache-Control",
+      "public, s-maxage=60, stale-while-revalidate=120",
+    );
     res.json({
       status: "OK",
       service: "Pranata API",
