@@ -80,10 +80,20 @@ export const LoadingProvider = ({
   const startNavigationSequence =
     useCallback(
       (url: string) => {
+        const currentPath = window.location.pathname;
         const fullCurrentUrl =
-          window.location.pathname +
+          currentPath +
           window.location.search;
         if (url === fullCurrentUrl) return;
+
+        // Skip splash screen for in-app tab switching within /hub/* or /market/*
+        const isBothHub = currentPath.startsWith("/hub") && url.startsWith("/hub");
+        const isBothMarket = currentPath.startsWith("/market") && url.startsWith("/market");
+
+        if (isBothHub || isBothMarket) {
+          router.push(url);
+          return;
+        }
 
         clearPendingTimeout();
         // Lock navigation immediately BEFORE animation starts so blockers.size is NEVER 0 during transition
