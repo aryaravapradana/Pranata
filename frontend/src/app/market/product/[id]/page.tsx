@@ -802,65 +802,67 @@ export default function ProductDetailPage({
             </div>
           </div>
 
-          {/* AI Quality Grading Analysis Card (Mobile) */}
-          <div
-            className={`rounded-3xl overflow-hidden shadow-sm border-2 ${gradeStyle.bg} ${gradeStyle.border}`}
-          >
-            <div className="p-3.5">
-              <div className="flex items-center justify-between mb-1.5">
-                <h3
-                  className={`text-xs font-black flex items-center gap-1.5 ${gradeStyle.text}`}
-                >
-                  <ShieldCheck size={15} />
-                  Quality Grading
-                </h3>
-                <span
-                  className={`text-[10px] font-black uppercase ${gradeStyle.badgeBg} ${gradeStyle.badgeText} px-2.5 py-0.5 rounded-full shadow-sm flex items-center gap-1`}
-                >
-                  <GradeIconComponent
-                    size={10}
-                    fill="currentColor"
-                  />{" "}
-                  {product.grade ||
-                    "Grade A"}
-                </span>
-              </div>
+          {/* AI Quality Grading Analysis Card (Mobile) - Only for Daging */}
+          {(product.category || "").toLowerCase() === "daging" && (
+            <div
+              className={`rounded-3xl overflow-hidden shadow-sm border-2 ${gradeStyle.bg} ${gradeStyle.border}`}
+            >
+              <div className="p-3.5">
+                <div className="flex items-center justify-between mb-1.5">
+                  <h3
+                    className={`text-xs font-black flex items-center gap-1.5 ${gradeStyle.text}`}
+                  >
+                    <ShieldCheck size={15} />
+                    Quality Grading
+                  </h3>
+                  <span
+                    className={`text-[10px] font-black uppercase ${gradeStyle.badgeBg} ${gradeStyle.badgeText} px-2.5 py-0.5 rounded-full shadow-sm flex items-center gap-1`}
+                  >
+                    <GradeIconComponent
+                      size={10}
+                      fill="currentColor"
+                    />{" "}
+                    {product.grade ||
+                      "Grade A"}
+                  </span>
+                </div>
 
-              <p
-                className={cn(
-                  "text-[11px] font-semibold text-[#5A635B]",
-                  "leading-relaxed",
-                )}
-              >
-                {product.aiAnalysis ||
-                  "Produk ini telah melalui proses penilaian otomatis kualitas dan kesegaran berbasis AI."}
-              </p>
-
-              <div
-                className={cn(
-                  "flex items-center gap-1.5",
-                  "mt-3 pt-2 border-t",
-                  "border-black/5 justify-start",
-                )}
-              >
-                <span
+                <p
                   className={cn(
-                    "text-[9px] font-light tracking-tight",
-                    "text-[#2B4C3B] uppercase",
+                    "text-[11px] font-semibold text-[#5A635B]",
+                    "leading-relaxed",
                   )}
                 >
-                  Powered By
-                </span>
-                <img
-                  src="/logos/intelligence/intelligence-black.webp"
-                  alt="Pranata Intelligence"
-                  className="h-5 drop-shadow-sm"
-                  loading="lazy"
-                  decoding="async"
-                />
+                  {product.aiAnalysis ||
+                    "Produk ini telah melalui proses penilaian otomatis kualitas dan kesegaran berbasis AI."}
+                </p>
+
+                <div
+                  className={cn(
+                    "flex items-center gap-1.5",
+                    "mt-3 pt-2 border-t",
+                    "border-black/5 justify-start",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "text-[9px] font-light tracking-tight",
+                      "text-[#2B4C3B] uppercase",
+                    )}
+                  >
+                    Powered By
+                  </span>
+                  <img
+                    src="/logos/intelligence/intelligence-black.webp"
+                    alt="Pranata Intelligence"
+                    className="h-5 drop-shadow-sm"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Fully Functional Mobile Sticky Bottom Bar (Connected Realtime to Backend) */}
           <div
@@ -1345,67 +1347,69 @@ export default function ProductDetailPage({
                 </div>
               </div>
 
-              {/* AI Quality Grading Card (Desktop) */}
-              <div
-                className={`rounded-2xl overflow-hidden shadow-sm border-2 mb-8 ${gradeStyle.bg} ${gradeStyle.border}`}
-              >
-                <div className="p-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3
-                      className={`text-sm font-black flex items-center gap-1.5 ${gradeStyle.text}`}
-                    >
-                      <ShieldCheck
-                        size={18}
-                      />
-                      Quality Grading
-                    </h3>
-                    <span
-                      className={`text-xs font-black uppercase ${gradeStyle.badgeBg} ${gradeStyle.badgeText} px-3 py-1 rounded-full shadow-sm flex items-center gap-1`}
-                    >
-                      <GradeIconComponent
-                        size={12}
-                        fill="currentColor"
-                      />{" "}
-                      {product.grade ||
-                        "Grade A"}
-                    </span>
-                  </div>
+              {/* AI Quality Grading Card (Desktop) - Only for Daging */}
+              {(product.category || "").toLowerCase() === "daging" && (
+                <div
+                  className={`rounded-2xl overflow-hidden shadow-sm border-2 mb-8 ${gradeStyle.bg} ${gradeStyle.border}`}
+                >
+                  <div className="p-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3
+                        className={`text-sm font-black flex items-center gap-1.5 ${gradeStyle.text}`}
+                      >
+                        <ShieldCheck
+                          size={18}
+                        />
+                        Quality Grading
+                      </h3>
+                      <span
+                        className={`text-xs font-black uppercase ${gradeStyle.badgeBg} ${gradeStyle.badgeText} px-3 py-1 rounded-full shadow-sm flex items-center gap-1`}
+                      >
+                        <GradeIconComponent
+                          size={12}
+                          fill="currentColor"
+                        />{" "}
+                        {product.grade ||
+                          "Grade A"}
+                      </span>
+                    </div>
 
-                  <p
-                    className={cn(
-                      "text-xs font-semibold text-[#5A635B]",
-                      "leading-relaxed",
-                    )}
-                  >
-                    {product.aiAnalysis ||
-                      "Produk ini telah melalui proses penilaian otomatis kualitas dan kesegaran berbasis visi AI."}
-                  </p>
-
-                  <div
-                    className={cn(
-                      "flex items-center gap-1.5",
-                      "mt-3 pt-2 border-t",
-                      "border-black/5 justify-start",
-                    )}
-                  >
-                    <span
+                    <p
                       className={cn(
-                        "text-[10px] font-light tracking-tight",
-                        "text-[#2B4C3B] uppercase",
+                        "text-xs font-semibold text-[#5A635B]",
+                        "leading-relaxed",
                       )}
                     >
-                      Powered By
-                    </span>
-                    <img
-                      src="/logos/intelligence/intelligence-black.webp"
-                      alt="Pranata Intelligence"
-                      className="h-5 drop-shadow-sm"
-                      loading="lazy"
-                      decoding="async"
-                    />
+                      {product.aiAnalysis ||
+                        "Produk ini telah melalui proses penilaian otomatis kualitas dan kesegaran berbasis visi AI."}
+                    </p>
+
+                    <div
+                      className={cn(
+                        "flex items-center gap-1.5",
+                        "mt-3 pt-2 border-t",
+                        "border-black/5 justify-start",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "text-[10px] font-light tracking-tight",
+                          "text-[#2B4C3B] uppercase",
+                        )}
+                      >
+                        Powered By
+                      </span>
+                      <img
+                        src="/logos/intelligence/intelligence-black.webp"
+                        alt="Pranata Intelligence"
+                        className="h-5 drop-shadow-sm"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Desktop Action Buttons */}

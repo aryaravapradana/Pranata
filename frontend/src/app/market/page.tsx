@@ -235,7 +235,8 @@ const ProductCard = memo(
                 {p.category || "Produk"}
               </span>
             </div>
-            {p.grade &&
+            {(p.category || "").toLowerCase() === "daging" &&
+              p.grade &&
               (() => {
                 const g = (p.grade || "")
                   .toLowerCase()
