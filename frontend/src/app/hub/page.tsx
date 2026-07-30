@@ -369,7 +369,7 @@ export default function MainDashboard() {
       setShowOnboardingModal(true);
     }
 
-    // 2. Fetch Orders, Products, & Prices
+    // 2. Fetch Orders, Products, Events, & Prices in 1 Parallel Batch
     const API_BASE = getApiBaseUrl();
 
     Promise.all([
@@ -382,12 +382,20 @@ export default function MainDashboard() {
       fetchApi(
         `${API_BASE}/api/products?limit=200`,
       ).catch(() => null),
+      fetchApi(
+        `${API_BASE}/api/events/${session.id}`,
+      ).catch(() => null),
+      fetchApi(`${API_BASE}/api/prices`).catch(
+        () => null,
+      ),
     ])
       .then(
         async ([
           ordRes,
           prodRes,
           allProdRes,
+          evRes,
+          prRes,
         ]) => {
           const ordersData =
             ordRes && ordRes.ok
@@ -400,6 +408,14 @@ export default function MainDashboard() {
           const allProdData =
             allProdRes && allProdRes.ok
               ? await allProdRes.json()
+              : [];
+          const eventsData =
+            evRes && evRes.ok
+              ? await evRes.json()
+              : [];
+          const pricesData =
+            prRes && prRes.ok
+              ? await prRes.json()
               : [];
 
           const ordersArray = Array.isArray(
@@ -421,6 +437,26 @@ export default function MainDashboard() {
           setAllMarketplaceCount(
             allProductsArray.length,
           );
+
+          if (Array.isArray(eventsData)) {
+            setEvents(eventsData);
+          } else if (
+            eventsData &&
+            Array.isArray(eventsData.data)
+          ) {
+            setEvents(eventsData.data);
+          } else {
+            setEvents([]);
+          }
+
+          if (
+            pricesData &&
+            Array.isArray(pricesData) &&
+            pricesData.length > 0
+          ) {
+            setPrices(pricesData);
+          }
+
           setIsLoaded(true);
         },
       )
@@ -428,35 +464,9 @@ export default function MainDashboard() {
         setOrders([]);
         setProducts([]);
         setAllMarketplaceCount(0);
+        setEvents([]);
         setIsLoaded(true);
       });
-
-    fetchApi(
-      `${API_BASE}/api/events/${session.id}`,
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setEvents(data);
-        } else if (
-          data &&
-          Array.isArray(data.data)
-        ) {
-          setEvents(data.data);
-        } else {
-          setEvents([]);
-        }
-      })
-      .catch(() => setEvents([]));
-
-    fetchApi(`${API_BASE}/api/prices`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.length > 0) {
-          setPrices(data);
-        }
-      })
-      .catch(console.error);
 
     // 3. Detect Real-time High-Accuracy Location & Weather
     detectLocationAndWeather();

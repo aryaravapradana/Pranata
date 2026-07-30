@@ -329,44 +329,53 @@ export default function StoreDashboardPage() {
     const API_BASE = getApiBaseUrl();
 
     try {
-      const prodRes = await fetchApi(
-        `${API_BASE}/api/products/seller/${session.id}?page=${pageToLoad}&limit=${LIMIT}`,
-      );
-      const pData = await prodRes.json();
+      const [prodRes, ordRes] = await Promise.all([
+        fetchApi(
+          `${API_BASE}/api/products/seller/${session.id}?page=${pageToLoad}&limit=${LIMIT}`,
+        ).catch(() => null),
+        fetchApi(
+          `${API_BASE}/api/orders/PRODUCER/${session.id}`,
+        ).catch(() => null),
+      ]);
 
-      if (
-        pData &&
-        Array.isArray(pData.data)
-      ) {
-        setProducts(pData.data);
-        setTotalProducts(
-          pData.total || pData.data.length,
-        );
-        setTotalPages(pData.totalPages || 1);
-        setCurrentPage(
-          pData.page || pageToLoad,
-        );
-      } else if (Array.isArray(pData)) {
-        setProducts(pData);
-        setTotalProducts(pData.length);
-        setTotalPages(
-          Math.ceil(pData.length / LIMIT) ||
-            1,
-        );
-        setCurrentPage(pageToLoad);
+      if (prodRes && prodRes.ok) {
+        const pData = await prodRes.json();
+        if (pData && Array.isArray(pData.data)) {
+          setProducts(pData.data);
+          setTotalProducts(
+            pData.total || pData.data.length,
+          );
+          setTotalPages(pData.totalPages || 1);
+          setCurrentPage(
+            pData.page || pageToLoad,
+          );
+        } else if (Array.isArray(pData)) {
+          setProducts(pData);
+          setTotalProducts(pData.length);
+          setTotalPages(
+            Math.ceil(pData.length / LIMIT) ||
+              1,
+          );
+          setCurrentPage(pageToLoad);
+        } else {
+          setProducts([]);
+          setTotalProducts(0);
+          setTotalPages(1);
+        }
       } else {
         setProducts([]);
         setTotalProducts(0);
         setTotalPages(1);
       }
 
-      const ordRes = await fetchApi(
-        `${API_BASE}/api/orders/PRODUCER/${session.id}`,
-      );
-      const oData = await ordRes.json();
-      setOrders(
-        Array.isArray(oData) ? oData : [],
-      );
+      if (ordRes && ordRes.ok) {
+        const oData = await ordRes.json();
+        setOrders(
+          Array.isArray(oData) ? oData : [],
+        );
+      } else {
+        setOrders([]);
+      }
     } catch (error) {
       console.error(error);
     } finally {
