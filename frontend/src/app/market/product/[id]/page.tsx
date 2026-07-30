@@ -183,6 +183,48 @@ export default function ProductDetailPage({
         const found = await prodRes.json();
         setProduct(found);
 
+        // Auto-heal fallback reviews for meat products with real Gemini AI analysis
+        if (
+          (found.category || "").toLowerCase() === "daging" &&
+          found.imageUrls &&
+          found.imageUrls.length > 0 &&
+          (!found.aiAnalysis ||
+            found.aiAnalysis.includes("Daging terverifikasi memenuhi kriteria"))
+        ) {
+          fetch("/api/ai/grade", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageUrl: found.imageUrls[0] }),
+          })
+            .then((res) => res.json())
+            .then((aiData) => {
+              if (
+                aiData.grade &&
+                aiData.analysis &&
+                !aiData.analysis.includes("Daging terverifikasi memenuhi kriteria")
+              ) {
+                setProduct((prev: any) =>
+                  prev
+                    ? {
+                        ...prev,
+                        grade: aiData.grade,
+                        aiAnalysis: aiData.analysis,
+                      }
+                    : prev,
+                );
+                fetchApi(`${API_BASE}/api/products/${found.id}`, {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    grade: aiData.grade,
+                    aiAnalysis: aiData.analysis,
+                  }),
+                }).catch(() => {});
+              }
+            })
+            .catch(() => {});
+        }
+
         let initialQty = found.minOrder || 1;
 
         const sessionStr =

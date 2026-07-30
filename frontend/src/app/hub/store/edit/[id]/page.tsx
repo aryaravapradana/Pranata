@@ -345,6 +345,18 @@ export default function EditProductPage() {
     setIsSubmitting(true);
     const API_BASE = getApiBaseUrl();
 
+    let gradeToSave = undefined;
+    let aiAnalysisToSave = undefined;
+
+    if (
+      newProduct.category === "Daging" &&
+      newProduct.imageUrls.length > 0 &&
+      aiAnalysisResult
+    ) {
+      gradeToSave = aiAnalysisResult.grade;
+      aiAnalysisToSave = aiAnalysisResult.analysis;
+    }
+
     try {
       await fetchApi(
         `${API_BASE}/api/products/${productId}`,
@@ -369,6 +381,8 @@ export default function EditProductPage() {
                 : [
                     "https://images.unsplash.com/photo-1595856728084-2b63897d2644?q=80&w=600&auto=format&fit=crop",
                   ],
+            grade: gradeToSave,
+            aiAnalysis: aiAnalysisToSave,
           }),
         },
       );

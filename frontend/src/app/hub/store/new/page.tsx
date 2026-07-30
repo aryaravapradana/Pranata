@@ -271,7 +271,7 @@ export default function NewProductPage() {
     let aiAnalysisToSave = undefined;
 
     if (
-      newProduct.category === "Daging" &&
+      (newProduct.category || "").toLowerCase() === "daging" &&
       newProduct.imageUrls.length > 0
     ) {
       if (!aiAnalysisResult) {

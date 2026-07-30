@@ -6,7 +6,7 @@ const genAI = apiKey
   ? new GoogleGenerativeAI(apiKey)
   : null;
 
-// Preferred model list for vision grading (Verified 200 OK models)
+// Preferred model list for vision grading
 const CANDIDATE_MODELS = [
   "gemini-2.5-flash",
   "gemini-flash-latest",
@@ -15,6 +15,8 @@ const CANDIDATE_MODELS = [
   "gemini-3.1-flash-lite",
   "gemini-2.5-flash-lite",
   "gemini-3-flash-preview",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
 ];
 
 // In-Memory Cache to prevent duplicate AI grading calls for identical image URLs (FinOps)
@@ -154,11 +156,20 @@ export async function POST(
             const parsedData =
               JSON.parse(jsonStr);
             if (parsedData.grade) {
+              const reviewText =
+                parsedData.analysis ||
+                parsedData.reason ||
+                parsedData.review ||
+                parsedData.alasan ||
+                parsedData.description ||
+                parsedData.evaluasi ||
+                parsedData.keterangan ||
+                parsedData.kesimpulan;
+
               const responseObj = {
                 grade: parsedData.grade,
                 analysis:
-                  parsedData.analysis ||
-                  "Daging memenuhi standar penilaian kesegaran.",
+                  reviewText || text.trim(),
               };
               gradeCache.set(imageUrl, {
                 ...responseObj,

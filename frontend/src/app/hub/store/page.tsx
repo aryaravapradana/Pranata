@@ -203,10 +203,6 @@ export default function StoreDashboardPage() {
   // Pagination State (20 products per page)
   const [currentPage, setCurrentPage] =
     useState(1);
-  const [totalPages, setTotalPages] =
-    useState(1);
-  const [totalProducts, setTotalProducts] =
-    useState(0);
   const LIMIT = 20;
 
   // Custom Delete Modal State
@@ -290,6 +286,21 @@ export default function StoreDashboardPage() {
     return result;
   }, [products, selectedCategory, searchQuery, sortBy]);
 
+  // Dynamic pagination over 100% of filtered seller products
+  const totalProducts = filteredProducts.length;
+  const totalPages = Math.ceil(totalProducts / LIMIT) || 1;
+
+  // Reset to page 1 whenever search query, category, or sort changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, sortBy]);
+
+  // Products to render on current page
+  const displayedProducts = useMemo(() => {
+    const start = (currentPage - 1) * LIMIT;
+    return filteredProducts.slice(start, start + LIMIT);
+  }, [filteredProducts, currentPage]);
+
   usePageLoading(initialLoading);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -298,13 +309,10 @@ export default function StoreDashboardPage() {
   useEffect(() => {
     const pageParam = parseInt(searchParams.get("page") || "1") || 1;
     setCurrentPage(pageParam);
-    loadData(pageParam, true);
+    loadData(true);
   }, []);
 
-  const loadData = async (
-    pageToLoad = 1,
-    isInitial = false,
-  ) => {
+  const loadData = async (isInitial = false) => {
     if (isInitial) {
       setInitialLoading(true);
     }
@@ -331,7 +339,7 @@ export default function StoreDashboardPage() {
     try {
       const [prodRes, ordRes] = await Promise.all([
         fetchApi(
-          `${API_BASE}/api/products/seller/${session.id}?page=${pageToLoad}&limit=${LIMIT}`,
+          `${API_BASE}/api/products/seller/${session.id}?limit=500`,
         ).catch(() => null),
         fetchApi(
           `${API_BASE}/api/orders/PRODUCER/${session.id}`,
@@ -342,30 +350,13 @@ export default function StoreDashboardPage() {
         const pData = await prodRes.json();
         if (pData && Array.isArray(pData.data)) {
           setProducts(pData.data);
-          setTotalProducts(
-            pData.total || pData.data.length,
-          );
-          setTotalPages(pData.totalPages || 1);
-          setCurrentPage(
-            pData.page || pageToLoad,
-          );
         } else if (Array.isArray(pData)) {
           setProducts(pData);
-          setTotalProducts(pData.length);
-          setTotalPages(
-            Math.ceil(pData.length / LIMIT) ||
-              1,
-          );
-          setCurrentPage(pageToLoad);
         } else {
           setProducts([]);
-          setTotalProducts(0);
-          setTotalPages(1);
         }
       } else {
         setProducts([]);
-        setTotalProducts(0);
-        setTotalPages(1);
       }
 
       if (ordRes && ordRes.ok) {
@@ -710,7 +701,7 @@ export default function StoreDashboardPage() {
                 "sm:gap-6",
               )}
             >
-              {filteredProducts.map((p) => (
+              {displayedProducts.map((p) => (
                 <div
                   key={p.id}
                   className={cn(
@@ -1004,7 +995,6 @@ export default function StoreDashboardPage() {
                         currentPage - 1;
                       setCurrentPage(prev);
                       router.replace(`/hub/store?page=${prev}`, { scroll: false });
-                      loadData(prev, false);
                       document
                         .getElementById(
                           "products-section",
@@ -1056,10 +1046,6 @@ export default function StoreDashboardPage() {
                               pageNum,
                             );
                             router.replace(`/hub/store?page=${pageNum}`, { scroll: false });
-                            loadData(
-                              pageNum,
-                              false,
-                            );
                             document
                               .getElementById(
                                 "products-section",
@@ -1100,7 +1086,6 @@ export default function StoreDashboardPage() {
                         currentPage + 1;
                       setCurrentPage(next);
                       router.replace(`/hub/store?page=${next}`, { scroll: false });
-                      loadData(next, false);
                       document
                         .getElementById(
                           "products-section",
