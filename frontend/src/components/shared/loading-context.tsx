@@ -97,18 +97,11 @@ export const LoadingProvider = ({
           setTimeout(() => {
             setPhase("COVERED");
             router.push(url);
-
-            // Safety fallback: if route change or page mount hangs, force release nav-lock after 3.5s
-            transitionTimeoutRef.current =
-              setTimeout(() => {
-                removeBlocker("nav-lock");
-              }, 3500);
           }, 550);
       },
       [
         router,
         registerBlocker,
-        removeBlocker,
       ],
     );
 
@@ -127,12 +120,8 @@ export const LoadingProvider = ({
       transitionTimeoutRef.current =
         setTimeout(() => {
           setPhase("COVERED");
-          transitionTimeoutRef.current =
-            setTimeout(() => {
-              removeBlocker("nav-lock");
-            }, 3500);
         }, 550);
-    }, [registerBlocker, removeBlocker]);
+    }, [registerBlocker]);
 
   // Initial mount: Release initial nav-lock after mount tick
   useEffect(() => {
@@ -244,17 +233,6 @@ export const LoadingProvider = ({
       return () => clearPendingTimeout();
     }
   }, [phase, blockers.size]);
-
-  // Fallback safety timer: If API hangs or takes > 4.5s, force splash screen to resolve to IDLE
-  useEffect(() => {
-    if (phase !== "IDLE") {
-      const safetyTimer = setTimeout(() => {
-        setPhase("IDLE");
-        setBlockers(new Set());
-      }, 4500);
-      return () => clearTimeout(safetyTimer);
-    }
-  }, [phase]);
 
   const isGlobalReady = phase === "IDLE";
   const isTransitioning = phase !== "IDLE";
