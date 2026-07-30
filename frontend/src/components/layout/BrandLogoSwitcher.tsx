@@ -163,31 +163,33 @@ export default function BrandLogoSwitcher({
       >
         <button
           onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          aria-label="Pilih Modul Pranata"
           className={cn(
-            "flex items-center gap-2",
-            "p-1.5 sm:px-2.5 sm:py-1.5",
-            "-ml-1.5 rounded-2xl border",
-            "border-transparent hover:border-[#E8E3D2] hover:bg-[#F8F6F0]",
-            "transition-all cursor-pointer group",
-            "focus:outline-none shadow-xs",
+            "flex items-center gap-2.5",
+            "px-3 py-1.5 rounded-2xl border",
+            "bg-white/95 border-[#DDE2D6]",
+            "hover:border-[#2B4C3B]/40 hover:bg-white hover:shadow-md",
+            "active:scale-98 transition-all cursor-pointer group",
+            "focus:outline-none shadow-2xs",
+            isOpen && "border-[#2B4C3B] ring-2 ring-[#2B4C3B]/15 bg-white shadow-md",
           )}
         >
-          <div className="h-8 flex items-center justify-start">
+          <div className="h-7 sm:h-8 flex items-center justify-start">
             {renderCurrentLogo()}
           </div>
           <div
             className={cn(
               "flex items-center justify-center",
-              "w-5.5 h-5.5 sm:w-6",
-              "sm:h-6 rounded-full bg-[#EEF2E6]",
+              "w-6 h-6 rounded-full bg-[#EEF2E6]",
               "text-[#2B4C3B] border border-[#2B4C3B]/25",
               "group-hover:bg-[#2B4C3B] group-hover:text-white group-hover:border-[#2B4C3B]",
-              "group-hover:scale-105 transition-all shadow-xs",
-              "shrink-0",
+              "group-hover:scale-105 transition-all shadow-2xs",
+              "shrink-0 ml-0.5",
             )}
           >
             <ChevronDown
-              size={13}
+              size={14}
               strokeWidth={2.5}
               className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
             />
@@ -218,9 +220,9 @@ export default function BrandLogoSwitcher({
               }}
               className={cn(
                 "absolute left-0 mt-2",
-                "w-60 bg-white border",
+                "w-64 bg-white border",
                 "border-[#E8E3D2] rounded-2xl shadow-xl",
-                "z-50 overflow-hidden py-2",
+                "z-50 overflow-hidden py-1.5",
                 "space-y-0.5",
               )}
             >
