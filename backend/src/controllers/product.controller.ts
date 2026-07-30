@@ -183,13 +183,32 @@ export const getProductById = async (
   res: Response,
 ) => {
   try {
+    const id = String(req.params.id);
+    const cacheKey = `product_detail_${id}`;
+    const cached = getCache(cacheKey);
+    if (cached) return res.json(cached);
+
     const product =
       await prisma.product.findUnique({
         where: {
-          id: String(req.params.id),
+          id,
           deletedAt: null,
         },
-        include: {
+        select: {
+          id: true,
+          sellerId: true,
+          title: true,
+          description: true,
+          category: true,
+          price: true,
+          stock: true,
+          minOrder: true,
+          unit: true,
+          imageUrls: true,
+          grade: true,
+          aiAnalysis: true,
+          createdAt: true,
+          updatedAt: true,
           seller: {
             select: {
               id: true,
@@ -198,6 +217,7 @@ export const getProductById = async (
               farmName: true,
               avatarUrl: true,
               location: true,
+              contact: true,
             },
           },
         },
@@ -208,6 +228,8 @@ export const getProductById = async (
         .json({
           error: "Produk tidak ditemukan",
         });
+
+    setCache(cacheKey, product, 60);
     return res.json(product);
   } catch (error) {
     console.error("[getProductById]", error);
@@ -284,6 +306,7 @@ export const updateProduct = async (
     const existing =
       await prisma.product.findUnique({
         where: { id },
+        select: { id: true, sellerId: true },
       });
     if (!existing)
       return res
@@ -326,6 +349,7 @@ export const deleteProduct = async (
     const existing =
       await prisma.product.findUnique({
         where: { id },
+        select: { id: true, sellerId: true },
       });
     if (!existing)
       return res

@@ -20,6 +20,7 @@ import {
 
 const app = express();
 app.set("trust proxy", 1);
+app.set("etag", true);
 
 // ── Bulletproof CORS & Preflight OPTIONS Handler ──
 app.use(
@@ -43,6 +44,14 @@ app.use(
       "Access-Control-Allow-Headers",
       "Content-Type, Authorization, X-Requested-With, Accept, Origin, X-CSRF-Token",
     );
+
+    // Add smart Cache-Control for GET requests
+    if (req.method === "GET") {
+      res.setHeader(
+        "Cache-Control",
+        "public, max-age=15, stale-while-revalidate=60",
+      );
+    }
 
     if (req.method === "OPTIONS") {
       return res.status(200).end();

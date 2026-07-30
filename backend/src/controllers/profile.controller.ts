@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { getCache, setCache, delCache } from "../utils/cache";
 
 export const upgradeToSeller = async (
   req: Request,
@@ -45,6 +46,8 @@ export const upgradeToSeller = async (
             : null,
         },
       });
+
+    delCache(`profile_${targetId}`);
 
     const JWT_SECRET =
       process.env.JWT_SECRET ||
@@ -105,6 +108,7 @@ export const checkUsername = async (
             equals: cleanUsername,
           },
         },
+        select: { id: true },
       });
     if (existing) {
       return res.json({ available: false });
@@ -129,6 +133,10 @@ export const getProfile = async (
 ) => {
   try {
     const id = req.params.id as string;
+    const cacheKey = `profile_${id}`;
+    const cached = getCache<any>(cacheKey);
+    if (cached) return res.json(cached);
+
     const profile =
       await prisma.profile.findUnique({
         where: { id },
@@ -154,6 +162,8 @@ export const getProfile = async (
         .json({
           error: "Profile not found",
         });
+
+    setCache(cacheKey, profile, 120);
     return res.json(profile);
   } catch (error) {
     return res
@@ -189,6 +199,7 @@ export const updateProfile = async (
             username: username.toLowerCase(),
             NOT: { id },
           },
+          select: { id: true },
         });
       if (existing) {
         return res
@@ -204,6 +215,7 @@ export const updateProfile = async (
       const profile =
         await prisma.profile.findUnique({
           where: { id },
+          select: { id: true, password: true },
         });
       if (!profile)
         return res
@@ -252,6 +264,8 @@ export const updateProfile = async (
         where: { id },
         data: updateData,
       });
+
+    delCache(`profile_${id}`);
 
     const { password: _, ...safeProfile } =
       updated;
