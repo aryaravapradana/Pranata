@@ -5,8 +5,6 @@ import express, {
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import compression from "compression";
-import zlib from "zlib";
 import routes from "./routes";
 import { verifyToken } from "./middlewares/auth.middleware";
 import { globalErrorHandler } from "./middlewares/error.middleware";
