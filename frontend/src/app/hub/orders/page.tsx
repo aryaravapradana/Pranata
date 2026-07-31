@@ -160,8 +160,7 @@ export default function SellerOrdersPage() {
       <main
         className={cn(
           "max-w-7xl mx-auto pt-6",
-          "pb-24 px-4 md:px-8",
-          "lg:px-12",
+          "pb-24 px-3.5 sm:px-6 md:px-8 lg:px-12",
         )}
       >
         <h1 className="text-2xl font-black text-[#1C241E] mb-6">
