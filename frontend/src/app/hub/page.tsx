@@ -44,10 +44,8 @@ export default function MainDashboard() {
   const router = useRouter();
   const [profile, setProfile] =
     useState<any>(null);
-  const [
-    showOnboardingModal,
-    setShowOnboardingModal,
-  ] = useState<boolean>(false);
+  const [showOnboardingModal, setShowOnboardingModal] =
+    useState<boolean>(false);
 
   // Data States
   const [orders, setOrders] = useState<

@@ -25,6 +25,7 @@ import {
   motion,
   AnimatePresence,
 } from "framer-motion";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   usePageLoading,
   useGlobalLoading,
@@ -167,7 +168,34 @@ export default function SellerOrdersPage() {
           Kelola Pesanan
         </h1>
 
-        {orders.length === 0 ? (
+        {loading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className={cn(
+                  "bg-white border border-[#E8E3D2]",
+                  "rounded-[1.5rem] p-5 space-y-4 shadow-xs",
+                )}
+              >
+                <div className="flex justify-between items-start border-b border-[#E8E3D2] pb-4">
+                  <div className="space-y-2">
+                    <Skeleton className="w-48 h-4 rounded-md" />
+                    <Skeleton className="w-32 h-3 rounded-md" />
+                  </div>
+                  <Skeleton className="w-24 h-6 rounded-full" />
+                </div>
+                <div className="flex gap-4 items-center">
+                  <Skeleton className="w-16 h-16 rounded-xl shrink-0" />
+                  <div className="flex-1 space-y-2 py-1">
+                    <Skeleton className="w-2/3 h-4 rounded-md" />
+                    <Skeleton className="w-1/3 h-3 rounded-md" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : orders.length === 0 ? (
           <div
             className={cn(
               "bg-white border border-[#E8E3D2]",
