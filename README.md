@@ -18,7 +18,7 @@
 
 ## Tentang Pranata
 
-**Pranata** adalah platform ekosistem digital peternakan terpadu yang menghubungkan peternak lokal secara langsung dengan konsumen dan pembeli bisnis (*B2B/B2C*) tanpa perantara tengkulak. Dibuat untuk menciptakan rantai pasok hasil ternak yang transparan dan efisien, memberikan harga yang lebih adil bagi peternak, serta memberdayakan operasional harian peternak melalui manajemen transaksi digital, pencatatan produksi, dan analisis bisnis berbasis *Artificial Intelligence* (AI Assistant).
+**Pranata** adalah platform ekosistem digital peternakan terpadu yang menghubungkan peternak lokal secara langsung dengan pelaku bisnis (*B2B*) tanpa perantara tengkulak. Dibuat untuk menciptakan rantai pasok hasil ternak yang transparan dan efisien, memberikan harga yang lebih adil bagi peternak, serta memberdayakan operasional harian peternak melalui manajemen transaksi digital, pencatatan produksi, dan analisis bisnis berbasis *Artificial Intelligence* (AI Assistant).
 
 ---
 
@@ -28,8 +28,8 @@ Gunakan akun dummy berikut untuk mencoba dan mendemonstrasikan seluruh fitur pad
 
 | Role | Username | Password | Keterangan |
 | :--- | :--- | :--- | :--- |
-| **Peternak (Producer)** | `peternak_dummy` | `password123` | Akun demo peternak lengkap dengan data toko, transaksi, dan jadwal operasional |
-| **Peternak (Alternatif)** | `aryaternak1` | `password123` | Akun peternak dengan katalog produk siap jual |
+| **Seller/Peternak** | `pranataseller` | `seller123` | Akun demo peternak lengkap dengan data toko, transaksi, dan jadwal operasional |
+| **Buyer/Customer** | `pranatabuyer` | `buyer123` | Akun peternak dengan katalog produk siap jual |
 
 ---
 
