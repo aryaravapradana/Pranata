@@ -149,108 +149,13 @@ export default function SellerOrdersPage() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E]">
-        <main
-          className={cn(
-            "max-w-7xl mx-auto pt-6",
-            "pb-24 px-4 md:px-8",
-            "lg:px-12",
-          )}
-        >
-          <div
-            className={cn(
-              "w-48 h-8 rounded-xl",
-              "skeleton-shimmer bg-[#E8E3D2] mb-6",
-            )}
-          />
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className={cn(
-                  "bg-white border border-[#E8E3D2]",
-                  "rounded-[1.5rem] p-5 shadow-[0_4px_24px_-8px_rgba(43,76,59,0.08)]",
-                )}
-              >
-                <div
-                  className={cn(
-                    "flex justify-between items-start",
-                    "mb-4 border-b border-[#E8E3D2]",
-                    "pb-4",
-                  )}
-                >
-                  <div className="space-y-2">
-                    <div className="w-48 h-4 rounded-md skeleton-shimmer bg-[#E8E3D2]" />
-                    <div className="w-32 h-3 rounded-md skeleton-shimmer bg-[#E8E3D2]" />
-                  </div>
-                  <div
-                    className={cn(
-                      "w-24 h-6 rounded-full",
-                      "skeleton-shimmer bg-[#E8E3D2]",
-                    )}
-                  />
-                </div>
-                <div className="space-y-4">
-                  {[1, 2].map((j) => (
-                    <div
-                      key={j}
-                      className="flex gap-4"
-                    >
-                      <div
-                        className={cn(
-                          "w-16 h-16 rounded-xl",
-                          "skeleton-shimmer bg-[#E8E3D2] shrink-0",
-                        )}
-                      />
-                      <div className="flex-1 space-y-2 py-1">
-                        <div
-                          className={cn(
-                            "w-2/3 h-4 rounded-md",
-                            "skeleton-shimmer bg-[#E8E3D2]",
-                          )}
-                        />
-                        <div
-                          className={cn(
-                            "w-1/3 h-3 rounded-md",
-                            "skeleton-shimmer bg-[#E8E3D2]",
-                          )}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div
-                  className={cn(
-                    "mt-4 pt-4 border-t",
-                    "border-[#E8E3D2] flex flex-col",
-                    "sm:flex-row justify-between sm:items-center",
-                    "gap-4",
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "w-full sm:w-1/2 h-14",
-                      "rounded-xl skeleton-shimmer bg-[#E8E3D2]",
-                    )}
-                  />
-                  <div
-                    className={cn(
-                      "w-32 h-10 rounded-md",
-                      "skeleton-shimmer bg-[#E8E3D2]",
-                    )}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </main>
-      </div>
-    );
-
   return (
-    <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E]">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="min-h-screen bg-[#F8F6F0] text-[#1C241E]"
+    >
       <main
         className={cn(
           "max-w-7xl mx-auto pt-6",
@@ -760,6 +665,6 @@ export default function SellerOrdersPage() {
       <div className="mt-16">
         <Footer />
       </div>
-    </div>
+    </motion.div>
   );
 }

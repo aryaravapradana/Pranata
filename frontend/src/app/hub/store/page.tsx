@@ -436,121 +436,11 @@ export default function StoreDashboardPage() {
     }
   };
 
-  if (initialLoading)
-    return (
-      <div
-        className={cn(
-          "min-h-screen bg-[#F8F6F0] text-[#1C241E]",
-          "pt-4 sm:pt-10",
-        )}
-      >
-        <div
-          className={cn(
-            "max-w-7xl mx-auto space-y-6",
-            "sm:space-y-8 pb-32 px-3.5",
-            "sm:px-6 md:px-8 lg:px-12",
-          )}
-        >
-          <div
-            className={cn(
-              "bg-pranata rounded-2xl sm:rounded-3xl",
-              "p-5 sm:p-8 shadow-xl",
-              "flex flex-col sm:flex-row",
-              "justify-between items-start sm:items-center",
-              "gap-4 sm:gap-6",
-            )}
-          >
-            <div className="space-y-2 w-full sm:w-auto">
-              <div
-                className={cn(
-                  "w-48 sm:w-64 h-8",
-                  "sm:h-10 rounded-xl skeleton-shimmer",
-                  "bg-[#3A6B49]",
-                )}
-              />
-              <div
-                className={cn(
-                  "w-full sm:w-96 h-4",
-                  "sm:h-5 rounded-md skeleton-shimmer",
-                  "bg-[#3A6B49]",
-                )}
-              />
-            </div>
-            <div
-              className={cn(
-                "w-full sm:w-40 h-11",
-                "sm:h-12 rounded-xl skeleton-shimmer",
-                "bg-[#3A6B49]",
-              )}
-            />
-          </div>
-          <div className="space-y-4 sm:space-y-6">
-            <div
-              className={cn(
-                "w-40 sm:w-48 h-7",
-                "sm:h-8 rounded-xl skeleton-shimmer",
-                "bg-[#E8E3D2]",
-              )}
-            />
-            <div
-              className={cn(
-                "grid grid-cols-1 sm:grid-cols-2",
-                "md:grid-cols-3 lg:grid-cols-4 gap-4",
-                "sm:gap-6",
-              )}
-            >
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "bg-white border border-[#DDE2D6]",
-                    "rounded-2xl sm:rounded-3xl p-4",
-                    "sm:p-5",
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "h-36 sm:h-40 w-full",
-                      "rounded-xl sm:rounded-2xl skeleton-shimmer",
-                      "bg-[#E8E3D2] mb-3 sm:mb-4",
-                    )}
-                  />
-                  <div className="flex justify-between items-start mb-2">
-                    <div
-                      className={cn(
-                        "w-1/2 h-5 sm:h-6",
-                        "rounded-md skeleton-shimmer bg-[#E8E3D2]",
-                      )}
-                    />
-                    <div
-                      className={cn(
-                        "w-16 h-5 sm:h-6",
-                        "rounded-full skeleton-shimmer bg-[#E8E3D2]",
-                      )}
-                    />
-                  </div>
-                  <div
-                    className={cn(
-                      "w-full h-3 rounded-md",
-                      "skeleton-shimmer bg-[#E8E3D2] mb-3",
-                    )}
-                  />
-                  <div
-                    className={cn(
-                      "w-1/3 h-7 sm:h-8",
-                      "rounded-md skeleton-shimmer bg-[#E8E3D2]",
-                    )}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
       className={cn(
         "min-h-screen bg-[#F8F6F0] text-[#1C241E]",
         "flex flex-col justify-between",
@@ -1277,6 +1167,6 @@ export default function StoreDashboardPage() {
       <div className="mt-16">
         <Footer />
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -35,6 +35,12 @@ export default function DashboardNavbar() {
   const router = useRouter();
   const [profile, setProfile] =
     useState<any>(null);
+  const [pendingPath, setPendingPath] =
+    useState<string | null>(null);
+
+  useEffect(() => {
+    setPendingPath(null);
+  }, [pathname]);
 
   useEffect(() => {
     const sessionStr =
@@ -82,10 +88,12 @@ export default function DashboardNavbar() {
     }
   }, []);
 
+  const activePath = pendingPath ?? pathname;
+
   const isActive = (href: string) => {
     if (href === "/hub")
-      return pathname === "/hub";
-    return pathname?.startsWith(href);
+      return activePath === "/hub";
+    return activePath?.startsWith(href);
   };
 
   return (
@@ -132,6 +140,9 @@ export default function DashboardNavbar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() =>
+                    setPendingPath(item.href)
+                  }
                   onMouseEnter={() =>
                     router.prefetch(
                       item.href,
@@ -193,6 +204,9 @@ export default function DashboardNavbar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() =>
+                  setPendingPath(item.href)
+                }
                 onTouchStart={() =>
                   router.prefetch(item.href)
                 }

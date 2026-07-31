@@ -569,7 +569,12 @@ export default function MainDashboard() {
     "Petani";
 
   return (
-    <div className="min-h-screen bg-[#F8F6F0] text-[#1C241E]">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="min-h-screen bg-[#F8F6F0] text-[#1C241E]"
+    >
       <div className="w-full mx-auto px-3.5 sm:px-6 md:px-8 pt-2 pb-6">
         {/* Greeting */}
         <div className="mb-4">
@@ -1959,6 +1964,6 @@ export default function MainDashboard() {
           setShowOnboardingModal(false)
         }
       />
-    </div>
+    </motion.div>
   );
 }
