@@ -29,7 +29,7 @@ Gunakan akun dummy berikut untuk mencoba dan mendemonstrasikan seluruh fitur pad
 | Role | Username | Password | Keterangan |
 | :--- | :--- | :--- | :--- |
 | **Seller/Peternak** | `pranataseller` | `seller123` | Akun demo peternak lengkap dengan data toko, transaksi, dan jadwal operasional |
-| **Buyer/Customer** | `pranatabuyer` | `buyer123` | Akun peternak dengan katalog produk siap jual |
+| **Buyer/Customer** | `pranatabuyer` | `buyer123` | Akun Buyer/Consumer yang belum di-Upgrade ke Seller/Peternak |
 
 ---
 
