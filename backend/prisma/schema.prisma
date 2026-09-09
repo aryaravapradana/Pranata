@@ -54,26 +54,62 @@ enum Role {
 }
 
 model Profile {
-  id             String   @id @default(uuid())
-  username       String   @unique
-  password       String
-  email          String?
-  role           Role     @default(BUYER)
-  fullName       String?
-  farmName       String?
-  location       String?
-  contact        String?
-  avatarUrl      String?
-  bannerUrl      String?
-  livestockTypes String[] @default([])
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                    String                @id @default(uuid())
+  username              String                @unique
+  password              String
+  email                 String?
+  role                  Role                  @default(BUYER)
+  fullName              String?
+  farmName              String?
+  location              String?
+  contact               String?
+  avatarUrl             String?
+  bannerUrl             String?
+  livestockTypes        String[]              @default([])
+  subscriptionTier      String                @default("FREE") // FREE, PLUS
+  subscriptionExpiresAt DateTime?
+  walletBalance         Float                 @default(0)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
 
-  products       Product[]
-  ordersAsBuyer  Order[]       @relation("BuyerOrders")
-  ordersAsSeller Order[]       @relation("SellerOrders")
-  sellerEvents   SellerEvent[]
-  cartItems      CartItem[]
+  products              Product[]
+  ordersAsBuyer         Order[]               @relation("BuyerOrders")
+  ordersAsSeller        Order[]               @relation("SellerOrders")
+  sellerEvents          SellerEvent[]
+  cartItems             CartItem[]
+  walletTransactions    WalletTransaction[]
+  subscriptions         SubscriptionRecord[]
+}
+
+model WalletTransaction {
+  id            String   @id @default(uuid())
+  profileId     String
+  type          String   // TOPUP, PAYMENT, SALE_INCOME, WITHDRAWAL, SUBSCRIPTION_FEE
+  amount        Float
+  fee           Float    @default(0)
+  netAmount     Float
+  description   String
+  referenceId   String?
+  paymentMethod String?
+  status        String   @default("SUCCESS") // SUCCESS, PENDING, FAILED
+  createdAt     DateTime @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, createdAt(sort: Desc)])
+}
+
+model SubscriptionRecord {
+  id           String   @id @default(uuid())
+  profileId    String
+  plan         String   @default("PLUS")
+  amount       Float    @default(79000)
+  durationDays Int      @default(30)
+  createdAt    DateTime @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
 }
 
 model Product {
@@ -89,6 +125,7 @@ model Product {
   imageUrls   String[]  @default([])
   grade       String?
   aiAnalysis  String?
+  isSponsored Boolean   @default(false)
   deletedAt   DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -121,6 +158,12 @@ model Order {
   paymentMethod        String?
   shippingFee          Float       @default(0)
   platformFee          Float       @default(0)
+  takeRateFee          Float       @default(0)
+  buyerProtectionFee   Float       @default(0)
+  insuranceFee         Float       @default(0)
+  coldChainFee         Float       @default(0)
+  qcInspectionFee      Float       @default(0)
+  sellerNetPayout      Float       @default(0)
   requestedArrivalDate DateTime?
   status               OrderStatus @default(PENDING)
   createdAt            DateTime    @default(now())
@@ -161,4 +204,17 @@ model CartItem {
 
   @@unique([buyerId, productId])
   @@index([buyerId])
+}
+
+model ProcurementRequest {
+  id           String   @id @default(uuid())
+  buyerName    String
+  buyerContact String
+  category     String
+  quantity     String
+  targetPrice  Float?
+  location     String
+  description  String?
+  status       String   @default("OPEN") // OPEN, FULFILLED, CLOSED
+  createdAt    DateTime @default(now())
 }

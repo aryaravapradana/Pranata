@@ -76,10 +76,14 @@ export const getAllProducts = async (
                 farmName: true,
                 avatarUrl: true,
                 location: true,
+                subscriptionTier: true,
               },
             },
           },
-          orderBy: { createdAt: "desc" },
+          orderBy: [
+            { isSponsored: "desc" },
+            { createdAt: "desc" },
+          ],
           take: limit,
           skip,
         }),
@@ -96,8 +100,8 @@ export const getAllProducts = async (
       totalPages: Math.ceil(total / limit),
     };
 
-    // Set cache (60 seconds)
-    setCache(cacheKey, result, 60);
+    // Set cache (30 seconds)
+    setCache(cacheKey, result, 30);
 
     return res.json(result);
   } catch (error) {
@@ -112,6 +116,52 @@ export const getAllProducts = async (
       });
   }
 };
+
+export const toggleSponsoredProduct = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const productId = String(req.params.id);
+    const sellerId = req.user?.id;
+
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product || product.sellerId !== sellerId) {
+      return res.status(403).json({ error: "Produk tidak ditemukan atau bukan milik Anda" });
+    }
+
+    const nextState = !product.isSponsored;
+
+    // If activating sponsor, untoggle any other sponsored products for this seller (max 1 active sponsor)
+    if (nextState) {
+      await prisma.product.updateMany({
+        where: { sellerId, isSponsored: true },
+        data: { isSponsored: false },
+      });
+    }
+
+    const updated = await prisma.product.update({
+      where: { id: productId },
+      data: { isSponsored: nextState },
+    });
+
+    flushCache();
+
+    return res.json({
+      message: nextState
+        ? "Produk berhasil dipromosikan ke posisi teratas (Sponsored)"
+        : "Promosi produk dinonaktifkan",
+      product: updated,
+    });
+  } catch (error) {
+    logger.error("Failed to toggle sponsored product", error);
+    return res.status(500).json({ error: "Gagal mengubah status promosi produk" });
+  }
+};
+
 
 export const getSellerProducts = async (
   req: Request,

@@ -462,18 +462,25 @@ export default function SellerOrdersPage() {
                   </div>
                   <div
                     className={cn(
-                      "sm:text-right flex justify-between",
-                      "sm:block items-center",
+                      "sm:text-right flex flex-col items-end justify-center",
                     )}
                   >
-                    <span className="text-xs font-bold text-[#5A635B] block mb-1">
-                      Pendapatan
+                    <span className="text-[10px] text-[#7A8678] font-bold">
+                      Total Pesanan: Rp {o.totalAmount?.toLocaleString("id-ID")}
                     </span>
-                    <span className="font-black text-xl text-[#C25939]">
-                      Rp{" "}
-                      {o.totalAmount?.toLocaleString()}
+                    <span className="text-[10px] text-[#C85A32] font-semibold">
+                      Biaya Platform (3.5%): -Rp {(o.takeRateFee || Math.round((o.totalAmount || 0) * 0.035)).toLocaleString("id-ID")}
                     </span>
+                    <div className="mt-1">
+                      <span className="text-[10px] uppercase tracking-wider font-extrabold text-[#2B4C3B] block">
+                        Net Payout Diterima
+                      </span>
+                      <span className="font-black text-lg text-[#2B4C3B]">
+                        Rp {(o.sellerNetPayout || ((o.totalAmount || 0) - (o.takeRateFee || Math.round((o.totalAmount || 0) * 0.035)))).toLocaleString("id-ID")}
+                      </span>
+                    </div>
                   </div>
+
                 </div>
 
                 {/* Action Buttons for Seller */}

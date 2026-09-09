@@ -86,6 +86,24 @@ export default function DashboardNavbar() {
           .catch(() => {});
       }
     }
+
+    const handleSessionUpdate = () => {
+      const sessionStr =
+        localStorage.getItem("pranata_session") ||
+        localStorage.getItem("farmpro_session");
+      if (sessionStr) {
+        try {
+          setProfile(JSON.parse(sessionStr));
+        } catch (e) {}
+      }
+    };
+
+    window.addEventListener("session_updated", handleSessionUpdate);
+    window.addEventListener("storage", handleSessionUpdate);
+    return () => {
+      window.removeEventListener("session_updated", handleSessionUpdate);
+      window.removeEventListener("storage", handleSessionUpdate);
+    };
   }, []);
 
   const activePath = pendingPath ?? pathname;

@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+// Reloaded config for Supabase pooler connection
 import app from "./app";
 import cluster from "cluster";
 import os from "os";

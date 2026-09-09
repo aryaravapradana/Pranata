@@ -451,7 +451,7 @@ export function SellerOnboardingModal({
             )}
           />
 
-          {/* Modal Container - Fits cleanly on tablet & desktop without scrolling */}
+          {/* Modal Container - Native wide on desktop, sleek narrow on mobile */}
           <motion.div
             initial={{
               opacity: 0,
@@ -469,12 +469,12 @@ export function SellerOnboardingModal({
               y: 15,
             }}
             className={cn(
-              "relative w-full max-w-[480px]",
+              "relative w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl",
               "bg-white rounded-3xl sm:rounded-[2rem]",
-              "p-5 sm:p-6 border",
+              "p-5 sm:p-7 lg:p-8 border",
               "border-[#E8E3D2] shadow-2xl z-10",
               "flex flex-col my-auto",
-              "max-sm:max-h-[90vh] overflow-hidden",
+              "max-h-[92vh] overflow-y-auto custom-scrollbar",
             )}
           >
             {/* Close Button */}
@@ -482,22 +482,17 @@ export function SellerOnboardingModal({
               onClick={onClose}
               className={cn(
                 "absolute top-4 right-4",
-                "sm:top-5 sm:right-5 p-1.5",
+                "sm:top-6 sm:right-6 p-2",
                 "rounded-full text-[#7A8678] hover:text-[#1C241E]",
                 "hover:bg-[#F8F6F0] transition-colors cursor-pointer",
                 "z-20",
               )}
             >
-              <X size={18} />
+              <X size={20} />
             </button>
 
             {/* Content Wrapper */}
-            <div
-              className={cn(
-                "max-sm:overflow-y-auto space-y-3.5 custom-scrollbar",
-                "flex-1",
-              )}
-            >
+            <div className="space-y-4 sm:space-y-5 flex-1">
               {/* Header Badge */}
               <div className="flex items-center gap-2 pr-6">
                 <span
@@ -523,7 +518,7 @@ export function SellerOnboardingModal({
               <div>
                 <h2
                   className={cn(
-                    "text-lg sm:text-xl font-black",
+                    "text-lg sm:text-2xl font-black",
                     "text-[#1C241E] tracking-tight",
                   )}
                 >
@@ -531,7 +526,7 @@ export function SellerOnboardingModal({
                     ? "Informasi Peternakan / Toko"
                     : "Profil & Operasional Usaha"}
                 </h2>
-                <p className="text-xs text-[#5A635B] font-medium mt-0.5">
+                <p className="text-xs sm:text-sm text-[#5A635B] font-medium mt-0.5">
                   {step === 1
                     ? "Lengkapi identitas toko peternakan Anda untuk mulai berjualan."
                     : "Tambahkan deskripsi singkat dan informasi operasional peternakan Anda."}
@@ -564,8 +559,8 @@ export function SellerOnboardingModal({
                 <div
                   className={cn(
                     "bg-red-50 border border-red-200",
-                    "text-red-600 rounded-xl px-3.5",
-                    "py-2 text-xs font-bold",
+                    "text-red-600 rounded-xl px-4",
+                    "py-2.5 text-xs font-bold",
                     "text-center",
                   )}
                 >
@@ -592,125 +587,125 @@ export function SellerOnboardingModal({
                     onSubmit={
                       handleStep1Next
                     }
-                    className="space-y-3"
+                    className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start"
                   >
-                    <div>
-                      <label className="block text-xs font-extrabold mb-1 text-[#2B4C3B]">
-                        Nama Peternakan /
-                        Toko{" "}
-                        <span className="text-red-500">
-                          *
-                        </span>
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={farmName}
-                          onChange={(e) =>
-                            setFarmName(
-                              e.target.value,
-                            )
-                          }
+                    {/* Left Column: Form Fields */}
+                    <div className="md:col-span-6 space-y-4">
+                      <div>
+                        <label className="block text-xs font-extrabold mb-1.5 text-[#2B4C3B]">
+                          Nama Peternakan / Toko{" "}
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={farmName}
+                            onChange={(e) =>
+                              setFarmName(e.target.value)
+                            }
+                            className={cn(
+                              "w-full bg-[#F8F6F0] border",
+                              "border-[#DDE2D6] rounded-xl px-3.5",
+                              "py-2.5 sm:py-3 text-xs sm:text-sm",
+                              "text-[#1C241E] font-medium focus:outline-none",
+                              "focus:ring-2 focus:ring-[#3A6B49] focus:bg-white",
+                              "transition-all pl-9 placeholder:text-[#9A9E96]",
+                            )}
+                            required
+                            placeholder="Contoh: Berkah Farm Sleman"
+                          />
+                          <Building2
+                            size={16}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7A8678]"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Kota / Wilayah */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-extrabold text-[#2B4C3B]">
+                            Kota / Wilayah Peternakan{" "}
+                            <span className="text-red-500">*</span>
+                          </label>
+                          <button
+                            type="button"
+                            onClick={handleDetectCurrentLocation}
+                            disabled={isDetectingLocation}
+                            className={cn(
+                              "text-[10px] font-bold text-[#2B4C3B]",
+                              "hover:text-[#1E362A] bg-[#EEF2E6] hover:bg-[#DDE2D6]",
+                              "px-2.5 py-0.5 rounded-full",
+                              "flex items-center gap-1",
+                              "cursor-pointer disabled:opacity-50 transition-colors",
+                              "shadow-2xs",
+                            )}
+                          >
+                            {isDetectingLocation ? (
+                              <Loader2 size={11} className="animate-spin text-[#2B4C3B]" />
+                            ) : (
+                              <Locate size={11} />
+                            )}
+                            <span>
+                              {isDetectingLocation
+                                ? "Mendeteksi..."
+                                : "Lokasi Saat Ini"}
+                            </span>
+                          </button>
+                        </div>
+
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={location}
+                            onChange={(e) =>
+                              setLocation(e.target.value)
+                            }
+                            className={cn(
+                              "w-full bg-[#F8F6F0] border",
+                              "border-[#DDE2D6] rounded-xl px-3.5",
+                              "py-2.5 sm:py-3 text-xs sm:text-sm",
+                              "text-[#1C241E] font-medium focus:outline-none",
+                              "focus:ring-2 focus:ring-[#3A6B49] focus:bg-white",
+                              "transition-all pl-9 placeholder:text-[#9A9E96]",
+                            )}
+                            required
+                            placeholder="Contoh: Sleman, DI Yogyakarta"
+                          />
+                          <MapPin
+                            size={16}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B4C3B]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="pt-2 hidden md:block">
+                        <button
+                          type="submit"
                           className={cn(
-                            "w-full bg-[#F8F6F0] border",
-                            "border-[#DDE2D6] rounded-xl px-3.5",
-                            "py-2.5 text-xs sm:text-sm",
-                            "text-[#1C241E] font-medium focus:outline-none",
-                            "focus:ring-2 focus:ring-[#3A6B49] focus:bg-white",
-                            "transition-all pl-9 placeholder:text-[#9A9E96]",
+                            "w-full bg-[#2B4C3B] hover:bg-[#1E362A]",
+                            "text-white rounded-xl font-extrabold",
+                            "text-xs sm:text-sm py-3.5",
+                            "shadow-md shadow-[#2B4C3B]/20 transition-all",
+                            "flex items-center justify-center",
+                            "gap-2 cursor-pointer active:scale-98",
                           )}
-                          required
-                          placeholder="Contoh: Berkah Farm Sleman"
-                        />
-                        <Building2
-                          size={16}
-                          className={cn(
-                            "absolute left-3 top-1/2",
-                            "-translate-y-1/2 text-[#7A8678]",
-                          )}
-                        />
+                        >
+                          <span>Lanjut Ke Langkah 2</span>
+                          <ArrowRight size={16} />
+                        </button>
                       </div>
                     </div>
 
-                    {/* Kota / Wilayah dengan Peta Interaktif */}
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="block text-xs font-extrabold text-[#2B4C3B]">
-                          Kota / Wilayah
-                          Peternakan{" "}
-                          <span className="text-red-500">
-                            *
-                          </span>
-                        </label>
-                        <button
-                          type="button"
-                          onClick={
-                            handleDetectCurrentLocation
-                          }
-                          disabled={
-                            isDetectingLocation
-                          }
-                          className={cn(
-                            "text-[10px] font-bold text-[#2B4C3B]",
-                            "hover:text-[#1E362A] bg-[#EEF2E6] hover:bg-[#DDE2D6]",
-                            "px-2 py-0.5 rounded-full",
-                            "flex items-center gap-1",
-                            "cursor-pointer disabled:opacity-50 transition-colors",
-                            "shadow-2xs",
-                          )}
-                        >
-                          {isDetectingLocation ? (
-                            <Loader2
-                              size={11}
-                              className="animate-spin text-[#2B4C3B]"
-                            />
-                          ) : (
-                            <Locate
-                              size={11}
-                            />
-                          )}
-                          <span>
-                            {isDetectingLocation
-                              ? "Mendeteksi..."
-                              : "Lokasi Saat Ini"}
-                          </span>
-                        </button>
-                      </div>
-
-                      <div className="relative mb-1.5">
-                        <input
-                          type="text"
-                          value={location}
-                          onChange={(e) =>
-                            setLocation(
-                              e.target.value,
-                            )
-                          }
-                          className={cn(
-                            "w-full bg-[#F8F6F0] border",
-                            "border-[#DDE2D6] rounded-xl px-3.5",
-                            "py-2.5 text-xs sm:text-sm",
-                            "text-[#1C241E] font-medium focus:outline-none",
-                            "focus:ring-2 focus:ring-[#3A6B49] focus:bg-white",
-                            "transition-all pl-9 placeholder:text-[#9A9E96]",
-                          )}
-                          required
-                          placeholder="Contoh: Sleman, DI Yogyakarta"
-                        />
-                        <MapPin
-                          size={16}
-                          className={cn(
-                            "absolute left-3 top-1/2",
-                            "-translate-y-1/2 text-[#2B4C3B]",
-                          )}
-                        />
-                      </div>
-
-                      {/* Map Box Container Compact Height for Zero Overflow */}
+                    {/* Right Column: Interactive Map */}
+                    <div className="md:col-span-6 space-y-2">
+                      <label className="block text-xs font-extrabold text-[#2B4C3B]">
+                        Titik Peta Lokasi Peternakan
+                      </label>
                       <div
                         className={cn(
-                          "w-full h-32 sm:h-36",
-                          "rounded-xl overflow-hidden border",
+                          "w-full h-44 sm:h-52 md:h-56",
+                          "rounded-2xl overflow-hidden border",
                           "border-[#DDE2D6] shadow-2xs relative",
                           "z-0 group",
                         )}
@@ -725,44 +720,19 @@ export function SellerOnboardingModal({
                             ],
                             zoom: 12,
                           }}
-                          className={cn(
-                            "[&_.maplibregl-canvas]:filter [&_.maplibregl-canvas]:sepia-[0.12] [&_.maplibregl-canvas]:saturate-[0.9]",
-                          )}
+                          className="[&_.maplibregl-canvas]:filter [&_.maplibregl-canvas]:sepia-[0.12] [&_.maplibregl-canvas]:saturate-[0.9]"
                         >
                           <MapMarker
-                            longitude={
-                              coords.lng
-                            }
-                            latitude={
-                              coords.lat
-                            }
+                            longitude={coords.lng}
+                            latitude={coords.lat}
                             draggable={true}
-                            onDragEnd={
-                              handleMarkerDragEnd
-                            }
+                            onDragEnd={handleMarkerDragEnd}
                           >
                             <MarkerContent>
                               <div className="relative flex items-center justify-center">
-                                <span
-                                  className={cn(
-                                    "absolute w-8 h-8",
-                                    "rounded-full bg-[#2B4C3B]/30 animate-ping",
-                                  )}
-                                />
-                                <div
-                                  className={cn(
-                                    "relative w-8 h-8",
-                                    "rounded-full bg-gradient-to-br from-[#3A6B49]",
-                                    "to-[#1E362A] text-[#F8F6F0] flex",
-                                    "items-center justify-center border-2",
-                                    "border-white shadow-lg cursor-grab",
-                                    "active:cursor-grabbing hover:scale-110 transition-transform",
-                                  )}
-                                >
-                                  <MapPin
-                                    size={16}
-                                    className="text-[#F8F6F0] fill-[#F8F6F0]/20"
-                                  />
+                                <span className="absolute w-8 h-8 rounded-full bg-[#2B4C3B]/30 animate-ping" />
+                                <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-[#3A6B49] to-[#1E362A] text-[#F8F6F0] flex items-center justify-center border-2 border-white shadow-lg cursor-grab active:cursor-grabbing hover:scale-110 transition-transform">
+                                  <MapPin size={16} className="text-[#F8F6F0] fill-[#F8F6F0]/20" />
                                 </div>
                               </div>
                             </MarkerContent>
@@ -770,47 +740,27 @@ export function SellerOnboardingModal({
                           <MapControls position="bottom-right" />
                         </Map>
                       </div>
-                      <p
-                        className={cn(
-                          "text-[9px] text-[#5A635B] font-extrabold",
-                          "mt-1 flex items-center",
-                          "gap-1",
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "w-1.5 h-1.5 rounded-full",
-                            "bg-[#2B4C3B] inline-block shrink-0",
-                          )}
-                        />
-                        <span>
-                          Geser penanda hijau
-                          pada peta untuk
-                          menentukan titik
-                          lokasi tepat.
-                        </span>
+                      <p className="text-[10px] text-[#5A635B] font-extrabold flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#2B4C3B] inline-block shrink-0" />
+                        <span>Geser penanda hijau pada peta untuk menentukan titik lokasi tepat.</span>
                       </p>
-                    </div>
 
-                    <div className="pt-1">
-                      <button
-                        type="submit"
-                        className={cn(
-                          "w-full bg-[#2B4C3B] hover:bg-[#1E362A]",
-                          "text-white rounded-xl font-extrabold",
-                          "text-xs sm:text-sm py-3",
-                          "shadow-md shadow-[#2B4C3B]/20 transition-all",
-                          "flex items-center justify-center",
-                          "gap-2 cursor-pointer active:scale-98",
-                        )}
-                      >
-                        <span>
-                          Lanjut Ke Langkah 2
-                        </span>
-                        <ArrowRight
-                          size={16}
-                        />
-                      </button>
+                      <div className="pt-2 md:hidden">
+                        <button
+                          type="submit"
+                          className={cn(
+                            "w-full bg-[#2B4C3B] hover:bg-[#1E362A]",
+                            "text-white rounded-xl font-extrabold",
+                            "text-xs sm:text-sm py-3.5",
+                            "shadow-md shadow-[#2B4C3B]/20 transition-all",
+                            "flex items-center justify-center",
+                            "gap-2 cursor-pointer active:scale-98",
+                          )}
+                        >
+                          <span>Lanjut Ke Langkah 2</span>
+                          <ArrowRight size={16} />
+                        </button>
+                      </div>
                     </div>
                   </motion.form>
                 ) : (
@@ -828,132 +778,115 @@ export function SellerOnboardingModal({
                       opacity: 0,
                       x: -12,
                     }}
-                    onSubmit={
-                      handleFinalSubmit
-                    }
-                    className="space-y-3"
+                    onSubmit={handleFinalSubmit}
+                    className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start"
                   >
-                    <div>
-                      <label className="block text-xs font-extrabold mb-1 text-[#2B4C3B]">
-                        Nomor WhatsApp /
-                        Kontak Usaha
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={contact}
-                          onChange={(e) =>
-                            setContact(
-                              e.target.value,
-                            )
-                          }
-                          className={cn(
-                            "w-full bg-[#F8F6F0] border",
-                            "border-[#DDE2D6] rounded-xl px-3.5",
-                            "py-2.5 text-xs sm:text-sm",
-                            "text-[#1C241E] font-medium focus:outline-none",
-                            "focus:ring-2 focus:ring-[#3A6B49] focus:bg-white",
-                            "transition-all pl-9 placeholder:text-[#9A9E96]",
-                          )}
-                          placeholder="Contoh: 081234567890"
-                        />
-                        <Phone
-                          size={16}
-                          className={cn(
-                            "absolute left-3 top-1/2",
-                            "-translate-y-1/2 text-[#7A8678]",
-                          )}
-                        />
+                    {/* Left Column: Contact */}
+                    <div className="md:col-span-6 space-y-4">
+                      <div>
+                        <label className="block text-xs font-extrabold mb-1.5 text-[#2B4C3B]">
+                          Nomor WhatsApp / Kontak Usaha
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={contact}
+                            onChange={(e) =>
+                              setContact(e.target.value)
+                            }
+                            className={cn(
+                              "w-full bg-[#F8F6F0] border",
+                              "border-[#DDE2D6] rounded-xl px-3.5",
+                              "py-2.5 sm:py-3 text-xs sm:text-sm",
+                              "text-[#1C241E] font-medium focus:outline-none",
+                              "focus:ring-2 focus:ring-[#3A6B49] focus:bg-white",
+                              "transition-all pl-9 placeholder:text-[#9A9E96]",
+                            )}
+                            placeholder="Contoh: 081234567890"
+                          />
+                          <Phone
+                            size={16}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7A8678]"
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-extrabold mb-1 text-[#2B4C3B]">
-                        Bio / Deskripsi
-                        Peternakan
-                      </label>
-                      <textarea
-                        value={description}
-                        onChange={(e) =>
-                          setDescription(
-                            e.target.value,
-                          )
-                        }
-                        rows={2}
-                        className={cn(
-                          "w-full bg-[#F8F6F0] border",
-                          "border-[#DDE2D6] rounded-xl p-3",
-                          "text-xs sm:text-sm text-[#1C241E]",
-                          "font-medium focus:outline-none focus:ring-2",
-                          "focus:ring-[#3A6B49] focus:bg-white transition-all",
-                          "placeholder:text-[#9A9E96]",
-                        )}
-                        placeholder="Ceritakan tentang peternakan Anda, keunggulan pakan, atau kualitas hasil ternak..."
-                      />
-                    </div>
-
-                    <div className="flex gap-2.5 pt-1">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setStep(1)
-                        }
-                        disabled={loading}
-                        className={cn(
-                          "px-3.5 py-3 border",
-                          "border-[#DDE2D6] text-[#1C241E] font-bold",
-                          "text-xs sm:text-sm rounded-xl",
-                          "hover:bg-[#F8F6F0] transition-colors flex",
-                          "items-center gap-1.5 cursor-pointer",
-                        )}
-                      >
-                        <ArrowLeft
-                          size={16}
+                    {/* Right Column: Bio & Actions */}
+                    <div className="md:col-span-6 space-y-4">
+                      <div>
+                        <label className="block text-xs font-extrabold mb-1.5 text-[#2B4C3B]">
+                          Bio / Deskripsi Peternakan
+                        </label>
+                        <textarea
+                          value={description}
+                          onChange={(e) =>
+                            setDescription(e.target.value)
+                          }
+                          rows={3}
+                          className={cn(
+                            "w-full bg-[#F8F6F0] border",
+                            "border-[#DDE2D6] rounded-xl p-3",
+                            "text-xs sm:text-sm text-[#1C241E]",
+                            "font-medium focus:outline-none focus:ring-2",
+                            "focus:ring-[#3A6B49] focus:bg-white transition-all",
+                            "placeholder:text-[#9A9E96]",
+                          )}
+                          placeholder="Ceritakan tentang peternakan Anda, keunggulan pakan, atau kualitas hasil ternak..."
                         />
-                        <span>Kembali</span>
-                      </button>
+                      </div>
 
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className={cn(
-                          "flex-1 bg-[#2B4C3B] hover:bg-[#1E362A]",
-                          "text-white rounded-xl font-extrabold",
-                          "text-xs sm:text-sm py-3",
-                          "shadow-md shadow-[#2B4C3B]/20 transition-all",
-                          "flex items-center justify-center",
-                          "gap-2 cursor-pointer active:scale-98",
-                          "disabled:opacity-50",
-                        )}
-                      >
-                        {loading ? (
-                          <>
-                            <Loader2
-                              size={16}
-                              className="animate-spin text-white"
-                            />
-                            <span>
-                              Mengaktifkan
-                              Toko...
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="flex items-center gap-1.5">
-                              Aktifkan
-                              <img
-                                src="/logos/hub/hub-white.webp"
-                                alt="Pranata Hub"
-                                className="h-4.5 w-auto object-contain inline-block"
-                                decoding="async"
-                              />
-                            </span>
-                            <Check
-                              size={16}
-                            />
-                          </>
-                        )}
-                      </button>
+                      <div className="flex gap-2.5 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setStep(1)}
+                          disabled={loading}
+                          className={cn(
+                            "px-4 py-3 border",
+                            "border-[#DDE2D6] text-[#1C241E] font-bold",
+                            "text-xs sm:text-sm rounded-xl",
+                            "hover:bg-[#F8F6F0] transition-colors flex",
+                            "items-center gap-1.5 cursor-pointer",
+                          )}
+                        >
+                          <ArrowLeft size={16} />
+                          <span>Kembali</span>
+                        </button>
+
+                        <button
+                          type="submit"
+                          disabled={loading}
+                          className={cn(
+                            "flex-1 bg-[#2B4C3B] hover:bg-[#1E362A]",
+                            "text-white rounded-xl font-extrabold",
+                            "text-xs sm:text-sm py-3",
+                            "shadow-md shadow-[#2B4C3B]/20 transition-all",
+                            "flex items-center justify-center",
+                            "gap-2 cursor-pointer active:scale-98",
+                            "disabled:opacity-50",
+                          )}
+                        >
+                          {loading ? (
+                            <>
+                              <Loader2 size={16} className="animate-spin text-white" />
+                              <span>Mengaktifkan Toko...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="flex items-center gap-1.5">
+                                Aktifkan
+                                <img
+                                  src="/logos/hub/hub-white.webp"
+                                  alt="Pranata Hub"
+                                  className="h-4.5 w-auto object-contain inline-block"
+                                  decoding="async"
+                                />
+                              </span>
+                              <Check size={16} />
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </motion.form>
                 )}

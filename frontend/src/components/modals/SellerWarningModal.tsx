@@ -112,9 +112,9 @@ export function SellerWarningModal({
               stiffness: 300,
             }}
             className={cn(
-              "relative w-full max-w-md",
+              "relative w-full max-w-md sm:max-w-lg md:max-w-xl",
               "bg-white rounded-3xl sm:rounded-[2rem]",
-              "p-6 sm:p-8 border",
+              "p-6 sm:p-8 md:p-10 border",
               "border-[#E8E3D2] shadow-2xl z-10",
               "text-center my-auto overflow-hidden",
             )}

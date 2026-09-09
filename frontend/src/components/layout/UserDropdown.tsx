@@ -13,6 +13,9 @@ import {
   AlertTriangle,
   X,
   Store,
+  Wallet,
+  Sparkles,
+  Crown,
 } from "lucide-react";
 import {
   motion,
@@ -22,6 +25,8 @@ import { useRouter } from "next/navigation";
 import { useGlobalLoading } from "@/components/shared/loading-context";
 import Cookies from "js-cookie";
 import { SellerOnboardingModal } from "@/components/modals/SellerOnboardingModal";
+import { PranataPayModal } from "@/components/modals/PranataPayModal";
+import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
 
 export default function UserDropdown({
   profile,
@@ -38,6 +43,10 @@ export default function UserDropdown({
     showOnboardingModal,
     setShowOnboardingModal,
   ] = useState(false);
+  const [showPayModal, setShowPayModal] =
+    useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] =
+    useState(false);
   const [mounted, setMounted] =
     useState(false);
   const dropdownRef =
@@ -85,6 +94,8 @@ export default function UserDropdown({
     window.location.href = "/";
   };
 
+  const isPlus = profile?.subscriptionTier === "PLUS";
+
   const initials = (
     profile?.fullName ||
     profile?.username ||
@@ -116,7 +127,7 @@ export default function UserDropdown({
             "sm:h-10 rounded-lg sm:rounded-xl",
             "bg-[#E8E3D2] overflow-hidden shadow-sm",
             "flex items-center justify-center",
-            "border-2 border-white",
+            "border-2 border-white relative",
           )}
         >
           {profile?.avatarUrl ||
@@ -183,11 +194,26 @@ export default function UserDropdown({
                 "border-[#E8E3D2]/60 bg-[#F8F6F0]/50",
               )}
             >
-              <p className="font-black text-sm text-[#1C241E] truncate">
-                {profile?.fullName ||
-                  profile?.username ||
-                  "Pengguna"}
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="font-black text-sm text-[#1C241E] truncate">
+                  {profile?.fullName ||
+                    profile?.username ||
+                    "Pengguna"}
+                </p>
+                {isPlus ? (
+                  <span className="px-2 py-0.5 rounded-full bg-[#1C2E24] shadow-xs border border-[#D4AF37]/50 flex items-center">
+                    <img
+                      src="/logos/plus/plus-white.webp"
+                      alt="Pranata Plus"
+                      className="h-4.5 w-auto object-contain"
+                    />
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-full bg-gray-100 text-[#7A8678] text-[9px] font-bold uppercase">
+                    FREE
+                  </span>
+                )}
+              </div>
               {profile?.username && (
                 <p className="text-xs font-bold text-[#7A8678] truncate">
                   @{profile.username}
@@ -210,8 +236,53 @@ export default function UserDropdown({
               )}
             </div>
 
+            {/* Pranata Pay Wallet Item */}
+            <div className="p-2 border-b border-[#E8E3D2]/60">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpen(false);
+                  setShowPayModal(true);
+                }}
+                className="w-full p-2.5 rounded-xl bg-[#FAF8F5] hover:bg-[#EEF2E6] border border-[#E8E3D2] transition-colors flex items-center justify-between text-left cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  <img
+                    src="/logos/pay/pay-black.webp"
+                    alt="Pranata Pay"
+                    className="h-6 w-auto object-contain"
+                  />
+                  <div className="border-l border-[#E8E3D2] pl-2.5">
+                    <span className="text-xs sm:text-sm font-black text-[#1C241E] block leading-tight">
+                      Rp {(profile?.walletBalance || 0).toLocaleString("id-ID")}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-[#2B4C3B] bg-white px-2 py-1 rounded-md shadow-xs border border-[#E8E3D2]">
+                  Buka
+                </span>
+              </button>
+            </div>
+
             {/* Menu Items */}
             <div className="py-1">
+              {!isPlus && (
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    setShowUpgradeModal(true);
+                  }}
+                  className="w-full px-4 py-2.5 flex items-center justify-between text-xs sm:text-sm font-black text-[#856608] hover:bg-amber-50/70 transition-colors cursor-pointer"
+                >
+                  <span className="flex items-center gap-1.5">
+                    Upgrade ke <img src="/logos/plus/plus-black.webp" alt="Pranata Plus" className="h-5 w-auto object-contain inline" />
+                  </span>
+                  <span className="text-[10px] font-bold text-[#856608] bg-amber-100/80 px-2 py-0.5 rounded-md">
+                    Rp 79rb
+                  </span>
+                </button>
+              )}
+
               <button
                 onClick={() => {
                   setIsOpen(false);
@@ -277,6 +348,25 @@ export default function UserDropdown({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* In-App Pranata Pay Modal */}
+      <PranataPayModal
+        isOpen={showPayModal}
+        onClose={() => setShowPayModal(false)}
+        onSuccess={() => {
+          // Keep state smooth without hard server re-renders
+        }}
+      />
+
+      {/* Upgrade Plus Modal */}
+      <UpgradePlusModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onSuccess={() => {
+          // Keep state smooth without hard server re-renders
+        }}
+      />
+
 
       {/* Logout Confirmation Modal via React Portal */}
       {mounted &&

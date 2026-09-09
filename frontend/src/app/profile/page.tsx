@@ -28,6 +28,12 @@ import {
   ImageIcon,
   AlertTriangle,
   X,
+  Wallet,
+  CreditCard,
+  ArrowDownRight,
+  ArrowUpRight,
+  Crown,
+  Sparkles,
 } from "lucide-react";
 import {
   motion,
@@ -41,8 +47,11 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
 import { uploadImage } from "@/lib/supabaseStorage";
+import { PranataPayModal } from "@/components/modals/PranataPayModal";
+import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
 
 const API_BASE = getApiBaseUrl();
+
 
 type Toast = {
   type: "success" | "error";
@@ -241,11 +250,37 @@ export default function AccountSettingsPage() {
     showLogoutModal,
     setShowLogoutModal,
   ] = useState(false);
+  const [showPayModal, setShowPayModal] =
+    useState(false);
+  const [payModalTab, setPayModalTab] =
+    useState<"overview" | "topup" | "withdraw">("overview");
+  const [showUpgradeModal, setShowUpgradeModal] =
+    useState(false);
+
+  const fetchProfileData = useCallback(async (userId: string) => {
+    try {
+      const res = await fetchApi(`${API_BASE}/api/profile/${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setProfile((prev: any) => ({ ...prev, ...data }));
+        const sessionStr = localStorage.getItem("farmpro_session") || localStorage.getItem("pranata_session");
+        if (sessionStr) {
+          const parsed = JSON.parse(sessionStr);
+          const updated = { ...parsed, ...data };
+          localStorage.setItem("farmpro_session", JSON.stringify(updated));
+          localStorage.setItem("pranata_session", JSON.stringify(updated));
+        }
+      }
+    } catch (e) {
+      console.error("Failed to refresh profile", e);
+    }
+  }, []);
+
 
   useEffect(() => {
-    const sessionStr = localStorage.getItem(
-      "farmpro_session",
-    );
+    const sessionStr =
+      localStorage.getItem("pranata_session") ||
+      localStorage.getItem("farmpro_session");
     if (!sessionStr) {
       setLoading(false);
       router.push("/login");
@@ -268,6 +303,25 @@ export default function AccountSettingsPage() {
       setLoading(false);
       router.push("/login");
     }
+
+    const handleSessionUpdate = () => {
+      const sStr =
+        localStorage.getItem("pranata_session") ||
+        localStorage.getItem("farmpro_session");
+      if (sStr) {
+        try {
+          const parsed = JSON.parse(sStr);
+          setProfile((prev: any) => ({ ...prev, ...parsed }));
+        } catch (e) {}
+      }
+    };
+
+    window.addEventListener("session_updated", handleSessionUpdate);
+    window.addEventListener("storage", handleSessionUpdate);
+    return () => {
+      window.removeEventListener("session_updated", handleSessionUpdate);
+      window.removeEventListener("storage", handleSessionUpdate);
+    };
   }, []);
 
   const fetchProfile = async (
@@ -1037,7 +1091,144 @@ export default function AccountSettingsPage() {
             </div>
           </motion.div>
 
+          {/* ── Keanggotaan & Dompet Pranata Pay ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.5,
+              type: "spring",
+              stiffness: 100,
+              damping: 20,
+              delay: 0.15,
+            }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            {/* Pranata Pay Card */}
+            <div className="bg-gradient-to-br from-[#1C241E] via-[#2B4C3B] to-[#1E362A] text-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-[#2B4C3B] shadow-lg flex flex-col justify-between relative overflow-hidden">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <img
+                      src="/logos/pay/pay-white.webp"
+                      alt="Pranata Pay"
+                      className="h-7 sm:h-8 w-auto object-contain"
+                    />
+                    <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-white/15 text-white tracking-wider">
+                      E-Wallet
+                    </span>
+                  </div>
+                </div>
+
+                <div className="my-2">
+                  <span className="text-[11px] text-[#A4C4A8] font-bold block mb-0.5">Saldo Tersedia</span>
+                  <div className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                    Rp {(profile?.walletBalance || 0).toLocaleString("id-ID")}
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-white/15 grid grid-cols-3 gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPayModalTab("topup");
+                    setShowPayModal(true);
+                  }}
+                  className="py-2 px-1 rounded-xl bg-white text-[#2B4C3B] hover:bg-[#EEF2E6] font-black text-xs transition-all flex items-center justify-center gap-1 shadow-sm cursor-pointer"
+                >
+                  <ArrowDownRight size={13} className="text-emerald-700" />
+                  <span>+ Isi Saldo</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPayModalTab("withdraw");
+                    setShowPayModal(true);
+                  }}
+                  className="py-2 px-1 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs transition-all flex items-center justify-center gap-1 border border-white/15 cursor-pointer"
+                >
+                  <ArrowUpRight size={13} className="text-amber-300" />
+                  <span>Tarik Dana</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPayModalTab("overview");
+                    setShowPayModal(true);
+                  }}
+                  className="py-2 px-1 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs transition-all flex items-center justify-center gap-1 border border-white/15 cursor-pointer"
+                >
+                  <CreditCard size={13} className="text-blue-300" />
+                  <span>Mutasi</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Pranata Plus Membership Card */}
+            <div className="bg-white border border-[#E8E3D2] rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col justify-between relative overflow-hidden">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src="/logos/plus/plus-black.webp"
+                      alt="Pranata Plus"
+                      className="h-7 sm:h-8 w-auto object-contain"
+                    />
+                  </div>
+                  {profile?.subscriptionTier === "PLUS" ? (
+                    <span className="px-2 py-0.5 rounded-full bg-[#1C2E24] shadow-xs border border-[#D4AF37]/50 flex items-center">
+                      <img
+                        src="/logos/plus/plus-white.webp"
+                        alt="Pranata Plus"
+                        className="h-4.5 w-auto object-contain"
+                      />
+                    </span>
+                  ) : (
+                    <span className="px-2.5 py-1 rounded-full bg-gray-100 text-[#5A635B] text-[10px] font-black uppercase">
+                      FREE TIER
+                    </span>
+                  )}
+                </div>
+
+                <div className="my-2">
+                  <span className="text-[11px] text-[#7A8678] font-bold block mb-0.5">Status Akses</span>
+                  <div className="text-lg font-black text-[#1C241E]">
+                    {profile?.subscriptionTier === "PLUS" ? "Pranata Plus (Aktif)" : "Pranata Gratis"}
+                  </div>
+                  <p className="text-xs text-[#5A635B] mt-1 leading-relaxed">
+                    {profile?.subscriptionTier === "PLUS"
+                      ? `Berlaku hingga: ${profile?.subscriptionExpiresAt ? new Date(profile.subscriptionExpiresAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "30 Hari Kedepan"}`
+                      : "Dapatkan akses tak terbatas ke Agentic AI Intelligence, Promosi Produk Sponsor, dan Papan Pasokan B2B Restoran."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-[#E8E3D2] mt-3">
+                {profile?.subscriptionTier === "PLUS" ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowUpgradeModal(true)}
+                    className="w-full py-2 px-3 rounded-xl bg-[#FAF8F5] hover:bg-[#EEF2E6] border border-[#2B4C3B]/30 text-[#2B4C3B] font-black text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Crown size={13} />
+                    <span>Perpanjang Masa Aktif Plus</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowUpgradeModal(true)}
+                    className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] hover:opacity-95 text-white font-black text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span className="flex items-center gap-1.5">Upgrade ke <img src="/logos/plus/plus-white.webp" alt="Pranata Plus" className="h-5 w-auto object-contain inline" /> (Rp 79rb/bln)</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+
           {/* ── Profile Info Form ── */}
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1744,6 +1935,30 @@ export default function AccountSettingsPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Pranata Pay In-App Wallet Modal */}
+      <PranataPayModal
+        isOpen={showPayModal}
+        initialTab={payModalTab}
+        onClose={() => setShowPayModal(false)}
+        onSuccess={() => {
+          if (profile?.id) {
+            fetchProfileData(profile.id);
+          }
+        }}
+      />
+
+      {/* Upgrade Plus Modal */}
+      <UpgradePlusModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onSuccess={() => {
+          if (profile?.id) {
+            fetchProfileData(profile.id);
+          }
+        }}
+      />
     </div>
   );
 }
+

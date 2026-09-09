@@ -39,6 +39,7 @@ import {
 } from "@/components/shared/loading-context";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ProductGridSkeleton } from "@/components/ui/skeleton";
+import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
 
 const CustomDropdown = ({
   value,
@@ -212,11 +213,48 @@ export default function StoreDashboardPage() {
   ] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] =
     useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [togglingSponsorId, setTogglingSponsorId] = useState<string | null>(null);
 
   // Search, Sort & Category Filter State
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua Kategori");
   const [sortBy, setSortBy] = useState("Terbaru");
+
+  const handleToggleSponsor = async (product: any) => {
+    if (profile?.subscriptionTier !== "PLUS") {
+      setShowUpgradeModal(true);
+      return;
+    }
+    setTogglingSponsorId(product.id);
+    const API_BASE = getApiBaseUrl();
+    try {
+      const res = await fetchApi(`${API_BASE}/api/products/${product.id}/sponsor`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isSponsored: !product.isSponsored }),
+      });
+      if (res.ok) {
+        setProducts((prev) =>
+          prev.map((item) => {
+            if (item.id === product.id) {
+              return { ...item, isSponsored: !product.isSponsored };
+            }
+            if (!product.isSponsored) {
+              // Only 1 sponsored product allowed
+              return { ...item, isSponsored: false };
+            }
+            return item;
+          })
+        );
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTogglingSponsorId(null);
+    }
+  };
+
 
   // Category Icons & Images Mapping (Matching Market)
   const categoryOptions = useMemo(() => {
@@ -776,14 +814,35 @@ export default function StoreDashboardPage() {
                         <p
                           className={cn(
                             "text-xs text-[#5A635B] line-clamp-2",
-                            "mb-3 leading-relaxed",
+                            "mb-2 leading-relaxed",
                           )}
                         >
                           {p.description}
                         </p>
                       )}
+
+                      {/* Sponsor / Boost Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleToggleSponsor(p)}
+                        disabled={togglingSponsorId === p.id}
+                        className={cn(
+                          "w-full mb-2 py-1.5 px-3 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs",
+                          p.isSponsored
+                            ? "bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-white hover:opacity-95"
+                            : "bg-[#FAF8F5] hover:bg-[#EEF2E6] text-[#856608] border border-[#D4AF37]/60"
+                        )}
+                      >
+                        {togglingSponsorId === p.id ? (
+                          <Loader2 size={12} className="animate-spin" />
+                        ) : (
+                          <Sparkles size={12} className={p.isSponsored ? "text-white" : "text-[#D4AF37]"} />
+                        )}
+                        <span>{p.isSponsored ? "Produk Disponsori (Aktif)" : "Promosikan (Sponsor Plus)"}</span>
+                      </button>
                     </div>
                   </div>
+
 
                   <div
                     className={cn(
@@ -1167,6 +1226,15 @@ export default function StoreDashboardPage() {
       <div className="mt-16">
         <Footer />
       </div>
+
+      <UpgradePlusModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onSuccess={() => {
+          loadData();
+        }}
+      />
     </motion.div>
   );
 }
+

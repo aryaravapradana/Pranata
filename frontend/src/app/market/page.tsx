@@ -38,6 +38,11 @@ import {
   Tag,
   Layers,
   AlertTriangle,
+  Wallet,
+  ArrowDownRight,
+  ArrowUpRight,
+  CreditCard,
+  Coins,
 } from "lucide-react";
 import {
   motion,
@@ -50,6 +55,8 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
+import { PranataPayModal } from "@/components/modals/PranataPayModal";
+import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
 import {
   NavbarSkeleton,
   MarketHeroSkeleton,
@@ -57,6 +64,7 @@ import {
   ProductGridSkeleton,
   Skeleton,
 } from "@/components/ui/skeleton";
+
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -190,7 +198,24 @@ const ProductCard = memo(
               </span>
             </div>
           )}
-          {index < 2 && p.stock > 0 && (
+          {p.isSponsored && p.stock > 0 && (
+            <div
+              className={cn(
+                "absolute top-2 left-2",
+                "bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-white text-[9px]",
+                "sm:text-[10px] font-black px-2",
+                "py-0.5 sm:px-2.5 sm:py-1",
+                "rounded-full shadow-md flex",
+                "items-center gap-1 z-10 uppercase tracking-wider",
+              )}
+            >
+              <Sparkles
+                size={10}
+              />{" "}
+              DISPONSORI
+            </div>
+          )}
+          {index < 2 && !p.isSponsored && p.stock > 0 && (
             <div
               className={cn(
                 "absolute top-2 right-2",
@@ -209,6 +234,7 @@ const ProductCard = memo(
             </div>
           )}
         </div>
+
 
         {/* Product Info */}
         <div className="flex flex-col items-start flex-1 w-full text-left">
@@ -333,9 +359,21 @@ const ProductCard = memo(
               >
                 Stok: {p.stock} {p.unit}
               </p>
+              {p.seller && (
+                <div className={`flex items-center gap-1 mt-1 text-[10px] font-medium truncate ${cartQty > 0 ? "text-white/90" : "text-[#5A635B]"}`}>
+                  <Store size={10} className="shrink-0" />
+                  <span className="truncate">{p.seller.farmName || p.seller.fullName || p.seller.username}</span>
+                  {p.seller.subscriptionTier === "PLUS" && (
+                    <span className="px-1 py-0.2 rounded bg-[#D4AF37]/25 text-[#D4AF37] font-black text-[8px] uppercase tracking-wider shrink-0">
+                      PLUS
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
+
 
         {/* Cart Control Button */}
         {p.stock > 0 ? (
@@ -584,6 +622,12 @@ export default function MarketplacePage() {
   >([]);
   const [animations, setAnimations] =
     useState<any[]>([]);
+  const [showPayModal, setShowPayModal] =
+    useState(false);
+  const [payModalTab, setPayModalTab] =
+    useState<"overview" | "topup" | "withdraw">("overview");
+  const [showUpgradeModal, setShowUpgradeModal] =
+    useState(false);
   const categoryScrollRef =
     useRef<HTMLDivElement>(null);
 
@@ -593,6 +637,7 @@ export default function MarketplacePage() {
     useState(true);
   const [isAtEnd, setIsAtEnd] =
     useState(false);
+
 
   // Debounce search to avoid re-filtering on every mobile keystroke
   useEffect(() => {
@@ -693,9 +738,9 @@ export default function MarketplacePage() {
       }, 500);
     }
 
-    const sessionStr = localStorage.getItem(
-      "farmpro_session",
-    );
+    const sessionStr =
+      localStorage.getItem("pranata_session") ||
+      localStorage.getItem("farmpro_session");
     if (!sessionStr) {
       router.push("/login");
       return;
@@ -762,22 +807,40 @@ export default function MarketplacePage() {
 
   useEffect(() => {
     loadData();
+
+    const handleSessionUpdate = () => {
+      const sessionStr =
+        localStorage.getItem("pranata_session") ||
+        localStorage.getItem("farmpro_session");
+      if (sessionStr) {
+        try {
+          setProfile(JSON.parse(sessionStr));
+        } catch (e) {}
+      }
+    };
+
+    window.addEventListener("session_updated", handleSessionUpdate);
+    window.addEventListener("storage", handleSessionUpdate);
+    return () => {
+      window.removeEventListener("session_updated", handleSessionUpdate);
+      window.removeEventListener("storage", handleSessionUpdate);
+    };
   }, []);
 
-  const loadData = async () => {
-    setLoading(true);
-    const sessionStr = localStorage.getItem(
-      "farmpro_session",
-    );
+  const loadData = async (silent = false) => {
+    if (!silent) setLoading(true);
+    const sessionStr =
+      localStorage.getItem("pranata_session") ||
+      localStorage.getItem("farmpro_session");
     if (!sessionStr) {
-      router.push("/login");
+      if (!silent) router.push("/login");
       return;
     }
-    const session = JSON.parse(sessionStr);
-    setProfile(session);
-
     try {
-      const [prodRes, cartRes] =
+      const session = JSON.parse(sessionStr);
+      setProfile(session);
+
+      const [prodRes, cartRes, profRes] =
         await Promise.all([
           fetchApi(
             `${API_BASE}/api/products?limit=200`,
@@ -785,7 +848,18 @@ export default function MarketplacePage() {
           fetchApi(
             `${API_BASE}/api/cart/${session.id}`,
           ).catch(() => null),
+          fetchApi(
+            `${API_BASE}/api/profile/${session.id}`,
+          ).catch(() => null),
         ]);
+
+      if (profRes && profRes.ok) {
+        const profData = await profRes.json();
+        const updated = { ...session, ...profData };
+        setProfile(updated);
+        localStorage.setItem("pranata_session", JSON.stringify(updated));
+        localStorage.setItem("farmpro_session", JSON.stringify(updated));
+      }
 
       if (prodRes && prodRes.ok) {
         const prodData =
@@ -809,9 +883,9 @@ export default function MarketplacePage() {
         "Failed to load data:",
         e,
       );
+    } finally {
+      if (!silent) setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const { displayedProducts, hasMore } =
@@ -1051,15 +1125,162 @@ export default function MarketplacePage() {
           </motion.div>
         </div>
 
+        {/* ── FINTECH WALLET FLOATING CARD (PRANATA PAY BAR) ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className={cn(
+            "-mt-5 min-[360px]:-mt-6 sm:-mt-8 md:-mt-10",
+            "relative z-30 w-full px-1 sm:px-0 max-w-5xl mx-auto",
+          )}
+        >
+          <div
+            className={cn(
+              "bg-white/95 backdrop-blur-md border border-[#E8E3D2]",
+              "rounded-2xl sm:rounded-[2rem] p-3 sm:p-4.5 shadow-[0_12px_36px_-10px_rgba(43,76,59,0.14)]",
+              "flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4",
+            )}
+          >
+            {/* Left: Saldo & Info */}
+            <div
+              onClick={() => {
+                setPayModalTab("overview");
+                setShowPayModal(true);
+              }}
+              className="flex items-center cursor-pointer group flex-1 min-w-0 py-0.5"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <img
+                    src="/logos/pay/pay-black.webp"
+                    alt="Pranata Pay"
+                    className="h-6 sm:h-7 w-auto object-contain"
+                  />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  {profile?.subscriptionTier === "PLUS" ? (
+                    <span className="px-2 py-0.5 rounded-full bg-[#1C2E24] border border-[#D4AF37]/50 flex items-center">
+                      <img
+                        src="/logos/plus/plus-white.webp"
+                        alt="Pranata Plus"
+                        className="h-4 sm:h-4.5 w-auto object-contain"
+                      />
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold text-[#7A8678] bg-[#F8F6F0] px-2 py-0.5 rounded-md border border-[#E8E3D2]">
+                      Bebas Biaya Layanan
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-base sm:text-2xl font-black text-[#1C241E] tracking-tight group-hover:text-[#2B4C3B] transition-colors truncate">
+                    Rp {(profile?.walletBalance || 0).toLocaleString("id-ID")}
+                  </span>
+                  <span className="hidden md:inline-flex items-center gap-1 text-[11px] font-semibold text-[#5A635B]">
+                    <Coins size={12} className="text-amber-500 shrink-0" />
+                    <span>Promo Aktif</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Quick Fintech Actions */}
+            <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-[#E8E3D2]/70 shrink-0">
+              {/* Action 1: Top Up */}
+              <button
+                type="button"
+                onClick={() => {
+                  setPayModalTab("topup");
+                  setShowPayModal(true);
+                }}
+                className={cn(
+                  "flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2",
+                  "py-2 px-3 sm:px-4 rounded-xl sm:rounded-2xl",
+                  "bg-[#EEF2E6] hover:bg-[#2B4C3B] text-[#2B4C3B] hover:text-white",
+                  "font-black text-[11px] sm:text-xs transition-all shadow-xs active:scale-95 cursor-pointer",
+                )}
+              >
+                <ArrowDownRight size={14} className="shrink-0 text-emerald-700" />
+                <span>+ Isi Saldo</span>
+              </button>
+
+              {/* Action 2: Tarik Saldo */}
+              <button
+                type="button"
+                onClick={() => {
+                  setPayModalTab("withdraw");
+                  setShowPayModal(true);
+                }}
+                className={cn(
+                  "flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2",
+                  "py-2 px-3 sm:px-3.5 rounded-xl sm:rounded-2xl",
+                  "bg-[#FAF8F5] hover:bg-[#F1EBE1] text-[#5A635B] hover:text-[#1C241E]",
+                  "font-extrabold text-[11px] sm:text-xs transition-all border border-[#E8E3D2] active:scale-95 cursor-pointer",
+                )}
+              >
+                <ArrowUpRight size={14} className="shrink-0 text-amber-600" />
+                <span>Tarik</span>
+              </button>
+
+              {/* Action 3: Mutasi Transaksi */}
+              <button
+                type="button"
+                onClick={() => {
+                  setPayModalTab("overview");
+                  setShowPayModal(true);
+                }}
+                className={cn(
+                  "flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2",
+                  "py-2 px-3 sm:px-3.5 rounded-xl sm:rounded-2xl",
+                  "bg-[#FAF8F5] hover:bg-[#F1EBE1] text-[#5A635B] hover:text-[#1C241E]",
+                  "font-extrabold text-[11px] sm:text-xs transition-all border border-[#E8E3D2] active:scale-95 cursor-pointer",
+                )}
+              >
+                <CreditCard size={14} className="shrink-0 text-blue-600" />
+                <span>Mutasi</span>
+              </button>
+
+              {/* Action 4: Pranata Plus */}
+              <button
+                type="button"
+                onClick={() => setShowUpgradeModal(true)}
+                className={cn(
+                  "hidden lg:flex items-center justify-center gap-1.5",
+                  "py-2 px-3.5 rounded-2xl",
+                  profile?.subscriptionTier === "PLUS"
+                    ? "bg-[#1C2E24] border border-[#D4AF37]/60 text-white"
+                    : "bg-[#FAF8F5] hover:bg-[#EEF2E6] border border-[#D4AF37]/60 text-[#856608] hover:opacity-95 shadow-xs",
+                  "font-black text-xs transition-all active:scale-95 cursor-pointer",
+                )}
+              >
+                {profile?.subscriptionTier === "PLUS" ? (
+                  <img
+                    src="/logos/plus/plus-white.webp"
+                    alt="Pranata Plus"
+                    className="h-5 sm:h-5.5 w-auto object-contain"
+                  />
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <img
+                      src="/logos/plus/plus-black.webp"
+                      alt="Pranata Plus"
+                      className="h-5 sm:h-5.5 w-auto object-contain inline"
+                    />
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
         {/* RECTANGLE CATEGORY CARDS (COMPACT & SLEEK WITH REDUCED WIDTH RATIO) */}
         <section
           className={cn(
-            "-mt-4 min-[360px]:-mt-5 sm:-mt-8",
-            "md:-mt-10 relative z-30",
-            "pt-0 w-full px-1",
-            "sm:px-0",
+            "pt-1 sm:pt-2 relative z-20",
+            "w-full px-1 sm:px-0",
           )}
         >
+
           <div
             ref={categoryScrollRef}
             onScroll={handleScroll}
@@ -1389,6 +1610,25 @@ export default function MarketplacePage() {
         <Footer />
       </div>
 
+      {/* In-App Pranata Pay Modal */}
+      <PranataPayModal
+        isOpen={showPayModal}
+        initialTab={payModalTab}
+        onClose={() => setShowPayModal(false)}
+        onSuccess={() => {
+          loadData(true);
+        }}
+      />
+
+      {/* Upgrade Plus Modal */}
+      <UpgradePlusModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onSuccess={() => {
+          loadData(true);
+        }}
+      />
+
       <style
         jsx
         global
@@ -1404,3 +1644,4 @@ export default function MarketplacePage() {
     </div>
   );
 }
+

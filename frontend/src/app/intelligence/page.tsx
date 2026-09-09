@@ -25,19 +25,22 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import ReactMarkdown from "react-markdown";
-import {
-  fetchApi,
-  getApiBaseUrl,
-} from "@/lib/apiClient";
+import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
+import { Lock, Crown, CheckCircle2, TrendingUp } from "lucide-react";
+
+const API_BASE = getApiBaseUrl();
 
 export default function StandaloneIntelligencePage() {
   const router = useRouter();
-  const [profile, setProfile] =
-    useState<any>(null);
-  const [contextData, setContextData] =
-    useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [contextData, setContextData] = useState<any>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [previewTab, setPreviewTab] = useState<"pakan" | "harga" | "medis">("pakan");
+
+
 
   const {
     messages,
@@ -289,6 +292,29 @@ export default function StandaloneIntelligencePage() {
     profile?.farmName ||
     "Peternak";
 
+  const isPlus = profile?.subscriptionTier === "PLUS";
+
+  const refreshProfile = async () => {
+    const sessionStr =
+      localStorage.getItem("pranata_session") ||
+      localStorage.getItem("farmpro_session");
+    if (sessionStr) {
+      const parsed = JSON.parse(sessionStr);
+      if (parsed.id) {
+        try {
+          const res = await fetchApi(`${API_BASE}/api/profile/${parsed.id}`);
+          if (res.ok) {
+            const data = await res.json();
+            const updated = { ...parsed, ...data };
+            setProfile(updated);
+            localStorage.setItem("pranata_session", JSON.stringify(updated));
+            localStorage.setItem("farmpro_session", JSON.stringify(updated));
+          }
+        } catch (e) {}
+      }
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -333,38 +359,222 @@ export default function StandaloneIntelligencePage() {
             />
           </Link>
         </div>
+
+        <div>
+          {isPlus ? (
+            <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-[#1C2E24] border border-[#D4AF37]/50 shadow-xs">
+              <img
+                src="/logos/plus/plus-white.webp"
+                alt="Pranata Plus"
+                className="h-5 sm:h-6 w-auto object-contain"
+              />
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowUpgradeModal(true)}
+              className="inline-flex items-center px-4 py-2 rounded-full bg-white hover:bg-[#EEF2E6] border border-[#D4AF37] text-[#856608] text-xs font-black tracking-wider uppercase transition-all shadow-xs cursor-pointer"
+            >
+              <span className="flex items-center gap-1.5">Upgrade ke <img src="/logos/plus/plus-black.webp" alt="Pranata Plus" className="h-5 w-auto object-contain inline" /></span>
+            </button>
+          )}
+        </div>
       </header>
 
-      {/* ── Main Canvas Content ── */}
-      <main
-        className={cn(
-          "flex-1 w-full max-w-5xl",
-          "mx-auto px-4 sm:px-6",
-          "py-6 flex flex-col",
-          "justify-center items-center",
-        )}
-      >
-        {messages.length === 0 ? (
-          <div
-            className={cn(
-              "w-full flex flex-col",
-              "items-center justify-center text-center",
-              "my-auto",
-            )}
+      {/* If FREE Tier: Render Paywall Showcase */}
+      {!isPlus ? (
+        <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-8 flex flex-col items-center justify-center text-center my-auto">
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-extrabold mb-4 shadow-xs"
           >
-            {/* Greeting Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+            <span className="flex items-center gap-1.5">Fitur Eksklusif <img src="/logos/plus/plus-black.webp" alt="Pranata Plus" className="h-5 sm:h-5.5 w-auto object-contain inline" /></span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-3xl sm:text-5xl font-black text-[#1C241E] tracking-tight mb-3"
+          >
+            Buka Kekuatan <span className="bg-gradient-to-r from-[#2B4C3B] via-[#4A7C59] to-[#D4AF37] bg-clip-text text-transparent">Agentic AI Copilot</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-sm sm:text-base text-[#5A635B] max-w-2xl mb-8 leading-relaxed font-medium"
+          >
+            Pranata Intelligence bukan sekadar chatbot umum. AI kami terhubung langsung ke basis data peternakan Anda—menganalisis riwayat transaksi, stok etalase, estimasi FCR pakan, hingga diagnosa klinis penyakit ternak.
+          </motion.p>
+
+          {/* Interactive Preview Container */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="w-full bg-white border border-[#E8E3D2] rounded-3xl p-5 sm:p-7 shadow-lg text-left mb-8"
+          >
+            <div className="flex items-center justify-between border-b border-[#E8E3D2] pb-4 mb-4">
+              <span className="text-xs font-black uppercase text-[#7A8678] tracking-wider">
+                Simulasi Respons AI Berbasis Database Anda
+              </span>
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+                ● Live Context Ready
+              </span>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex flex-wrap gap-2 mb-5">
+              {[
+                { id: "pakan", label: "🌾 Optimasi Pakan (FCR)" },
+                { id: "harga", label: "📊 Margin & Rekomendasi Jual" },
+                { id: "medis", label: "🩺 Diagnosa Gejala Klinis" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setPreviewTab(tab.id as any)}
+                  className={cn(
+                    "px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer",
+                    previewTab === tab.id
+                      ? "bg-[#2B4C3B] text-white shadow-xs"
+                      : "bg-[#FAF8F5] text-[#5A635B] hover:bg-[#EEF2E6] border border-[#E8E3D2]"
+                  )}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab Contents */}
+            <div className="bg-[#FAF8F5] border border-[#E8E3D2] rounded-2xl p-4 sm:p-5 text-xs sm:text-sm text-[#1C241E] leading-relaxed">
+              {previewTab === "pakan" && (
+                <div className="space-y-2">
+                  <p className="font-extrabold text-[#2B4C3B] flex items-center gap-1.5">
+                    <Sparkles size={14} className="text-[#D4AF37]" />
+                    Analisis Rasio FCR & Rekomendasi Pakan:
+                  </p>
+                  <p className="text-[#4A5568]">
+                    "Berdasarkan populasi ternak Anda di Sleman, bobot rata-rata saat ini 1,8 kg/ekor dengan konsumsi pakan harian 110 gram. Rasio FCR saat ini berada di angka <strong>1.52</strong> (kategori sangat efisien)."
+                  </p>
+                  <div className="p-3 bg-white rounded-xl border border-[#E8E3D2] mt-2">
+                    <p className="font-bold text-[#1C241E]">💡 Tindakan Penghematan Biaya:</p>
+                    <p className="text-[#5A635B] mt-0.5">
+                      Substitusi 12% pakan komersial dengan fermentasi dedak + ampas tahu lokal dapat memangkas biaya hingga <strong>Rp 340.000 / minggu</strong> tanpa mengurangi laju pertumbuhan harian (ADG).
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {previewTab === "harga" && (
+                <div className="space-y-2">
+                  <p className="font-extrabold text-[#2B4C3B] flex items-center gap-1.5">
+                    <TrendingUp size={14} className="text-emerald-600" />
+                    Insight Harga Pasar & Margin Keuntungan:
+                  </p>
+                  <p className="text-[#4A5568]">
+                    "Harga acuan daging sapi karkas di Yogyakarta minggu ini stabil di Rp 118.000/kg. Dengan HPP peternakan Anda di Rp 92.000/kg, kami menyarankan Anda menetapkan harga etalase di <strong>Rp 115.000/kg</strong> untuk memenangkan kompetisi pasar."
+                  </p>
+                  <div className="p-3 bg-white rounded-xl border border-[#E8E3D2] mt-2 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-[#7A8678] font-bold block">POTENSI GROSS MARGIN</span>
+                      <span className="font-black text-emerald-700 text-base">25.0% (Rp 23.000/kg)</span>
+                    </div>
+                    <span className="text-xs font-bold px-2 py-1 rounded bg-emerald-50 text-emerald-800">
+                      Rekomendasi: Jual Sekarang
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {previewTab === "medis" && (
+                <div className="space-y-2">
+                  <p className="font-extrabold text-[#2B4C3B] flex items-center gap-1.5">
+                    <ShieldCheck size={14} className="text-blue-600" />
+                    Protokol Diagnosa Gejala & Karantina:
+                  </p>
+                  <p className="text-[#4A5568]">
+                    "Ternak menunjukkan penurunan nafsu makan dan lesi ringan pada kuku. Kemungkinan indikasi awal defisiensi mineral seng atau paparan kelembapan tinggi."
+                  </p>
+                  <div className="p-3 bg-white rounded-xl border border-[#E8E3D2] mt-2">
+                    <p className="font-bold text-[#1C241E]">🚨 Langkah Pencegahan Darurat:</p>
+                    <p className="text-[#5A635B] mt-0.5">
+                      1. Keringkan alas kandang dan semprotkan desinfektan iodin 1%.<br/>
+                      2. Berikan suplemen vitamin ADE + Zinc cair pada air minum selama 3 hari berturut-turut.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Value Props & CTA Button */}
+          <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              type="button"
+              onClick={() => setShowUpgradeModal(true)}
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#2B4C3B] to-[#1E362A] hover:opacity-95 text-white font-black text-sm sm:text-base shadow-xl shadow-[#2B4C3B]/25 flex items-center justify-center cursor-pointer transition-all active:scale-98"
+            >
+              <span className="flex items-center gap-2">Aktivasi <img src="/logos/plus/plus-white.webp" alt="Pranata Plus" className="h-6 sm:h-7 w-auto object-contain inline" /> (Rp 79.000 / 30 Hari)</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 w-full">
+            {[
+              "Copilot AI Database Connected",
+              "1 Slot Produk Sponsor",
+              "Papan Pasokan B2B Resto",
+              "Analisis Laba Rugi P&L",
+            ].map((feature, i) => (
+              <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E8E3D2] text-xs font-bold text-[#1C241E]">
+                <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+                <span className="truncate">{feature}</span>
+              </div>
+            ))}
+          </div>
+        </main>
+      ) : (
+        /* ── Active Copilot Interface for Pranata Plus ── */
+        <main
+          className={cn(
+            "flex-1 w-full max-w-5xl",
+            "mx-auto px-4 sm:px-6",
+            "py-6 flex flex-col",
+            "justify-center items-center",
+          )}
+        >
+          {messages.length === 0 ? (
+            <div
               className={cn(
-                "text-4xl sm:text-5xl lg:text-6xl",
-                "font-black bg-gradient-to-r from-[#2B4C3B]",
-                "via-[#3B664C] to-[#1E362A] bg-clip-text",
-                "text-transparent tracking-tight mb-2",
+                "w-full flex flex-col",
+                "items-center justify-center text-center",
+                "my-auto",
               )}
             >
-              Halo, {userName}!
-            </motion.h1>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="inline-flex items-center px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-extrabold mb-3"
+              >
+                <span className="flex items-center gap-1.5"><img src="/logos/plus/plus-black.webp" alt="Pranata Plus" className="h-5 sm:h-5.5 w-auto object-contain inline" /> Copilot Aktif</span>
+              </motion.div>
+
+              {/* Greeting Headline */}
+              <motion.h1
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={cn(
+                  "text-4xl sm:text-5xl lg:text-6xl",
+                  "font-black bg-gradient-to-r from-[#2B4C3B]",
+                  "via-[#3B664C] to-[#1E362A] bg-clip-text",
+                  "text-transparent tracking-tight mb-2",
+                )}
+              >
+                Halo, {userName}!
+              </motion.h1>
+
 
             <motion.p
               initial={{ opacity: 0, y: 10 }}
@@ -985,6 +1195,8 @@ export default function StandaloneIntelligencePage() {
           </form>
         </div>
       </main>
+      )}
+
 
       {/* ── Footer ── */}
       <footer
@@ -994,10 +1206,18 @@ export default function StandaloneIntelligencePage() {
           "tracking-wider uppercase shrink-0",
         )}
       >
-        Powered by Pranata Intelligence
-        Engine • Kebebasan Informasi &
-        Diagnosa AI Peternakan
+        Powered by Pranata Intelligence Engine • Kebebasan Informasi & Diagnosa AI Peternakan
       </footer>
+
+      {/* Upgrade Modal */}
+      <UpgradePlusModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onSuccess={() => {
+          refreshProfile();
+        }}
+      />
     </div>
   );
 }
+

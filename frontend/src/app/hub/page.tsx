@@ -27,6 +27,19 @@ import {
   Loader2,
   Info,
   RefreshCw,
+  Wallet,
+  CreditCard,
+  ArrowDownRight,
+  ArrowUpRight,
+  Lock,
+  Crown,
+  CheckCircle2,
+  Building2,
+  HandCoins,
+  BadgeCheck,
+  Briefcase,
+  DollarSign,
+  PieChart,
 } from "lucide-react";
 import { useChat } from "ai/react";
 import ReactMarkdown from "react-markdown";
@@ -39,6 +52,8 @@ import Link from "next/link";
 import { usePageLoading } from "@/components/shared/loading-context";
 
 import { SellerOnboardingModal } from "@/components/modals/SellerOnboardingModal";
+import { PranataPayModal } from "@/components/modals/PranataPayModal";
+import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
 
 export default function MainDashboard() {
   const router = useRouter();
@@ -46,8 +61,22 @@ export default function MainDashboard() {
     useState<any>(null);
   const [showOnboardingModal, setShowOnboardingModal] =
     useState<boolean>(false);
+  const [showPayModal, setShowPayModal] =
+    useState(false);
+  const [payModalTab, setPayModalTab] =
+    useState<"overview" | "topup" | "withdraw">("overview");
+  const [showUpgradeModal, setShowUpgradeModal] =
+    useState(false);
+  const [procurements, setProcurements] =
+    useState<any[]>([]);
+  const [appliedProcurementId, setAppliedProcurementId] =
+    useState<string | null>(null);
+
+  const isPlus = profile?.subscriptionTier === "PLUS";
 
   // Data States
+
+
   const [orders, setOrders] = useState<
     any[]
   >([]);
@@ -367,7 +396,7 @@ export default function MainDashboard() {
       setShowOnboardingModal(true);
     }
 
-    // 2. Fetch Orders, Products, Events, & Prices in 1 Parallel Batch
+    // 2. Fetch Orders, Products, Events, Prices, Procurements & Profile in 1 Parallel Batch
     const API_BASE = getApiBaseUrl();
 
     Promise.all([
@@ -386,6 +415,12 @@ export default function MainDashboard() {
       fetchApi(`${API_BASE}/api/prices`).catch(
         () => null,
       ),
+      fetchApi(`${API_BASE}/api/procurement`).catch(
+        () => null,
+      ),
+      fetchApi(`${API_BASE}/api/profile/${session.id}`).catch(
+        () => null,
+      ),
     ])
       .then(
         async ([
@@ -394,6 +429,8 @@ export default function MainDashboard() {
           allProdRes,
           evRes,
           prRes,
+          procRes,
+          profRes,
         ]) => {
           const ordersData =
             ordRes && ordRes.ok
@@ -415,6 +452,21 @@ export default function MainDashboard() {
             prRes && prRes.ok
               ? await prRes.json()
               : [];
+          const procData =
+            procRes && procRes.ok
+              ? await procRes.json()
+              : [];
+          const profData =
+            profRes && profRes.ok
+              ? await profRes.json()
+              : null;
+
+          if (profData) {
+            const updated = { ...session, ...profData };
+            setProfile(updated);
+            localStorage.setItem("pranata_session", JSON.stringify(updated));
+            localStorage.setItem("farmpro_session", JSON.stringify(updated));
+          }
 
           const ordersArray = Array.isArray(
             ordersData,
@@ -429,12 +481,18 @@ export default function MainDashboard() {
             Array.isArray(allProdData)
               ? allProdData
               : allProdData.data || [];
+          const procArray =
+            Array.isArray(procData)
+              ? procData
+              : procData.data || [];
 
-          setOrders(ordersArray.slice(0, 2));
+          setOrders(ordersArray);
           setProducts(productsArray);
+          setProcurements(procArray);
           setAllMarketplaceCount(
             allProductsArray.length,
           );
+
 
           if (Array.isArray(eventsData)) {
             setEvents(eventsData);
@@ -1950,18 +2008,329 @@ export default function MainDashboard() {
             </div>
           </div>
         </div>
+
+        {/* ── 2nd Row: Pranata Pay Financial Hub & P&L Analytics ── */}
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Pranata Pay Wallet Card */}
+          <div className="bg-gradient-to-br from-[#1C241E] via-[#2B4C3B] to-[#1E362A] text-white rounded-3xl p-6 border border-[#2B4C3B] shadow-xl flex flex-col justify-between relative overflow-hidden">
+            {/* Background Glow */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#D4AF37] opacity-15 blur-[60px] rounded-full pointer-events-none" />
+
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2.5">
+                  <img
+                    src="/logos/pay/pay-white.webp"
+                    alt="Pranata Pay"
+                    className="h-7 sm:h-8 w-auto object-contain"
+                  />
+                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-white/15 text-white tracking-wider">
+                    E-Wallet
+                  </span>
+                </div>
+                {isPlus && (
+                  <span className="px-2 py-0.5 rounded-full bg-black/40 border border-[#D4AF37]/50 flex items-center">
+                    <img
+                      src="/logos/plus/plus-white.webp"
+                      alt="Pranata Plus"
+                      className="h-4.5 w-auto object-contain"
+                    />
+                  </span>
+                )}
+              </div>
+
+              <div className="my-3">
+                <span className="text-xs text-[#A4C4A8] font-bold block mb-0.5">Saldo Tersedia</span>
+                <div className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                  Rp {(profile?.walletBalance || 0).toLocaleString("id-ID")}
+                </div>
+                <p className="text-[11px] text-white/70 mt-1">
+                  Semua hasil penjualan komoditas langsung masuk ke saldo ini secara otomatis saat pesanan selesai.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-white/15 grid grid-cols-3 gap-2 mt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setPayModalTab("topup");
+                  setShowPayModal(true);
+                }}
+                className="py-2.5 px-2 rounded-xl bg-white text-[#2B4C3B] hover:bg-[#EEF2E6] font-black text-xs transition-all flex flex-col items-center justify-center gap-1 shadow-sm cursor-pointer active:scale-95"
+              >
+                <ArrowDownRight size={15} className="text-emerald-700" />
+                <span>+ Isi Saldo</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPayModalTab("withdraw");
+                  setShowPayModal(true);
+                }}
+                className="py-2.5 px-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs transition-all flex flex-col items-center justify-center gap-1 border border-white/15 cursor-pointer active:scale-95"
+              >
+                <ArrowUpRight size={15} className="text-amber-300" />
+                <span>Tarik Dana</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPayModalTab("overview");
+                  setShowPayModal(true);
+                }}
+                className="py-2.5 px-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs transition-all flex flex-col items-center justify-center gap-1 border border-white/15 cursor-pointer active:scale-95"
+              >
+
+                <CreditCard size={15} className="text-blue-300" />
+                <span>Mutasi</span>
+              </button>
+            </div>
+          </div>
+
+          {/* P&L Financial Summary (Exclusive to Plus) */}
+          <div className="lg:col-span-2 bg-white border border-[#E8E3D2] rounded-3xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#2B4C3B] flex items-center justify-center">
+                  <PieChart size={16} />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm text-[#1C241E]">Ringkasan Finansial & Laba Rugi</h3>
+                  <p className="text-[11px] text-[#5A635B]">Transparansi Biaya Platform 3.5% & Payout Bersih</p>
+                </div>
+              </div>
+              {isPlus ? (
+                <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  Laporan Real-Time
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1 hover:bg-amber-100 transition-colors cursor-pointer"
+                >
+                  <Lock size={10} />
+                  <span>Buka dengan Plus</span>
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 my-2">
+              <div className="p-4 bg-[#FAF8F5] border border-[#E8E3D2] rounded-2xl">
+                <span className="text-[10px] font-bold text-[#7A8678] uppercase tracking-wider block">Gross Sales</span>
+                <span className="text-lg font-black text-[#1C241E] mt-0.5 block">
+                  Rp {orders.filter((o) => o.status === "COMPLETED").reduce((s, o) => s + (o.totalAmount || 0), 0).toLocaleString("id-ID")}
+                </span>
+                <span className="text-[10px] text-emerald-700 font-semibold mt-1 block">
+                  {orders.filter((o) => o.status === "COMPLETED").length} Pesanan Selesai
+                </span>
+              </div>
+
+              <div className="p-4 bg-[#FAF8F5] border border-[#E8E3D2] rounded-2xl">
+                <span className="text-[10px] font-bold text-[#7A8678] uppercase tracking-wider block">Biaya Platform (3.5%)</span>
+                <span className="text-lg font-black text-[#C85A32] mt-0.5 block">
+                  -Rp {orders.filter((o) => o.status === "COMPLETED").reduce((s, o) => s + (o.takeRateFee || Math.round((o.totalAmount || 0) * 0.035)), 0).toLocaleString("id-ID")}
+                </span>
+                <span className="text-[10px] text-[#7A8678] font-medium mt-1 block">
+                  Standar Take Rate Transparan
+                </span>
+              </div>
+
+              <div className="p-4 bg-[#EEF2E6] border border-[#2B4C3B]/20 rounded-2xl">
+                <span className="text-[10px] font-bold text-[#2B4C3B] uppercase tracking-wider block">Net Payout Diterima</span>
+                <span className="text-lg font-black text-[#2B4C3B] mt-0.5 block">
+                  Rp {orders.filter((o) => o.status === "COMPLETED").reduce((s, o) => s + (o.sellerNetPayout || Math.round((o.totalAmount || 0) * 0.965)), 0).toLocaleString("id-ID")}
+                </span>
+                <span className="text-[10px] text-emerald-700 font-bold mt-1 block">
+                  100% Bebas Potongan Tersembunyi
+                </span>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-[#E8E3D2] flex items-center justify-between text-xs text-[#5A635B] mt-2">
+              <span>Estimasi Margin Bersih Peternakan: <strong className="text-[#1C241E]">~22.4%</strong></span>
+              <button
+                type="button"
+                onClick={() => isPlus ? router.push("/hub/orders") : setShowUpgradeModal(true)}
+                className="font-bold text-[#2B4C3B] hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <span>Lihat Laporan Detail</span>
+                <ChevronRight size={13} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── 3rd Row: Papan Permintaan Pasokan B2B Restoran & Hotel ── */}
+        <div className="mt-6 bg-white border border-[#E8E3D2] rounded-3xl p-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-800 flex items-center justify-center">
+                  <Building2 size={16} />
+                </div>
+                <h3 className="font-extrabold text-base text-[#1C241E]">
+                  Papan Pasokan B2B Restoran & Hotel (Procurement Board)
+                </h3>
+              </div>
+              <p className="text-xs text-[#5A635B] mt-0.5">
+                Peluang kontrak pasokan rutin skala besar dari jaringan HORECA mitra resmi Pranata.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                {procurements.length} Tender Terbuka
+              </span>
+              {!isPlus && (
+                <button
+                  type="button"
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="text-xs font-black px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-white hover:opacity-95 shadow-xs transition-all cursor-pointer flex items-center gap-1"
+                >
+                  <Crown size={12} />
+                  <span>Akses Penuh (Plus)</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {procurements.map((item) => (
+              <div
+                key={item.id}
+                className="bg-[#FAF8F5] border border-[#E8E3D2] rounded-2xl p-4 flex flex-col justify-between hover:border-[#2B4C3B]/50 transition-all group"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-[#EEF2E6] text-[#2B4C3B] tracking-wider">
+                      {item.category}
+                    </span>
+                    <span className="text-[10px] font-bold text-[#7A8678]">
+                      {item.frequency}
+                    </span>
+                  </div>
+
+                  <h4 className="font-extrabold text-sm text-[#1C241E] group-hover:text-[#2B4C3B] transition-colors line-clamp-1">
+                    {item.companyName}
+                  </h4>
+                  <p className="text-xs font-bold text-[#2B4C3B] mt-0.5">
+                    {item.title}
+                  </p>
+                  <p className="text-[11px] text-[#5A635B] mt-1 line-clamp-2 leading-relaxed">
+                    {item.requirements}
+                  </p>
+
+                  <div className="mt-3 pt-2.5 border-t border-[#E8E3D2] flex items-center justify-between text-xs">
+                    <div>
+                      <span className="text-[10px] text-[#7A8678] block">Kebutuhan Rutin</span>
+                      <span className="font-black text-[#1C241E]">{item.volumeNeeded}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-[#7A8678] block">Target Anggaran</span>
+                      <span className="font-black text-[#C85A32]">{item.targetPrice}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-[#E8E3D2]">
+                  {appliedProcurementId === item.id ? (
+                    <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-center text-xs font-black text-emerald-800 flex items-center justify-center gap-1.5">
+                      <BadgeCheck size={15} className="text-emerald-700" />
+                      <span>Penawaran Terkirim ke Pembeli</span>
+                    </div>
+                  ) : isPlus ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAppliedProcurementId(item.id);
+                        setTimeout(() => setAppliedProcurementId(null), 8000);
+                      }}
+                      className="w-full py-2 px-3 rounded-xl bg-[#2B4C3B] hover:bg-[#1E362A] text-white font-black text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Briefcase size={13} />
+                      <span>Ajukan Penawaran Pasokan</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="w-full py-2 px-3 rounded-xl bg-white hover:bg-[#EEF2E6] border border-[#D4AF37] text-[#856608] font-bold text-xs transition-all shadow-xs flex items-center justify-center cursor-pointer"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        Buka Kontak B2B (<img src="/logos/plus/plus-black.webp" alt="Pranata Plus" className="h-5 w-auto object-contain inline" />)
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="mt-16">
         <Footer />
       </div>
 
+      {/* Seller Onboarding Modal */}
       <SellerOnboardingModal
         isOpen={showOnboardingModal}
-        onClose={() =>
-          setShowOnboardingModal(false)
-        }
+        onClose={() => setShowOnboardingModal(false)}
+      />
+
+      {/* Pranata Pay In-App Wallet Modal */}
+      <PranataPayModal
+        isOpen={showPayModal}
+        initialTab={payModalTab}
+        onClose={() => setShowPayModal(false)}
+        onSuccess={() => {
+          const sessionStr =
+            localStorage.getItem("pranata_session") ||
+            localStorage.getItem("farmpro_session");
+          if (sessionStr) {
+            const parsed = JSON.parse(sessionStr);
+            const API_BASE = getApiBaseUrl();
+            fetchApi(`${API_BASE}/api/profile/${parsed.id}`)
+              .then((r) => (r.ok ? r.json() : null))
+              .then((data) => {
+                if (data) {
+                  const upd = { ...parsed, ...data };
+                  setProfile(upd);
+                  localStorage.setItem("pranata_session", JSON.stringify(upd));
+                  localStorage.setItem("farmpro_session", JSON.stringify(upd));
+                }
+              });
+          }
+        }}
+      />
+
+      {/* Upgrade Plus Modal */}
+      <UpgradePlusModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onSuccess={() => {
+          const sessionStr =
+            localStorage.getItem("pranata_session") ||
+            localStorage.getItem("farmpro_session");
+          if (sessionStr) {
+            const parsed = JSON.parse(sessionStr);
+            const API_BASE = getApiBaseUrl();
+            fetchApi(`${API_BASE}/api/profile/${parsed.id}`)
+              .then((r) => (r.ok ? r.json() : null))
+              .then((data) => {
+                if (data) {
+                  const upd = { ...parsed, ...data };
+                  setProfile(upd);
+                  localStorage.setItem("pranata_session", JSON.stringify(upd));
+                  localStorage.setItem("farmpro_session", JSON.stringify(upd));
+                }
+              });
+          }
+        }}
       />
     </motion.div>
   );
 }
+

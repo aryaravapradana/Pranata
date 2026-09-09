@@ -51,6 +51,9 @@ const checkoutSchema = z.object({
   paymentMethod: z.string().optional(),
   shippingFee: z.number().min(0).default(0),
   platformFee: z.number().min(0).default(0),
+  insuranceFee: z.number().min(0).default(0),
+  coldChainFee: z.number().min(0).default(0),
+  qcInspectionFee: z.number().min(0).default(0),
   requestedArrivalDate: z
     .string()
     .datetime()
@@ -79,7 +82,9 @@ export const checkout = async (
     shippingMethod,
     paymentMethod,
     shippingFee,
-    platformFee,
+    insuranceFee,
+    coldChainFee,
+    qcInspectionFee,
     requestedArrivalDate,
   } = parse.data;
 
@@ -98,14 +103,45 @@ export const checkout = async (
       sum + item.price * item.quantity,
     0,
   );
+
+  // Take Rate: 3.5% from items subtotal
+  const takeRateFee = Math.round(itemsSubtotal * 0.035);
+  const sellerNetPayout = itemsSubtotal - takeRateFee;
+
+  // Buyer protection fee: Rp 0 if paying with Pranata Pay (promo), otherwise Rp 2.000
+  const isPranataPay = paymentMethod === "pranata_pay";
+  const buyerProtectionFee = isPranataPay ? 0 : 2000;
+
   const totalAmount =
     itemsSubtotal +
     shippingFee +
-    platformFee;
+    buyerProtectionFee +
+    insuranceFee +
+    coldChainFee +
+    qcInspectionFee;
 
   try {
     const order = await prisma.$transaction(
       async (tx) => {
+        // If Pranata Pay, verify and deduct buyer's wallet balance
+        if (isPranataPay) {
+          const buyerProfile = await tx.profile.findUnique({
+            where: { id: buyerId },
+            select: { walletBalance: true },
+          });
+          if (!buyerProfile || buyerProfile.walletBalance < totalAmount) {
+            throw new Error("Saldo Pranata Pay tidak mencukupi untuk pembayaran ini");
+          }
+          await tx.profile.update({
+            where: { id: buyerId },
+            data: {
+              walletBalance: {
+                decrement: totalAmount,
+              },
+            },
+          });
+        }
+
         const productIds = items.map(
           (i) => i.productId,
         );
@@ -149,7 +185,13 @@ export const checkout = async (
               shippingMethod,
               paymentMethod,
               shippingFee,
-              platformFee,
+              platformFee: buyerProtectionFee,
+              takeRateFee,
+              buyerProtectionFee,
+              insuranceFee,
+              coldChainFee,
+              qcInspectionFee,
+              sellerNetPayout,
               requestedArrivalDate:
                 requestedArrivalDate
                   ? new Date(
@@ -174,6 +216,23 @@ export const checkout = async (
               },
             },
           });
+
+        // Record wallet transaction if buyer used Pranata Pay
+        if (isPranataPay) {
+          await tx.walletTransaction.create({
+            data: {
+              profileId: buyerId,
+              type: "PAYMENT",
+              amount: totalAmount,
+              fee: 0,
+              netAmount: -totalAmount,
+              description: `Pembayaran Pesanan #${newOrder.id.slice(0, 8)} via Pranata Pay`,
+              referenceId: newOrder.id,
+              paymentMethod: "pranata_pay",
+              status: "SUCCESS",
+            },
+          });
+        }
 
         await Promise.all(
           items.map((item) =>
@@ -270,6 +329,7 @@ export const getOrdersByRole = async (
               username: true,
               fullName: true,
               farmName: true,
+              subscriptionTier: true,
             },
           },
         },
@@ -325,11 +385,43 @@ export const updateOrderStatus = async (
         .status(403)
         .json({ error: "Forbidden" });
 
-    const updatedOrder =
-      await prisma.order.update({
+    const previousStatus = order.status;
+
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      const updated = await tx.order.update({
         where: { id },
         data: { status },
       });
+
+      // If completing order and it was not previously completed, credit seller's wallet
+      if (status === "COMPLETED" && previousStatus !== "COMPLETED") {
+        const payoutAmount = order.sellerNetPayout > 0 ? order.sellerNetPayout : (order.totalAmount - order.takeRateFee);
+        
+        await tx.profile.update({
+          where: { id: order.sellerId },
+          data: {
+            walletBalance: {
+              increment: payoutAmount,
+            },
+          },
+        });
+
+        await tx.walletTransaction.create({
+          data: {
+            profileId: order.sellerId,
+            type: "SALE_INCOME",
+            amount: order.totalAmount,
+            fee: order.takeRateFee,
+            netAmount: payoutAmount,
+            description: `Penerimaan Hasil Penjualan #${order.id.slice(0, 8)} (Net Take Rate 3.5%)`,
+            referenceId: order.id,
+            status: "SUCCESS",
+          },
+        });
+      }
+
+      return updated;
+    });
 
     // Invalidate caches
     delCache(
@@ -353,3 +445,4 @@ export const updateOrderStatus = async (
       });
   }
 };
+
