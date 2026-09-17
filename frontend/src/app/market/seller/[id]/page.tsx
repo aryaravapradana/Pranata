@@ -28,6 +28,8 @@ import {
 import { useRouter } from "next/navigation";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 import { Footer } from "@/components/layout/Footer";
+import { PlusBadge } from "@/components/ui/plus-badge";
+import { AvatarHalo } from "@/components/ui/avatar-halo";
 
 const API_BASE = getApiBaseUrl();
 const LIMIT = 20;
@@ -240,7 +242,7 @@ export default function SellerProfilePage({
                     className={cn(
                       "bg-white border border-[#E8E3D2]",
                       "rounded-2xl sm:rounded-[1.75rem] overflow-hidden",
-                      "h-[300px] sm:h-[340px] skeleton-shimmer",
+                      "h-75 sm:h-85 skeleton-shimmer",
                       "bg-[#E8E3D2]",
                     )}
                   />
@@ -268,16 +270,21 @@ export default function SellerProfilePage({
             Toko tidak ditemukan.
           </p>
           <button
-            onClick={() =>
-              navigateTo("/market")
-            }
+            data-back="true"
+            onClick={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                router.back();
+              } else {
+                navigateTo("/market");
+              }
+            }}
             className={cn(
               "mt-3 sm:mt-4 text-[#2B4C3B]",
               "font-bold text-sm sm:text-base",
-              "underline",
+              "underline cursor-pointer",
             )}
           >
-            Kembali ke Pasar
+            Kembali
           </button>
         </div>
       </div>
@@ -307,9 +314,14 @@ export default function SellerProfilePage({
       >
         <div>
           <button
-            onClick={() =>
-              navigateTo("/market")
-            }
+            data-back="true"
+            onClick={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                router.back();
+              } else {
+                navigateTo("/market");
+              }
+            }}
             className={cn(
               "inline-flex items-center gap-1.5",
               "sm:gap-2 bg-white border",
@@ -317,8 +329,9 @@ export default function SellerProfilePage({
               "hover:text-[#2B4C3B] font-bold text-xs",
               "sm:text-sm px-3.5 py-1.5",
               "sm:px-4 sm:py-2 rounded-full",
-              "transition-colors shadow-sm active:scale-95",
+              "transition-colors shadow-sm active:scale-95 cursor-pointer",
             )}
+            title="Kembali ke halaman sebelumnya"
           >
             <ChevronLeft size={16} /> Kembali
           </button>
@@ -407,39 +420,17 @@ export default function SellerProfilePage({
                 "sm:mb-5",
               )}
             >
-              {/* Circular avatar overlapping banner */}
-              <div
-                className={cn(
-                  "relative z-10 w-20",
-                  "h-20 sm:w-28 sm:h-28",
-                  "rounded-full border-4 border-white",
-                  "overflow-hidden bg-pranata shadow-xl",
-                  "shrink-0",
-                )}
-              >
-                {seller.avatarUrl ? (
-                  <img
-                    src={seller.avatarUrl}
-                    alt={
-                      seller.farmName ||
-                      seller.fullName
-                    }
-                    decoding="async"
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div
-                    className={cn(
-                      "w-full h-full flex",
-                      "items-center justify-center text-white",
-                      "font-black text-2xl sm:text-4xl",
-                    )}
-                  >
-                    {initials}
-                  </div>
-                )}
-              </div>
+              {/* Circular avatar overlapping banner with Plus Halo */}
+              <AvatarHalo
+                isPlus={seller.subscriptionTier === "PLUS"}
+                avatarUrl={seller.avatarUrl}
+                name={seller.farmName || seller.fullName}
+                initials={initials}
+                size="xl"
+                shape="circle"
+                className="relative z-10 shadow-xl"
+                avatarClassName="border-4 border-white"
+              />
             </div>
 
             {/* Name */}
@@ -453,6 +444,12 @@ export default function SellerProfilePage({
                 {seller.farmName ||
                   seller.fullName}
               </h1>
+              {seller.subscriptionTier === "PLUS" && (
+                <PlusBadge
+                  variant="black"
+                  size="sm"
+                />
+              )}
               <span
                 className={cn(
                   "inline-flex items-center gap-1",
@@ -553,7 +550,7 @@ export default function SellerProfilePage({
                     className={cn(
                       "bg-white border border-[#E8E3D2]",
                       "rounded-2xl sm:rounded-[1.75rem] overflow-hidden",
-                      "h-[300px] sm:h-[340px] skeleton-shimmer",
+                      "h-75 sm:h-85 skeleton-shimmer",
                       "bg-[#E8E3D2]",
                     )}
                   />
@@ -690,7 +687,7 @@ export default function SellerProfilePage({
                     <div
                       className={cn(
                         "absolute inset-x-0 bottom-0",
-                        "h-16 bg-gradient-to-t from-black/20",
+                        "h-16 bg-linear-to-t from-black/20",
                         "to-transparent",
                       )}
                     />

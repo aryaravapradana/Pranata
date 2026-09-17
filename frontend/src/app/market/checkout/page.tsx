@@ -26,7 +26,7 @@ import {
   motion,
   AnimatePresence,
 } from "framer-motion";
-import { usePageLoading } from "@/components/shared/loading-context";
+import { usePageLoading, useGlobalLoading } from "@/components/shared/loading-context";
 import { useRouter } from "next/navigation";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 import { PranataPayModal } from "@/components/modals/PranataPayModal";
@@ -49,6 +49,7 @@ const API_BASE = getApiBaseUrl();
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { goBack } = useGlobalLoading();
   const [loading, setLoading] =
     useState(true);
   const [cart, setCart] = useState<any[]>(
@@ -421,7 +422,7 @@ export default function CheckoutPage() {
               </section>
             </div>
           </div>
-          <div className="w-full lg:w-[22rem]">
+          <div className="w-full lg:w-88">
             <div className="bg-white border border-[#E8E3D2] rounded-2xl p-6">
               <div
                 className={cn(
@@ -480,20 +481,19 @@ export default function CheckoutPage() {
           <div className="col-span-1 flex flex-col gap-6">
             <div className="mb-2">
               <button
-                onClick={() =>
-                  router.push("/market/cart")
-                }
+                onClick={goBack}
+                data-back="true"
                 className={cn(
                   "inline-flex items-center gap-2",
                   "bg-white border border-[#E8E3D2]",
                   "hover:bg-[#F8F6F0] text-[#1C241E] hover:text-[#2B4C3B]",
                   "font-bold text-sm px-4",
                   "py-2 rounded-full transition-colors",
-                  "shadow-sm",
+                  "shadow-sm active:scale-95 cursor-pointer",
                 )}
+                title="Kembali ke halaman sebelumnya"
               >
-                <ChevronLeft size={18} />{" "}
-                Kembali
+                <ChevronLeft size={18} /> Kembali
               </button>
             </div>
 
@@ -520,7 +520,7 @@ export default function CheckoutPage() {
               </h3>
               <div
                 className={cn(
-                  "bg-gradient-to-br from-[#1C241E] via-[#2B4C3B]",
+                  "bg-linear-to-br from-[#1C241E] via-[#2B4C3B]",
                   "to-[#3B664C] rounded-2xl p-4",
                   "border-none shadow-md",
                 )}
@@ -657,14 +657,14 @@ export default function CheckoutPage() {
                     <div
                       className={cn(
                         "rounded-2xl border-2 border-[#E8E3D2]",
-                        "p-4 group-has-[:checked]:border-transparent group-has-[:checked]:bg-gradient-to-r",
-                        "group-has-[:checked]:from-[#2B4C3B] group-has-[:checked]:to-[#4A7C59] group-has-[:checked]:shadow-md",
+                        "p-4 group-has-checked:border-transparent group-has-checked:bg-linear-to-r",
+                        "group-has-checked:from-[#2B4C3B] group-has-checked:to-[#4A7C59] group-has-checked:shadow-md",
                         "transition-all text-center",
                       )}
                     >
                       <p
                         className={cn(
-                          "font-black text-[#1C241E] group-has-[:checked]:text-white",
+                          "font-black text-[#1C241E] group-has-checked:text-white",
                           "text-sm transition-colors",
                         )}
                       >
@@ -672,7 +672,7 @@ export default function CheckoutPage() {
                       </p>
                       <p
                         className={cn(
-                          "text-[11px] text-[#7A8678] group-has-[:checked]:text-[#E8E3D2]",
+                          "text-[11px] text-[#7A8678] group-has-checked:text-[#E8E3D2]",
                           "mt-1 transition-colors",
                         )}
                       >
@@ -710,7 +710,7 @@ export default function CheckoutPage() {
                   <PopoverTrigger
                     className={cn(
                       "w-full flex items-center",
-                      "justify-between bg-gradient-to-r from-[#2B4C3B]",
+                      "justify-between bg-linear-to-r from-[#2B4C3B]",
                       "to-[#4A7C59] p-4 font-bold",
                       "text-white border-none rounded-2xl",
                       "shadow-md transition-all focus:outline-none",
@@ -897,7 +897,7 @@ export default function CheckoutPage() {
                   className={cn(
                     "p-4 rounded-2xl border-2 flex flex-col gap-3 cursor-pointer transition-all relative overflow-hidden",
                     paymentMethod === "pranata_pay"
-                      ? "border-[#2B4C3B] bg-gradient-to-br from-[#EEF2E6] to-white shadow-md ring-2 ring-[#2B4C3B]/20"
+                      ? "border-[#2B4C3B] bg-linear-to-br from-[#EEF2E6] to-white shadow-md ring-2 ring-[#2B4C3B]/20"
                       : "border-[#E8E3D2] bg-white hover:bg-[#FAF8F5]",
                   )}
                 >
@@ -950,7 +950,7 @@ export default function CheckoutPage() {
                           e.preventDefault();
                           setShowTopUpModal(true);
                         }}
-                        className="px-3 py-1 rounded-xl bg-[#2B4C3B] text-white text-xs font-bold hover:bg-[#223d2f] transition-all shadow-xs"
+                        className="px-3.5 py-1.5 rounded-full bg-pranata text-[#F8F6F0] text-xs font-bold hover:bg-[#1E362A] shadow-[0_4px_12px_-4px_rgba(43,76,59,0.4)] transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] cursor-pointer border border-white/10"
                       >
                         + Isi Saldo Instan
                       </button>
@@ -1082,7 +1082,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* Right: Summary */}
-        <div className="w-full lg:w-[22rem]">
+        <div className="w-full lg:w-88">
           <div
             className={cn(
               "bg-white border border-[#E8E3D2]",
@@ -1230,7 +1230,7 @@ export default function CheckoutPage() {
 
               <motion.button
                 whileHover={{
-                  scale: isSubmitting ? 1 : 1.01,
+                  scale: isSubmitting ? 1 : 1.02,
                 }}
                 whileTap={{
                   scale: isSubmitting ? 1 : 0.98,
@@ -1240,18 +1240,18 @@ export default function CheckoutPage() {
                   isSubmitting ||
                   cart.length === 0
                 }
-                className={`w-full mt-4 py-4 font-black text-white rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                className={`w-full mt-4 py-4 font-bold text-sm sm:text-base text-[#F8F6F0] rounded-full transition-all duration-200 transform-gpu flex items-center justify-center gap-2 cursor-pointer ${
                   isSubmitting ||
                   cart.length === 0
                     ? "bg-gray-400 opacity-60 cursor-not-allowed shadow-none"
-                    : "bg-[#2B4C3B] hover:bg-[#1E362A] shadow-lg shadow-[#2B4C3B]/25"
+                    : "bg-pranata hover:bg-[#1E362A] shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] border border-white/10"
                 }`}
               >
                 {isSubmitting ? (
                   <>
                     <Loader2
                       size={19}
-                      className="animate-spin text-white"
+                      className="animate-spin text-[#F8F6F0]"
                     />
                     <span>
                       Memproses Pesanan...

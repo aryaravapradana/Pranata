@@ -8,16 +8,17 @@ import {
   getProductById,
   toggleSponsoredProduct,
 } from "../controllers/product.controller";
+import { verifyToken } from "../middlewares/auth.middleware";
 
 const router = Router();
 
 router.get("/", getAllProducts);
 router.get("/seller/:id", getSellerProducts);
 router.get("/:id", getProductById);
-router.post("/", createProduct);
-router.put("/:id", updateProduct);
-router.patch("/:id/sponsor", toggleSponsoredProduct);
-router.delete("/:id", deleteProduct);
+router.post("/", verifyToken, createProduct);
+router.put("/:id", verifyToken, updateProduct);
+router.patch("/:id/sponsor", verifyToken, toggleSponsoredProduct);
+router.delete("/:id", verifyToken, deleteProduct);
 
 export default router;
 

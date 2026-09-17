@@ -428,7 +428,7 @@ export function SellerOnboardingModal({
       {isOpen && (
         <div
           className={cn(
-            "fixed inset-0 z-[99999]",
+            "fixed inset-0 z-99999",
             "flex items-center justify-center",
             "p-3 sm:p-5 overflow-y-auto",
           )}
@@ -683,16 +683,16 @@ export function SellerOnboardingModal({
                         <button
                           type="submit"
                           className={cn(
-                            "w-full bg-[#2B4C3B] hover:bg-[#1E362A]",
-                            "text-white rounded-xl font-extrabold",
+                            "w-full bg-pranata hover:bg-[#1E362A]",
+                            "text-[#F8F6F0] rounded-full font-bold",
                             "text-xs sm:text-sm py-3.5",
-                            "shadow-md shadow-[#2B4C3B]/20 transition-all",
-                            "flex items-center justify-center",
-                            "gap-2 cursor-pointer active:scale-98",
+                            "shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] transition-all duration-200 transform-gpu",
+                            "flex items-center justify-center group",
+                            "gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10",
                           )}
                         >
                           <span>Lanjut Ke Langkah 2</span>
-                          <ArrowRight size={16} />
+                          <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </button>
                       </div>
                     </div>
@@ -731,7 +731,7 @@ export function SellerOnboardingModal({
                             <MarkerContent>
                               <div className="relative flex items-center justify-center">
                                 <span className="absolute w-8 h-8 rounded-full bg-[#2B4C3B]/30 animate-ping" />
-                                <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-[#3A6B49] to-[#1E362A] text-[#F8F6F0] flex items-center justify-center border-2 border-white shadow-lg cursor-grab active:cursor-grabbing hover:scale-110 transition-transform">
+                                <div className="relative w-8 h-8 rounded-full bg-linear-to-br from-[#3A6B49] to-[#1E362A] text-[#F8F6F0] flex items-center justify-center border-2 border-white shadow-lg cursor-grab active:cursor-grabbing hover:scale-110 transition-transform">
                                   <MapPin size={16} className="text-[#F8F6F0] fill-[#F8F6F0]/20" />
                                 </div>
                               </div>
@@ -749,16 +749,16 @@ export function SellerOnboardingModal({
                         <button
                           type="submit"
                           className={cn(
-                            "w-full bg-[#2B4C3B] hover:bg-[#1E362A]",
-                            "text-white rounded-xl font-extrabold",
+                            "w-full bg-pranata hover:bg-[#1E362A]",
+                            "text-[#F8F6F0] rounded-full font-bold",
                             "text-xs sm:text-sm py-3.5",
-                            "shadow-md shadow-[#2B4C3B]/20 transition-all",
-                            "flex items-center justify-center",
-                            "gap-2 cursor-pointer active:scale-98",
+                            "shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] transition-all duration-200 transform-gpu",
+                            "flex items-center justify-center group",
+                            "gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10",
                           )}
                         >
                           <span>Lanjut Ke Langkah 2</span>
-                          <ArrowRight size={16} />
+                          <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </button>
                       </div>
                     </div>
@@ -842,11 +842,11 @@ export function SellerOnboardingModal({
                           onClick={() => setStep(1)}
                           disabled={loading}
                           className={cn(
-                            "px-4 py-3 border",
-                            "border-[#DDE2D6] text-[#1C241E] font-bold",
-                            "text-xs sm:text-sm rounded-xl",
-                            "hover:bg-[#F8F6F0] transition-colors flex",
-                            "items-center gap-1.5 cursor-pointer",
+                            "px-5 py-3 border",
+                            "border-[#D5D0C5] text-[#3F4841] hover:text-[#1C241E] font-bold",
+                            "text-xs sm:text-sm rounded-full bg-white/70",
+                            "hover:bg-white transition-all duration-200 transform-gpu flex",
+                            "items-center gap-1.5 cursor-pointer shadow-xs hover:scale-[1.02] active:scale-[0.98]",
                           )}
                         >
                           <ArrowLeft size={16} />
@@ -857,13 +857,13 @@ export function SellerOnboardingModal({
                           type="submit"
                           disabled={loading}
                           className={cn(
-                            "flex-1 bg-[#2B4C3B] hover:bg-[#1E362A]",
-                            "text-white rounded-xl font-extrabold",
+                            "flex-1 bg-pranata hover:bg-[#1E362A]",
+                            "text-[#F8F6F0] rounded-full font-bold",
                             "text-xs sm:text-sm py-3",
-                            "shadow-md shadow-[#2B4C3B]/20 transition-all",
+                            "shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] transition-all duration-200 transform-gpu",
                             "flex items-center justify-center",
-                            "gap-2 cursor-pointer active:scale-98",
-                            "disabled:opacity-50",
+                            "gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]",
+                            "disabled:opacity-50 border border-white/10",
                           )}
                         >
                           {loading ? (

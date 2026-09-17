@@ -1,10 +1,13 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-// Reloaded config for Supabase pooler connection
+// Connected to Supabase Singapore (ap-southeast-1) via Transaction Pooler port 6543
 import app from "./app";
 import cluster from "cluster";
 import os from "os";
+import { warmupDatabase } from "./config/prisma";
+import { preloadProductCache } from "./controllers/product.controller";
+import { preloadPricesCache } from "./controllers/hub.controller";
 
 const port = process.env.PORT || 4000;
 
@@ -38,6 +41,11 @@ if (
     console.log(
       `Server running on http://localhost:${port} (PID: ${process.pid})`,
     );
+
+    // ⚡ Ultra-Fast Zero-Cold-Start Warmup (Pre-warm DB & RAM cache)
+    warmupDatabase()
+      .then(() => Promise.all([preloadProductCache(), preloadPricesCache()]))
+      .catch((e) => console.warn("Warmup notice:", e));
   });
 
   // Optimize HTTP keep-alive connections for performance

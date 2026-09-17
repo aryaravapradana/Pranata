@@ -57,6 +57,7 @@ import Link from "next/link";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 import { PranataPayModal } from "@/components/modals/PranataPayModal";
 import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
+import { PlusBadge } from "@/components/ui/plus-badge";
 import {
   NavbarSkeleton,
   MarketHeroSkeleton,
@@ -202,7 +203,7 @@ const ProductCard = memo(
             <div
               className={cn(
                 "absolute top-2 left-2",
-                "bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-white text-[9px]",
+                "bg-linear-to-r from-[#D4AF37] to-[#AA820A] text-white text-[9px]",
                 "sm:text-[10px] font-black px-2",
                 "py-0.5 sm:px-2.5 sm:py-1",
                 "rounded-full shadow-md flex",
@@ -364,9 +365,10 @@ const ProductCard = memo(
                   <Store size={10} className="shrink-0" />
                   <span className="truncate">{p.seller.farmName || p.seller.fullName || p.seller.username}</span>
                   {p.seller.subscriptionTier === "PLUS" && (
-                    <span className="px-1 py-0.2 rounded bg-[#D4AF37]/25 text-[#D4AF37] font-black text-[8px] uppercase tracking-wider shrink-0">
-                      PLUS
-                    </span>
+                    <PlusBadge
+                      variant={cartQty > 0 ? "white" : "black"}
+                      size="xs"
+                    />
                   )}
                 </div>
               )}
@@ -1031,14 +1033,14 @@ export default function MarketplacePage() {
             className={cn(
               "bg-pranata text-white overflow-hidden",
               "shadow-xl relative -mx-4",
-              "sm:mx-0 -mt-0 sm:mt-0",
+              "sm:mx-0 mt-0 sm:mt-0",
               "w-[calc(100%+2rem)] sm:w-full rounded-b-[2.2rem]",
               "sm:rounded-[2.5rem] md:rounded-t-[2.5rem] md:rounded-b-[4rem]",
               "lg:rounded-b-[5rem] p-5 sm:p-8",
               "md:p-12 lg:p-16 flex",
               "flex-row items-center justify-between",
-              "min-h-[185px] min-[380px]:min-h-[200px] sm:min-h-[260px]",
-              "md:min-h-[300px]",
+              "min-h-46.25 min-[380px]:min-h-50 sm:min-h-65",
+              "md:min-h-75",
             )}
           >
             {/* Ambient blur decorations — hidden on mobile (GPU-intensive, zero visual impact) */}
@@ -1116,7 +1118,7 @@ export default function MarketplacePage() {
                 decoding="async"
                 className={cn(
                   "w-48 min-[360px]:w-56 min-[400px]:w-64",
-                  "sm:w-[24rem] md:w-[30rem] lg:w-[34rem]",
+                  "sm:w-[24rem] md:w-120 lg:w-136",
                   "h-auto object-contain pointer-events-none",
                   "origin-bottom-right",
                 )}
@@ -1159,13 +1161,11 @@ export default function MarketplacePage() {
                   />
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   {profile?.subscriptionTier === "PLUS" ? (
-                    <span className="px-2 py-0.5 rounded-full bg-[#1C2E24] border border-[#D4AF37]/50 flex items-center">
-                      <img
-                        src="/logos/plus/plus-white.webp"
-                        alt="Pranata Plus"
-                        className="h-4 sm:h-4.5 w-auto object-contain"
-                      />
-                    </span>
+                    <PlusBadge
+                      variant="white"
+                      size="sm"
+                      wrapper="pill"
+                    />
                   ) : (
                     <span className="text-[10px] font-bold text-[#7A8678] bg-[#F8F6F0] px-2 py-0.5 rounded-md border border-[#E8E3D2]">
                       Bebas Biaya Layanan
@@ -1195,12 +1195,12 @@ export default function MarketplacePage() {
                 }}
                 className={cn(
                   "flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2",
-                  "py-2 px-3 sm:px-4 rounded-xl sm:rounded-2xl",
-                  "bg-[#EEF2E6] hover:bg-[#2B4C3B] text-[#2B4C3B] hover:text-white",
-                  "font-black text-[11px] sm:text-xs transition-all shadow-xs active:scale-95 cursor-pointer",
+                  "py-2 px-3 sm:px-4 rounded-full",
+                  "bg-pranata hover:bg-[#1E362A] text-[#F8F6F0]",
+                  "font-bold text-[11px] sm:text-xs transition-all duration-200 transform-gpu shadow-[0_6px_16px_-6px_rgba(43,76,59,0.4)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
                 )}
               >
-                <ArrowDownRight size={14} className="shrink-0 text-emerald-700" />
+                <ArrowDownRight size={14} className="shrink-0 text-[#B4C179]" />
                 <span>+ Isi Saldo</span>
               </button>
 
@@ -1213,9 +1213,9 @@ export default function MarketplacePage() {
                 }}
                 className={cn(
                   "flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2",
-                  "py-2 px-3 sm:px-3.5 rounded-xl sm:rounded-2xl",
-                  "bg-[#FAF8F5] hover:bg-[#F1EBE1] text-[#5A635B] hover:text-[#1C241E]",
-                  "font-extrabold text-[11px] sm:text-xs transition-all border border-[#E8E3D2] active:scale-95 cursor-pointer",
+                  "py-2 px-3 sm:px-3.5 rounded-full",
+                  "bg-white/70 hover:bg-white text-[#3F4841] hover:text-[#1C241E]",
+                  "font-bold text-[11px] sm:text-xs transition-all duration-200 transform-gpu border border-[#D5D0C5] shadow-xs hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
                 )}
               >
                 <ArrowUpRight size={14} className="shrink-0 text-amber-600" />
@@ -1231,9 +1231,9 @@ export default function MarketplacePage() {
                 }}
                 className={cn(
                   "flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2",
-                  "py-2 px-3 sm:px-3.5 rounded-xl sm:rounded-2xl",
-                  "bg-[#FAF8F5] hover:bg-[#F1EBE1] text-[#5A635B] hover:text-[#1C241E]",
-                  "font-extrabold text-[11px] sm:text-xs transition-all border border-[#E8E3D2] active:scale-95 cursor-pointer",
+                  "py-2 px-3 sm:px-3.5 rounded-full",
+                  "bg-white/70 hover:bg-white text-[#3F4841] hover:text-[#1C241E]",
+                  "font-bold text-[11px] sm:text-xs transition-all duration-200 transform-gpu border border-[#D5D0C5] shadow-xs hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
                 )}
               >
                 <CreditCard size={14} className="shrink-0 text-blue-600" />
@@ -1246,18 +1246,17 @@ export default function MarketplacePage() {
                 onClick={() => setShowUpgradeModal(true)}
                 className={cn(
                   "hidden lg:flex items-center justify-center gap-1.5",
-                  "py-2 px-3.5 rounded-2xl",
+                  "py-2 px-3.5 rounded-full",
                   profile?.subscriptionTier === "PLUS"
                     ? "bg-[#1C2E24] border border-[#D4AF37]/60 text-white"
-                    : "bg-[#FAF8F5] hover:bg-[#EEF2E6] border border-[#D4AF37]/60 text-[#856608] hover:opacity-95 shadow-xs",
-                  "font-black text-xs transition-all active:scale-95 cursor-pointer",
+                    : "bg-linear-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37] text-[#1C2E24] shadow-[0_6px_16px_-6px_rgba(212,175,55,0.4)] hover:brightness-105",
+                  "font-bold text-xs transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
                 )}
               >
                 {profile?.subscriptionTier === "PLUS" ? (
-                  <img
-                    src="/logos/plus/plus-white.webp"
-                    alt="Pranata Plus"
-                    className="h-5 sm:h-5.5 w-auto object-contain"
+                  <PlusBadge
+                    variant="white"
+                    size="md"
                   />
                 ) : (
                   <span className="flex items-center gap-1.5">
@@ -1287,7 +1286,7 @@ export default function MarketplacePage() {
             className={cn(
               "grid grid-cols-4 gap-1.5",
               "min-[360px]:gap-2 sm:gap-3 md:gap-3.5",
-              "w-full max-w-[280px] min-[360px]:max-w-[340px]",
+              "w-full max-w-70 min-[360px]:max-w-85",
               "sm:max-w-md md:max-w-lg lg:max-w-xl",
               "mx-auto",
             )}
@@ -1450,7 +1449,7 @@ export default function MarketplacePage() {
                   className={cn(
                     "text-white font-bold text-xs",
                     "sm:text-sm flex items-center",
-                    "gap-1.5 bg-gradient-to-br from-[#8FA76B]",
+                    "gap-1.5 bg-linear-to-br from-[#8FA76B]",
                     "to-[#405D46] px-4 py-2",
                     "sm:px-5 sm:py-2.5 rounded-full",
                     "hover:opacity-95 hover:scale-[1.02] active:scale-95",

@@ -72,7 +72,7 @@ export function SellerWarningModal({
       {isOpen && (
         <div
           className={cn(
-            "fixed inset-0 z-[99999]",
+            "fixed inset-0 z-99999",
             "flex items-center justify-center",
             "p-4 sm:p-6 overflow-y-auto",
           )}
@@ -112,18 +112,19 @@ export function SellerWarningModal({
               stiffness: 300,
             }}
             className={cn(
-              "relative w-full max-w-md sm:max-w-lg md:max-w-xl",
-              "bg-white rounded-3xl sm:rounded-[2rem]",
-              "p-6 sm:p-8 md:p-10 border",
+              "relative w-full max-w-sm sm:max-w-md md:max-w-lg",
+              "bg-white rounded-[1.75rem] sm:rounded-[2rem]",
+              "p-5 sm:p-7 md:p-8 border",
               "border-[#E8E3D2] shadow-2xl z-10",
               "text-center my-auto overflow-hidden",
+              "max-h-[90vh] overflow-y-auto custom-scrollbar",
             )}
           >
             {/* Close Icon */}
             <button
               onClick={onClose}
               className={cn(
-                "absolute top-4 right-4",
+                "absolute top-3.5 right-3.5",
                 "sm:top-5 sm:right-5 p-2",
                 "rounded-full text-[#7A8678] hover:text-[#1C241E]",
                 "hover:bg-[#F8F6F0] transition-colors cursor-pointer",
@@ -136,65 +137,61 @@ export function SellerWarningModal({
             {/* Triangle Warning Icon Badge */}
             <div
               className={cn(
-                "mx-auto w-16 h-16",
-                "sm:w-20 sm:h-20 rounded-3xl",
-                "bg-amber-50 border-2 border-amber-200/80",
-                "flex items-center justify-center",
-                "text-amber-500 mb-5 shadow-sm",
+                "mx-auto w-14 h-14",
+                "sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl",
+                "bg-[#FFF3E0] text-[#C25939]",
+                "flex items-center justify-center mb-3.5 sm:mb-4",
+                "border border-[#FFE0B2] shadow-inner",
               )}
             >
               <AlertTriangle
-                size={36}
-                className="text-amber-500"
+                size={28}
+                className="stroke-[2.2] sm:w-8 sm:h-8"
               />
             </div>
 
-            {/* Content Header */}
+            {/* Headline */}
             <h3
               className={cn(
-                "text-xl sm:text-2xl font-black",
-                "text-[#1C241E] tracking-tight leading-snug",
-                "mb-2.5",
+                "text-lg sm:text-xl md:text-2xl font-black",
+                "text-[#1C241E] mb-2 tracking-tight",
+                "leading-snug",
               )}
             >
-              Kamu Belum Terdaftar Sebagai
-              Penjual!
+              Akses Penjual Dibutuhkan
             </h3>
+
+            {/* Explanatory Body */}
             <p
               className={cn(
-                "text-xs sm:text-sm text-[#5A635B]",
-                "font-medium leading-relaxed mb-8",
+                "text-xs sm:text-sm text-[#5A635B] leading-relaxed",
+                "mb-5 sm:mb-6 max-w-sm mx-auto font-medium",
               )}
             >
-              Akses fitur eksklusif{" "}
-              <span className="font-extrabold text-[#2B4C3B]">
-                Pranata Hub
-              </span>{" "}
-              &{" "}
-              <span className="font-extrabold text-[#2B4C3B]">
-                Intelligence
-              </span>{" "}
-              memerlukan akun penjual
-              terverifikasi. Daftarkan toko
-              peternakanmu untuk mulai
-              berjualan dan mengelola produk.
+              Akun Anda saat ini terdaftar sebagai{" "}
+              <strong className="text-[#1C241E] font-extrabold">
+                Pembeli
+              </strong>
+              . Buka toko dan daftarkan peternakan
+              Anda untuk mengelola produk, menerima
+              pesanan, dan mengakses fitur Pranata
+              Hub.
             </p>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-center gap-3">
+            {/* Buttons Row - fluid on mobile, comfortable on tablet/desktop */}
+            <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
               <button
                 onClick={onClose}
                 className={cn(
-                  "w-full sm:w-1/2 py-3.5",
-                  "px-5 rounded-full border",
-                  "border-[#E8E3D2] bg-white hover:bg-[#F8F6F0]",
-                  "text-[#5A635B] font-bold text-xs",
-                  "sm:text-sm transition-all shadow-xs",
-                  "active:scale-95 cursor-pointer order-2",
-                  "sm:order-1",
+                  "w-full sm:flex-1 py-3 px-4 rounded-full",
+                  "border border-[#D5D0C5] text-[#3F4841] bg-white/70",
+                  "hover:bg-white hover:text-[#1C241E]",
+                  "text-xs sm:text-sm font-bold transition-all duration-200 transform-gpu",
+                  "hover:scale-[1.02] active:scale-[0.98] shadow-xs",
+                  "order-2 sm:order-1 cursor-pointer",
                 )}
               >
-                Nanti Saja
+                Kembali
               </button>
               <button
                 onClick={() => {
@@ -202,18 +199,16 @@ export function SellerWarningModal({
                   onConfirmUpgrade();
                 }}
                 className={cn(
-                  "w-full sm:w-1/2 py-3.5",
-                  "px-5 rounded-full bg-[#2B4C3B]",
-                  "hover:bg-[#1E362A] text-white font-extrabold",
-                  "text-xs sm:text-sm transition-all",
-                  "shadow-md hover:shadow-lg active:scale-95",
-                  "cursor-pointer flex items-center",
-                  "justify-center gap-2 order-1",
-                  "sm:order-2",
+                  "w-full sm:flex-1 py-3 px-4 rounded-full",
+                  "bg-pranata hover:bg-[#1E362A] text-[#F8F6F0]",
+                  "text-xs sm:text-sm font-bold shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)]",
+                  "hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] transition-all duration-200 transform-gpu flex",
+                  "items-center justify-center gap-2 group",
+                  "order-1 sm:order-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10",
                 )}
               >
-                <span>Daftar Sekarang</span>
-                <ArrowRight size={15} />
+                <span>Buka Toko Sekarang</span>
+                <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </motion.div>

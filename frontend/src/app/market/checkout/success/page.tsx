@@ -91,12 +91,13 @@ export default function CheckoutSuccessPage() {
               )
             }
             className={cn(
-              "w-full bg-[#1C241E] hover:bg-pranata",
-              "text-white py-4 rounded-full",
-              "font-bold transition-all shadow-lg",
-              "hover:shadow-xl hover:-translate-y-0.5 flex",
+              "w-full bg-pranata hover:bg-[#1E362A]",
+              "text-[#F8F6F0] py-4 rounded-full",
+              "font-bold text-sm sm:text-base transition-all duration-200 transform-gpu",
+              "shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)]",
+              "hover:scale-[1.02] active:scale-[0.98] flex",
               "items-center justify-center gap-2",
-              "cursor-pointer",
+              "cursor-pointer border border-white/10",
             )}
           >
             <Package size={18} /> Lacak
@@ -108,11 +109,11 @@ export default function CheckoutSuccessPage() {
               navigateTo("/market")
             }
             className={cn(
-              "w-full bg-white hover:bg-[#F8F6F0]",
-              "text-[#1C241E] py-4 rounded-full",
-              "font-bold border-2 border-[#E8E3D2]",
-              "transition-colors flex items-center",
-              "justify-center gap-2 cursor-pointer",
+              "w-full bg-white/70 hover:bg-white",
+              "text-[#3F4841] hover:text-[#1C241E] py-4 rounded-full",
+              "font-bold text-sm sm:text-base border border-[#D5D0C5] backdrop-blur-sm",
+              "transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] flex items-center",
+              "justify-center gap-2 cursor-pointer shadow-xs",
             )}
           >
             <Home size={18} /> Kembali ke

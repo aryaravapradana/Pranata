@@ -73,3 +73,37 @@ export const getPrices = async (
       });
   }
 };
+
+export const preloadPricesCache = async (): Promise<void> => {
+  try {
+    const prices = await prisma.commodityPrice.findMany({
+      orderBy: { recordedAt: "desc" },
+      take: 50,
+    });
+
+    const latestUnique = Array.from(
+      new Map(
+        prices.map((item) => [
+          item.commodity,
+          item,
+        ]),
+      ).values(),
+    );
+
+    setCache("commodity_prices", latestUnique, 300);
+
+    const cornPrice = latestUnique.find((p) => p.commodity === "JAGUNG_PETERNAK") || latestUnique[0];
+    setCache(
+      "dashboard_overview",
+      {
+        cornPrice: cornPrice?.pricePerKg || 5400,
+        healthIndex: 98.8,
+      },
+      300,
+    );
+
+    console.log(`⚡ Commodity prices cache pre-warmed: ${latestUnique.length} commodities in RAM`);
+  } catch (err) {
+    console.warn("⚠️ Prices cache pre-warm warning:", err);
+  }
+};

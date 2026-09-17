@@ -15,7 +15,7 @@ const router = Router();
 router.use("/profile", authRoutes); // /api/profile/register, /api/profile/login
 router.use("/cart", verifyToken, cartRoutes);
 router.use("/orders", verifyToken, orderRoutes);
-router.use("/products", verifyToken, productRoutes);
+router.use("/products", productRoutes);
 router.use("/profile", verifyToken, profileRoutes); // /api/profile/:id, /api/profile/check-username
 router.use("/hub", verifyToken, hubRoutes); // /api/hub/overview, /api/prices
 router.use("/wallet", verifyToken, walletRoutes); // /api/wallet/:profileId, /api/wallet/topup, /api/wallet/withdraw

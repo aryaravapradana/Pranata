@@ -21,10 +21,25 @@ export async function POST(req: Request) {
     apiKey,
   });
 
-  const { messages, contextData } =
-    await req.json();
+  const body = await req.json();
+  const messages = body.messages || [];
+  const contextData = body.contextData || body.data?.contextData || {};
 
-  // Token Optimization: Compact context objects to essential fields only
+  // Check last user query content
+  const lastUserMsg = [...messages].reverse().find((m: any) => m.role === "user");
+  const lastUserText = typeof lastUserMsg?.content === "string"
+    ? lastUserMsg.content.toLowerCase()
+    : "";
+
+  // Food / culinary / shopping intent keywords
+  const isCookingOrShoppingIntent = [
+    "rendang", "masak", "resep", "bikin", "makan", "steak", "bumbu", "daging", 
+    "ayam", "telur", "susu", "belanja", "beli", "menu", "diet", "protein", "sop", "gulai"
+  ].some((kw) => lastUserText.includes(kw));
+
+  const isBuyer = contextData?.profile?.role === "BUYER" || contextData?.isBuyer === true || isCookingOrShoppingIntent;
+
+  // Producer context
   const compactProducts =
     contextData?.products
       ?.slice(0, 6)
@@ -67,16 +82,55 @@ export async function POST(req: Request) {
       type: e.type,
     }));
 
-  const dynamicContext = contextData
-    ? `
-INFO KONTEKS REAL-TIME BACKEND USER:
+  // Market products available for buyers / consumer recipe matching
+  let catalogList = contextData?.marketCatalog || [];
+
+  // Fallback: If client didn't supply marketCatalog, fetch directly from backend API
+  if (!catalogList || catalogList.length === 0) {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const res = await fetch(`${backendUrl}/api/products?limit=50`);
+      if (res.ok) {
+        const data = await res.json();
+        catalogList = Array.isArray(data) ? data : data?.data || [];
+      }
+    } catch (e) {
+      console.warn("Failed to fetch fallback market catalog in chat route:", e);
+    }
+  }
+
+  const availableMarketProducts = (catalogList || [])
+    .slice(0, 40)
+    .map((p: any) => ({
+      id: p.id,
+      title: p.title,
+      price: p.price,
+      unit: p.unit || "kg",
+      imageUrl: Array.isArray(p.imageUrls) ? p.imageUrls[0] : (p.imageUrl || ""),
+      farmName: p.seller?.farmName || p.seller?.fullName || p.sellerName || "Mitra Pranata",
+      stock: p.stock ?? 10,
+      grade: p.grade || undefined,
+      category: p.category || "",
+    }));
+
+  let dynamicContext = "";
+  if (isBuyer) {
+    dynamicContext = `
+INFO KONTEKS USER (KONSUMEN / BUYER):
+- Nama Konsumen: ${contextData?.profile?.fullName || contextData?.profile?.username || "Sobat Pranata"}
+- KATALOG PRODUK REAL-TIME TERSEDIA DI PRANATA MARKET:
+${JSON.stringify(availableMarketProducts, null, 2)}
+    `;
+  } else if (contextData) {
+    dynamicContext = `
+INFO KONTEKS REAL-TIME BACKEND USER (PETERNAK):
 - Nama Peternak: ${contextData.profile?.fullName || contextData.profile?.username || "Peternak"}
 - Daftar Produk Toko (${contextData.products?.length || 0} produk): ${JSON.stringify(compactProducts)}
 - Pesanan Toko Aktif: ${JSON.stringify(compactOrders)}
 - Jadwal Operasional Ternak Mendatang (Future Events Only): ${JSON.stringify(compactEvents)}
 - Kondisi Cuaca Lokasi: ${contextData.weather?.temperature_2m ? `${Math.round(contextData.weather.temperature_2m)}°C, Kelembapan ${contextData.weather.relative_humidity_2m}%` : "Normal"}
-  `
-    : "";
+    `;
+  }
 
   // Token & Context Optimization: Limit history to last 10 messages max (5 full turns of memory)
   const recentMessages = Array.isArray(
@@ -193,24 +247,8 @@ INFO KONTEKS REAL-TIME BACKEND USER:
     },
   );
 
-  // Verified Active 200 OK Model Fallback Chain
-  const MODELS_TO_TRY = [
-    "gemini-2.5-flash",
-    "gemini-flash-latest",
-    "gemini-3.6-flash",
-    "gemini-3.5-flash",
-    "gemini-3.1-flash-lite",
-    "gemini-2.5-flash-lite",
-    "gemini-3-flash-preview",
-  ];
-  let lastError: any = null;
 
-  for (const modelName of MODELS_TO_TRY) {
-    try {
-      const result = await streamText({
-        model: google(modelName) as any,
-        maxTokens: 2500, // Sufficient token budget for complete, detailed answers
-        system: `Anda adalah "Pranata Intelligence", konsultan AI profesional khusus bisnis peternakan (daging, susu, telur), manajemen kandang, dan logistik toko.
+  const producerSystemPrompt = `Anda adalah "Pranata Intelligence", konsultan AI profesional khusus bisnis peternakan (daging, susu, telur), manajemen kandang, dan logistik toko.
 
 TUGAS UTAMA:
 Berikan rekomendasi bisnis & operasional yang SANGAT SPESIFIK, NYATA, LENGKAP, DAN ACTIONABLE berdasarkan data backend user di atas. Jawab pertanyaan peternak secara tuntas, jelas, terstruktur, dan tidak terpotong.
@@ -221,23 +259,65 @@ PEDOMAN ANALISIS DATA USER:
 3. Jika cuaca ekstrem (misal suhu >30°C atau kelembapan tinggi): Berikan saran kesehatan/nutrisi ternak spesifik terkait cuaca tersebut.
 4. Jika ada jadwal operasional di kalender: HANYA INGATKAN KEGIATAN TERDEKAT DI MASA DEPAN / MENDATANG (Mulai hari ini ke depan). DILARANG KERAS MERUJUK ATAU MENGINGATKAN ACARA YANG SUDAH LALU (PAST EVENTS).
 
-JIKA USER MEMINTA INSIGHT BISNIS (Business Insight / Prompt Kaku):
-Wajib hasilkan TEPAT 2 insight terpisah yang dipisahkan garis pemisah "---". DILARANG MENULIS KATA PENGANTAR. LANGSUNG MULAI DENGAN "TITLE:".
+HANYA JIKA USER EKSPLISIT MEMINTA "RINGKASAN INSIGHT BISNIS" (Actionable Insights / Tombol Insight Toko):
+Hasilkan TEPAT 2 insight terpisah yang dipisahkan garis pemisah "---" diawali "TITLE:". JIKA BUKAN PERMINTAAN INSIGHT BISNIS TOKO (seperti pertanyaan bebas, memasak, resep, produk, dll.), JAWABLAH DENGAN TEKS ALAMI DAN DILARANG MENGGUNAKAN FORMAT "TITLE:".
 
-Format Wajib Setiap Insight:
+Format Wajib Jika Meminta Insight:
 TITLE: [Kata kunci 1-2 kata spesifik dari data]
 VALUE: [Angka/Status Nyata, contoh: "Stok 2 Pcs", "3 Pesanan Pending", "Suhu 32°C"]
 DESC: [1 kalimat analisis & tindakan konkret yang harus dilakukan peternak]
 CTA_TEXT: [Teks tombol aksi, contoh: "Kelola Produk", "Proses Pesanan", "Cek Kalender"]
 CTA_URL: [URL relatif terkait: /hub/store ATAU /hub/orders ATAU /hub/calendar]
----
-TITLE: [Kata kunci ke-2]
-VALUE: [Status ke-2]
-DESC: [Analisis & aksi ke-2]
-CTA_TEXT: [Teks tombol ke-2]
-CTA_URL: [URL ke-2]
 
-JANGAN GUNAKAN TEKS UMUM SEPERTI "TINGKATKAN PENJUALAN". SEBUTKAN NAMA PRODUK / ANGKA NYATA SESUAI KONTEKS.${dynamicContext}`,
+JANGAN GUNAKAN TEKS UMUM SEPERTI "TINGKATKAN PENJUALAN". SEBUTKAN NAMA PRODUK / ANGKA NYATA SESUAI KONTEKS.${dynamicContext}`;
+
+  const buyerSystemPrompt = `Anda adalah "Pranata Intelligence Copilot", asisten belanja kuliner, nutrisi, dan bahan segar di Pranata Market.
+
+TUGAS UTAMA:
+Ketika konsumen menyebutkan masakan, menu makanan, resep (seperti Rendang, Steak, Sop Buntut, Ayam Bakar, Sup Telur, Diet Tinggi Protein, Opor, dll.), atau bahan ternak yang dicari:
+1. Jelaskan panduan resep singkat yang menggugah selera dan tips memasak praktis.
+2. WAJIB SECARA OTOMATIS EMBED PRODUK DARI MARKET:
+   - Cocokkan bahan utama (misalnya daging sapi, ayam, kambing, telur, susu, dll.) dengan produk yang ada di daftar "KATALOG PRODUK REAL-TIME TERSEDIA DI PRANATA MARKET" di atas.
+   - Sertakan blok widget persis dengan format penanda :::products berikut di dalam respons Anda agar sistem langsung merender kartu produk interaktif yang bisa di-klik & dimasukkan ke keranjang oleh user:
+
+:::products
+[
+  {
+    "id": "<id_produk_asli_dari_katalog>",
+    "title": "<nama_produk>",
+    "price": <harga_angka>,
+    "unit": "<kg/pack/butir>",
+    "imageUrl": "<url_gambar>",
+    "farmName": "<nama_peternakan_atau_penjual>",
+    "stock": <jumlah_stok>,
+    "grade": "<grade_jika_ada>"
+  }
+]
+:::
+
+3. PENTING:
+   - Setiap produk di dalam blok :::products akan langsung menjadi kartu interaktif yang bisa di-klik menuju halaman detail produk di marketplace, dan dilengkapi tombol "+ Keranjang" serta tombol master "🛒 Masukkan Semua Bahan ke Keranjang".
+   - Gunakan ID dan data asli dari katalog produk yang diberikan. Jangan mengarang ID sembarangan.
+   - Jika bumbu dapur pelengkap (seperti santan, lengkuas, serai, daun salam, garam) tidak ada di katalog peternakan, sebutkan di teks resep bahwa bumbu dapur pelengkap tersebut dapat disiapkan dari stok dapur rumah.
+   - Selalu ramah, solutif, dan antusias memandu user memasak.${dynamicContext}`;
+
+  const activeSystemPrompt = isBuyer ? buyerSystemPrompt : producerSystemPrompt;
+
+  // Verified Active 200 OK Models
+  const MODELS_TO_TRY = [
+    "gemini-2.5-flash",
+    "gemini-flash-latest",
+    "gemini-3.6-flash",
+    "gemini-3.5-flash",
+  ];
+  let lastError: any = null;
+
+  for (const modelName of MODELS_TO_TRY) {
+    try {
+      const result = await streamText({
+        model: google(modelName) as any,
+        maxTokens: 2500, // Sufficient token budget for complete, detailed answers
+        system: activeSystemPrompt,
         messages: coreMessages as any,
       });
 
@@ -256,61 +336,73 @@ JANGAN GUNAKAN TEKS UMUM SEPERTI "TINGKATKAN PENJUALAN". SEBUTKAN NAMA PRODUK / 
     lastError?.message || lastError,
   );
 
-  // Smart Data-Driven Local Fallback when API quotas are exhausted
-  const lowStockProd =
-    contextData?.products?.find(
-      (p: any) => p.stock < 5,
+  let fallbackText = "";
+
+  if (isBuyer || isCookingOrShoppingIntent) {
+    // Select real matching meat products for rendang from the catalog
+    const meatProducts = availableMarketProducts.filter((p: any) =>
+      /daging|sapi|sandung lamur|sirloin/i.test(p.title),
     );
-  const pendingOrdersCount =
-    contextData?.orders?.filter(
-      (o: any) =>
-        o.status === "PENDING" ||
-        o.status === "PROCESSING",
-    ).length || 0;
-  const temp =
-    contextData?.weather?.temperature_2m;
-  const upcomingEvent =
-    Array.isArray(contextData?.events) &&
-    contextData.events.length > 0
-      ? contextData.events[0]
-      : null;
+    const fallbackProducts = (meatProducts.length > 0 ? meatProducts : availableMarketProducts).slice(0, 3);
 
-  let card1Title = "Status Etalase";
-  let card1Val = `${contextData?.products?.length || 0} Produk`;
-  let card1Desc =
-    contextData?.products?.length > 0
-      ? `Semua ${contextData.products.length} produk di etalase toko Anda aktif dan siap dipesan.`
-      : "Belum ada produk di etalase. Tambahkan produk ternak pertama Anda.";
-  let card1CtaText = "Kelola Produk";
-  let card1CtaUrl = "/hub/store";
+    fallbackText = `Tentu, Sobat Pranata! Berikut panduan resep untuk membuat **Rendang Daging Sapi Gurih & Empuk** khas Minang:\n\n**Bahan Utama & Rempah:**\n- 1 kg Daging Sapi Segar (potongan sandung lamur atau sirloin)\n- 2 liter Santan Kelapa (kental & encer)\n- Bumbu halus: Bawang merah, bawang putih, cabai merah keriting, jahe, lengkuas, kunyit bakar, kemiri sangrai, ketumbar bubuk, jintan.\n- Bumbu cemplung: 3 batang serai memarkan, 5 lembar daun jeruk, 2 lembar daun kunyit, asam kandis, garam & gula secukupnya.\n\n**Cara Memasak Singkat:**\n1. Tumis bumbu halus dengan sedikit minyak sampai harum dan berminyak (pecah minyak).\n2. Masukkan potongan daging sapi, aduk hingga daging terlumuri bumbu merata.\n3. Tuang santan encer, masak dengan api sedang hingga daging empuk dan santan menyusut.\n4. Masukkan santan kental dan bumbu cemplung, kecilkan api, lalu aduk perlahan secara berkala hingga melewati tahap Kalio (berminyak kental) dan mengering menjadi rendang cokelat kehitaman yang sedap.\n\nBerikut bahan daging sapi segar pilihan yang tersedia langsung dari penjual terpercaya di Pranata Market:\n\n:::products\n${JSON.stringify(fallbackProducts, null, 2)}\n:::\n\nSilakan klik salah satu produk di atas untuk melihat detailnya di market, atau klik **+ Keranjang** / **🛒 Masukkan Semua Bahan ke Keranjang** untuk belanja instan!`;
+  } else {
+    // Smart Data-Driven Local Fallback for Producer Dashboard
+    const lowStockProd =
+      contextData?.products?.find(
+        (p: any) => p.stock < 5,
+      );
+    const pendingOrdersCount =
+      contextData?.orders?.filter(
+        (o: any) =>
+          o.status === "PENDING" ||
+          o.status === "PROCESSING",
+      ).length || 0;
+    const temp =
+      contextData?.weather?.temperature_2m;
+    const upcomingEvent =
+      Array.isArray(contextData?.events) &&
+      contextData.events.length > 0
+        ? contextData.events[0]
+        : null;
 
-  if (lowStockProd) {
-    card1Title = "Stok Menipis";
-    card1Val = `${lowStockProd.title} (${lowStockProd.stock} Pcs)`;
-    card1Desc = `Stok ${lowStockProd.title} tersisa ${lowStockProd.stock} pcs. Segera restok produk di etalase Anda.`;
-  } else if (pendingOrdersCount > 0) {
-    card1Title = "Pesanan Masuk";
-    card1Val = `${pendingOrdersCount} Pesanan Baru`;
-    card1Desc = `Ada ${pendingOrdersCount} pesanan aktif yang perlu diproses dan dikirim ke pembeli.`;
-    card1CtaText = "Proses Pesanan";
-    card1CtaUrl = "/hub/orders";
+    let card1Title = "Status Etalase";
+    let card1Val = `${contextData?.products?.length || 0} Produk`;
+    let card1Desc =
+      contextData?.products?.length > 0
+        ? `Semua ${contextData.products.length} produk di etalase toko Anda aktif dan siap dipesan.`
+        : "Belum ada produk di etalase. Tambahkan produk ternak pertama Anda.";
+    let card1CtaText = "Kelola Produk";
+    let card1CtaUrl = "/hub/store";
+
+    if (lowStockProd) {
+      card1Title = "Stok Menipis";
+      card1Val = `${lowStockProd.title} (${lowStockProd.stock} Pcs)`;
+      card1Desc = `Stok ${lowStockProd.title} tersisa ${lowStockProd.stock} pcs. Segera restok produk di etalase Anda.`;
+    } else if (pendingOrdersCount > 0) {
+      card1Title = "Pesanan Masuk";
+      card1Val = `${pendingOrdersCount} Pesanan Baru`;
+      card1Desc = `Ada ${pendingOrdersCount} pesanan aktif yang perlu diproses dan dikirim ke pembeli.`;
+      card1CtaText = "Proses Pesanan";
+      card1CtaUrl = "/hub/orders";
+    }
+
+    let card2Title = "Kondisi Kandang";
+    let card2Val = upcomingEvent
+      ? upcomingEvent.title
+      : temp
+        ? `${Math.round(temp)}°C`
+        : "Operasional";
+    let card2Desc = upcomingEvent
+      ? `Agenda terdekat: ${upcomingEvent.title} pada ${new Date(upcomingEvent.eventDate).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}.`
+      : temp && temp > 30
+        ? `Suhu lingkungan ${Math.round(temp)}°C tergolong tinggi. Pastikan ventilasi dan kecukupan air pakan ternak.`
+        : "Jadwal pakan dan kesehatan ternak berjalan normal hari ini.";
+    let card2CtaText = "Cek Kalender";
+    let card2CtaUrl = "/hub/calendar";
+
+    fallbackText = `TITLE: ${card1Title}\nVALUE: ${card1Val}\nDESC: ${card1Desc}\nCTA_TEXT: ${card1CtaText}\nCTA_URL: ${card1CtaUrl}\n---\nTITLE: ${card2Title}\nVALUE: ${card2Val}\nDESC: ${card2Desc}\nCTA_TEXT: ${card2CtaText}\nCTA_URL: ${card2CtaUrl}`;
   }
-
-  let card2Title = "Kondisi Kandang";
-  let card2Val = upcomingEvent
-    ? upcomingEvent.title
-    : temp
-      ? `${Math.round(temp)}°C`
-      : "Operasional";
-  let card2Desc = upcomingEvent
-    ? `Agenda terdekat: ${upcomingEvent.title} pada ${new Date(upcomingEvent.eventDate).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}.`
-    : temp && temp > 30
-      ? `Suhu lingkungan ${Math.round(temp)}°C tergolong tinggi. Pastikan ventilasi dan kecukupan air pakan ternak.`
-      : "Jadwal pakan dan kesehatan ternak berjalan normal hari ini.";
-  let card2CtaText = "Cek Kalender";
-  let card2CtaUrl = "/hub/calendar";
-
-  const fallbackText = `TITLE: ${card1Title}\nVALUE: ${card1Val}\nDESC: ${card1Desc}\nCTA_TEXT: ${card1CtaText}\nCTA_URL: ${card1CtaUrl}\n---\nTITLE: ${card2Title}\nVALUE: ${card2Val}\nDESC: ${card2Desc}\nCTA_TEXT: ${card2CtaText}\nCTA_URL: ${card2CtaUrl}`;
 
   // Vercel AI SDK v1 stream protocol format
   const stream = new ReadableStream({

@@ -504,13 +504,13 @@ export function RegisterForm({
             !isFormValid
           }
           className={cn(
-            "w-full bg-[#2B4C3B] hover:bg-[#1E362A]",
-            "active:scale-[0.99] text-white rounded-2xl",
-            "font-extrabold text-sm sm:text-base",
-            "py-3.5 shadow-md shadow-[#2B4C3B]/20",
-            "transition-all flex justify-center",
-            "items-center gap-2 mt-4",
-            "disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer",
+            "w-full bg-pranata hover:bg-[#1E362A]",
+            "hover:scale-[1.02] active:scale-[0.98] text-[#F8F6F0] rounded-full",
+            "font-bold text-sm sm:text-base",
+            "py-3.5 shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)]",
+            "transition-all duration-200 transform-gpu flex justify-center",
+            "items-center gap-2 mt-4 group",
+            "disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border border-white/10",
           )}
         >
           <span>
@@ -518,7 +518,10 @@ export function RegisterForm({
               ? "Mendaftarkan..."
               : "Daftar Akun Baru"}
           </span>
-          <ArrowRight size={18} />
+          <ArrowRight
+            size={18}
+            className="group-hover:translate-x-1 transition-transform"
+          />
         </button>
 
         <div

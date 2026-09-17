@@ -876,17 +876,23 @@ function MarketplaceProductsContent() {
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
-              onClick={() =>
-                router.push("/market")
-              }
+              data-back="true"
+              onClick={() => {
+                if (typeof window !== "undefined" && window.history.length > 1) {
+                  router.back();
+                } else {
+                  router.push("/market");
+                }
+              }}
               className={cn(
                 "w-9 h-9 sm:w-10",
                 "sm:h-10 bg-white border",
                 "border-[#E8E3D2] rounded-full flex",
                 "items-center justify-center text-[#5A635B]",
                 "hover:text-[#2B4C3B] shadow-sm active:scale-95",
-                "transition-all",
+                "transition-all cursor-pointer",
               )}
+              title="Kembali ke halaman sebelumnya"
             >
               <ChevronLeft
                 size={18}
@@ -1292,7 +1298,7 @@ function MarketplaceProductsContent() {
           }}
           className={cn(
             "fixed top-0 left-0",
-            "z-[100] w-12 h-12",
+            "z-100 w-12 h-12",
             "rounded-xl shadow-xl overflow-hidden",
             "border-2 border-[#2B4C3B] bg-white",
             "flex items-center justify-center",

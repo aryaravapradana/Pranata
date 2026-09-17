@@ -277,7 +277,7 @@ export function UpgradePlusModal({
       {isOpen && (
         <div
           data-lenis-prevent="true"
-          className="fixed inset-0 z-[99999] overflow-hidden flex flex-col justify-end overscroll-contain"
+          className="fixed inset-0 z-99999 overflow-hidden flex flex-col justify-end overscroll-contain"
         >
           {/* Backdrop */}
           <motion.div
@@ -305,10 +305,10 @@ export function UpgradePlusModal({
             {/* Floating Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-4 sm:top-6 right-4 sm:right-6 z-40 p-2.5 rounded-full text-white/80 hover:text-white bg-black/40 hover:bg-black/60 border border-white/20 backdrop-blur-md transition-all cursor-pointer shadow-lg active:scale-95"
+              className="absolute top-3.5 right-3.5 sm:top-6 sm:right-6 z-40 p-2 sm:p-2.5 rounded-full text-white/80 hover:text-white bg-black/40 hover:bg-black/60 border border-white/20 backdrop-blur-md transition-all cursor-pointer shadow-lg active:scale-95"
               title="Tutup"
             >
-              <X size={20} />
+              <X size={18} className="sm:w-5 sm:h-5" />
             </button>
 
             {/* Scrollable Content */}
@@ -420,9 +420,9 @@ export function UpgradePlusModal({
                       </div>
 
                       {/* PLUS PLAN CARD (HIGHLIGHTED WITH THE SINGLE OFFICIAL PLUS LOGO) */}
-                      <div className="rounded-3xl bg-gradient-to-b from-[#1C3627] via-[#162A1E] to-[#122118] border-2 border-[#D4AF37] p-6 sm:p-8 lg:p-10 flex flex-col justify-between relative shadow-2xl ring-4 ring-[#D4AF37]/20">
+                      <div className="rounded-3xl bg-linear-to-b from-[#1C3627] via-[#162A1E] to-[#122118] border-2 border-[#D4AF37] p-6 sm:p-8 lg:p-10 flex flex-col justify-between relative shadow-2xl ring-4 ring-[#D4AF37]/20">
                         {/* Recommendation Badge */}
-                        <div className="absolute -top-3.5 right-6 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#1C2E24] text-[11px] font-black uppercase tracking-wider shadow-md">
+                        <div className="absolute -top-3.5 right-6 px-4 py-1.5 rounded-full bg-linear-to-r from-[#D4AF37] to-[#F3E5AB] text-[#1C2E24] text-[11px] font-black uppercase tracking-wider shadow-md">
                           ★ Sangat Direkomendasikan
                         </div>
 
@@ -497,7 +497,7 @@ export function UpgradePlusModal({
                               setShowCheckoutModal(true);
                             }}
                             className={cn(
-                              "w-full py-4 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37] text-[#1C2E24] font-black text-sm sm:text-base",
+                              "w-full py-4 rounded-2xl bg-linear-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37] text-[#1C2E24] font-black text-sm sm:text-base",
                               "shadow-xl shadow-[#D4AF37]/25 hover:opacity-95 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98",
                             )}
                           >
@@ -518,7 +518,7 @@ export function UpgradePlusModal({
             {showCheckoutModal && (
               <div
                 data-lenis-prevent="true"
-                className="fixed inset-0 z-[100001] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto overscroll-contain"
+                className="fixed inset-0 z-100001 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto overscroll-contain"
               >
                 <motion.div
                   data-lenis-prevent="true"
@@ -526,11 +526,11 @@ export function UpgradePlusModal({
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 20 }}
                   transition={{ duration: 0.2 }}
-                  className="w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl bg-[#1C2E24] border-2 border-[#D4AF37]/40 rounded-3xl p-5 sm:p-7 lg:p-8 shadow-2xl space-y-6 text-white relative max-h-[90vh] overflow-y-auto overscroll-contain custom-scrollbar"
+                  className="w-full max-w-sm sm:max-w-xl md:max-w-3xl lg:max-w-4xl bg-[#1C2E24] border-2 border-[#D4AF37]/40 rounded-2xl sm:rounded-3xl p-4 sm:p-7 lg:p-8 shadow-2xl space-y-5 sm:space-y-6 text-white relative max-h-[92vh] overflow-y-auto overscroll-contain custom-scrollbar my-auto"
                 >
                   {/* Header */}
                   <div className="flex items-center justify-between pb-3.5 border-b border-white/10">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2.5 sm:gap-3">
                       <button
                         type="button"
                         onClick={() => setShowCheckoutModal(false)}
@@ -575,8 +575,8 @@ export function UpgradePlusModal({
                             : "border-transparent opacity-85 hover:opacity-100",
                         )}
                       >
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+                          <div className="flex items-center gap-2.5 sm:gap-3">
                             <input
                               type="radio"
                               name="checkoutPaymentMethod"
@@ -587,23 +587,23 @@ export function UpgradePlusModal({
                             <img
                               src="/logos/pay/pay-black.webp"
                               alt="Pranata Pay"
-                              className="h-6 sm:h-7 w-auto object-contain shrink-0"
+                              className="h-5 sm:h-7 w-auto object-contain shrink-0"
                             />
                             <div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1.5 sm:gap-2">
                                 <span className="text-xs sm:text-sm font-black text-[#1C241E]">Pranata Pay</span>
-                                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#2B4C3B] text-white tracking-wider">
+                                <span className="text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#2B4C3B] text-white tracking-wider">
                                   Rekomendasi
                                 </span>
                               </div>
-                              <p className="text-[11px] text-[#2B4C3B] font-bold mt-0.5">
+                              <p className="text-[10px] sm:text-[11px] text-[#2B4C3B] font-bold mt-0.5">
                                 Bebas Biaya Layanan (Hemat Rp 2.000) • 1-Klik Bayar
                               </p>
                             </div>
                           </div>
 
-                          <div className="text-right shrink-0">
-                            <span className="text-[10px] text-[#7A8678] block">Saldo Anda</span>
+                          <div className="text-left sm:text-right pl-6 sm:pl-0 shrink-0">
+                            <span className="text-[9px] sm:text-[10px] text-[#7A8678] block">Saldo Anda</span>
                             <span
                               className={cn(
                                 "text-xs sm:text-sm font-black",
@@ -786,7 +786,7 @@ export function UpgradePlusModal({
                         <button
                           type="button"
                           onClick={() => setShowCheckoutModal(false)}
-                          className="px-4 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs transition-colors cursor-pointer"
+                          className="px-5 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-[#F8F6F0] font-bold text-xs transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                         >
                           Batal
                         </button>
@@ -796,8 +796,8 @@ export function UpgradePlusModal({
                           disabled={submitting || (isPranataPay && userBalance < grandTotal)}
                           onClick={handleUpgrade}
                           className={cn(
-                            "flex-1 py-3.5 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37] text-[#1C2E24] font-black text-xs sm:text-sm",
-                            "shadow-xl shadow-[#D4AF37]/25 hover:opacity-95 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98",
+                            "flex-1 py-3.5 rounded-full bg-linear-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37] text-[#1C2E24] font-bold text-xs sm:text-sm",
+                            "shadow-[0_10px_20px_-8px_rgba(212,175,55,0.4)] hover:brightness-105 transition-all duration-200 transform-gpu flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-amber-300/30",
                             (submitting || (isPranataPay && userBalance < grandTotal)) && "opacity-60 cursor-not-allowed",
                           )}
                         >
@@ -823,7 +823,7 @@ export function UpgradePlusModal({
             {transactionResult && (
               <div
                 data-lenis-prevent="true"
-                className="fixed inset-0 z-[100005] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto overscroll-contain"
+                className="fixed inset-0 z-100005 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto overscroll-contain"
               >
                 <motion.div
                   data-lenis-prevent="true"
@@ -832,7 +832,7 @@ export function UpgradePlusModal({
                   exit={{ opacity: 0, scale: 0.9, y: 20 }}
                   transition={{ type: "spring", damping: 25, stiffness: 300 }}
                   className={cn(
-                    "w-full max-w-md sm:max-w-lg bg-white rounded-3xl sm:rounded-[2rem] p-6 sm:p-8 border shadow-2xl relative space-y-6 text-[#1C241E] my-auto overflow-hidden",
+                    "w-full max-w-sm sm:max-w-md md:max-w-lg bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-7 md:p-8 border shadow-2xl relative space-y-5 sm:space-y-6 text-[#1C241E] my-auto overflow-hidden max-h-[92vh] overflow-y-auto custom-scrollbar",
                     transactionResult.status === "success"
                       ? "border-emerald-200"
                       : "border-rose-200",
@@ -843,8 +843,8 @@ export function UpgradePlusModal({
                     className={cn(
                       "absolute top-0 left-0 right-0 h-2",
                       transactionResult.status === "success"
-                        ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600"
-                        : "bg-gradient-to-r from-rose-500 via-red-500 to-rose-600",
+                        ? "bg-linear-to-r from-emerald-500 via-teal-500 to-emerald-600"
+                        : "bg-linear-to-r from-rose-500 via-red-500 to-rose-600",
                     )}
                   />
 
@@ -971,7 +971,7 @@ export function UpgradePlusModal({
                             onClose();
                             if (onSuccess) onSuccess();
                           }}
-                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-[#2B4C3B] hover:bg-[#223d2f] text-white font-extrabold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 order-1"
+                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10 order-1"
                         >
                           <Sparkles size={16} />
                           <span>Mulai Gunakan Plus</span>
@@ -983,7 +983,7 @@ export function UpgradePlusModal({
                             onClose();
                             if (onSuccess) onSuccess();
                           }}
-                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full border border-[#E8E3D2] bg-white hover:bg-[#FAF8F5] text-[#5A635B] font-bold text-xs sm:text-sm transition-all cursor-pointer order-2"
+                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full border border-[#D5D0C5] bg-white/70 hover:bg-white text-[#3F4841] hover:text-[#1C241E] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs order-2"
                         >
                           Tutup
                         </button>
@@ -997,7 +997,7 @@ export function UpgradePlusModal({
                               setTransactionResult(null);
                               setShowTopUpModal(true);
                             }}
-                            className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-[#2B4C3B] hover:bg-[#223d2f] text-white font-extrabold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 order-1"
+                            className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10 order-1"
                           >
                             <Wallet size={16} />
                             <span>Isi Saldo Instan</span>
@@ -1009,7 +1009,7 @@ export function UpgradePlusModal({
                               setTransactionResult(null);
                               setShowCheckoutModal(true);
                             }}
-                            className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-[#2B4C3B] hover:bg-[#223d2f] text-white font-extrabold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 order-1"
+                            className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10 order-1"
                           >
                             <span>Coba Lagi</span>
                           </button>
@@ -1017,7 +1017,7 @@ export function UpgradePlusModal({
                         <button
                           type="button"
                           onClick={() => setTransactionResult(null)}
-                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full border border-[#E8E3D2] bg-white hover:bg-[#FAF8F5] text-[#5A635B] font-bold text-xs sm:text-sm transition-all cursor-pointer order-2"
+                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full border border-[#D5D0C5] bg-white/70 hover:bg-white text-[#3F4841] hover:text-[#1C241E] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs order-2"
                         >
                           Tutup
                         </button>

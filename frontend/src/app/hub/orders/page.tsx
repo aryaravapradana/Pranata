@@ -548,11 +548,12 @@ export default function SellerOrdersPage() {
                         )
                       }
                       className={cn(
-                        "px-5 py-2.5 bg-pranata",
-                        "text-white text-xs font-black",
-                        "rounded-xl hover:bg-[#1E362A] transition-all",
-                        "flex items-center gap-2",
-                        "shadow-lg shadow-[#2B4C3B]/20 disabled:opacity-60",
+                        "px-5 py-2.5 bg-pranata hover:bg-[#1E362A]",
+                        "text-[#F8F6F0] text-xs font-bold",
+                        "rounded-full transition-all duration-200 transform-gpu",
+                        "flex items-center gap-2 border border-white/10",
+                        "shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)]",
+                        "hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60",
                         "cursor-pointer",
                       )}
                     >

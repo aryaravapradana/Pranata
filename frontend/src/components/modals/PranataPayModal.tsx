@@ -479,7 +479,7 @@ export function PranataPayModal({
       {isOpen && (
         <div
           data-lenis-prevent="true"
-          className="fixed inset-0 z-[99999] overflow-hidden flex flex-col justify-end overscroll-contain"
+          className="fixed inset-0 z-99999 overflow-hidden flex flex-col justify-end overscroll-contain"
         >
           {/* Backdrop */}
           <motion.div
@@ -505,23 +505,23 @@ export function PranataPayModal({
             )}
           >
             {/* Sticky Top Header */}
-            <div className="flex items-center justify-between px-5 sm:px-8 py-4 sm:py-5 border-b border-[#E8E3D2] bg-white shrink-0 z-30 shadow-xs">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between px-4 sm:px-8 py-3.5 sm:py-5 border-b border-[#E8E3D2] bg-white shrink-0 z-30 shadow-xs">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <img
                   src="/logos/pay/pay-black.webp"
                   alt="Pranata Pay"
-                  className="h-8 sm:h-9 w-auto object-contain"
+                  className="h-7 sm:h-9 w-auto object-contain"
                 />
-                <span className="hidden sm:inline-block text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-[#2B4C3B] text-white tracking-wider">
-                  Dompet Digital & Transaksi
+                <span className="text-[10px] font-black uppercase px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-[#2B4C3B] text-white tracking-wider">
+                  Dompet Digital
                 </span>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 rounded-full text-[#7A8678] hover:text-[#1C241E] hover:bg-[#FAF8F5] border border-[#E8E3D2] transition-colors cursor-pointer"
+                className="p-1.5 sm:p-2 rounded-full text-[#7A8678] hover:text-[#1C241E] hover:bg-[#FAF8F5] border border-[#E8E3D2] transition-colors cursor-pointer"
                 title="Tutup"
               >
-                <X size={20} />
+                <X size={18} className="sm:w-5 sm:h-5" />
               </button>
             </div>
 
@@ -532,26 +532,26 @@ export function PranataPayModal({
             >
               <div className="w-full max-w-md sm:max-w-xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-10 space-y-6 lg:space-y-8">
                 {/* Balance Card Ribbon */}
-                <div className="bg-gradient-to-br from-[#1C241E] via-[#2B4C3B] to-[#1E362A] text-white rounded-3xl p-6 sm:p-8 lg:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-xl border border-[#2B4C3B]">
+                <div className="bg-linear-to-br from-[#1C241E] via-[#2B4C3B] to-[#1E362A] text-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-6 shadow-xl border border-[#2B4C3B]">
                   <div>
-                    <div className="flex items-center gap-2 mb-1.5">
+                    <div className="flex items-center gap-2 mb-1">
                       <img
                         src="/logos/pay/pay-white.webp"
                         alt="Pranata Pay"
-                        className="h-6 w-auto object-contain opacity-95"
+                        className="h-5 sm:h-6 w-auto object-contain opacity-95"
                       />
-                      <span className="text-xs text-white/80 font-bold uppercase tracking-wider">
+                      <span className="text-[11px] sm:text-xs text-white/80 font-bold uppercase tracking-wider">
                         • Saldo Aktif
                       </span>
                     </div>
-                    <div className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
+                    <div className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight">
                       Rp {(walletData?.walletBalance || 0).toLocaleString("id-ID")}
                     </div>
-                    <p className="text-xs sm:text-sm text-white/70 mt-1.5 font-medium">
+                    <p className="text-[11px] sm:text-sm text-white/70 mt-1 sm:mt-1.5 font-medium">
                       Bebas biaya transaksi untuk seluruh ekosistem Pranata.
                     </p>
                   </div>
-                  <div className="flex sm:flex-col gap-2.5 shrink-0">
+                  <div className="flex sm:flex-col gap-2 sm:gap-2.5 shrink-0">
                     <button
                       onClick={() => {
                         setActiveTab("topup");
@@ -559,13 +559,13 @@ export function PranataPayModal({
                         setErrorMessage(null);
                       }}
                       className={cn(
-                        "flex-1 sm:flex-initial px-6 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer",
+                        "flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-sm cursor-pointer",
                         activeTab === "topup"
                           ? "bg-white text-[#2B4C3B]"
                           : "bg-white/20 hover:bg-white/30 text-white",
                       )}
                     >
-                      <PlusCircle size={16} />
+                      <PlusCircle size={15} className="shrink-0" />
                       <span>Isi Saldo</span>
                     </button>
                     <button
@@ -575,54 +575,54 @@ export function PranataPayModal({
                         setErrorMessage(null);
                       }}
                       className={cn(
-                        "flex-1 sm:flex-initial px-6 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer",
+                        "flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-sm cursor-pointer",
                         activeTab === "withdraw"
                           ? "bg-white text-[#2B4C3B]"
                           : "bg-white/20 hover:bg-white/30 text-white",
                       )}
                     >
-                      <ArrowUpRight size={16} />
+                      <ArrowUpRight size={15} className="shrink-0" />
                       <span>Tarik Saldo</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Tab Navigation Pill Bar */}
-                <div className="bg-white rounded-2xl border border-[#E8E3D2] p-1.5 flex gap-1.5 shadow-xs">
+                <div className="bg-white rounded-xl sm:rounded-2xl border border-[#E8E3D2] p-1 sm:p-1.5 flex gap-1 sm:gap-1.5 shadow-xs">
                   <button
                     onClick={() => setActiveTab("overview")}
                     className={cn(
-                      "flex-1 py-2.5 sm:py-3 rounded-xl font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer",
+                      "flex-1 py-2 sm:py-3 rounded-lg sm:rounded-xl font-black text-[11px] sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer",
                       activeTab === "overview"
                         ? "bg-[#2B4C3B] text-white shadow-sm"
                         : "text-[#5A635B] hover:text-[#1C241E] hover:bg-[#FAF8F5]",
                     )}
                   >
-                    <History size={16} />
+                    <History size={14} className="sm:w-4 sm:h-4 shrink-0" />
                     <span>Riwayat Mutasi</span>
                   </button>
                   <button
                     onClick={() => setActiveTab("topup")}
                     className={cn(
-                      "flex-1 py-2.5 sm:py-3 rounded-xl font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer",
+                      "flex-1 py-2 sm:py-3 rounded-lg sm:rounded-xl font-black text-[11px] sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer",
                       activeTab === "topup"
                         ? "bg-[#2B4C3B] text-white shadow-sm"
                         : "text-[#5A635B] hover:text-[#1C241E] hover:bg-[#FAF8F5]",
                     )}
                   >
-                    <PlusCircle size={16} />
+                    <PlusCircle size={14} className="sm:w-4 sm:h-4 shrink-0" />
                     <span>Top-Up Saldo</span>
                   </button>
                   <button
                     onClick={() => setActiveTab("withdraw")}
                     className={cn(
-                      "flex-1 py-2.5 sm:py-3 rounded-xl font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer",
+                      "flex-1 py-2 sm:py-3 rounded-lg sm:rounded-xl font-black text-[11px] sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer",
                       activeTab === "withdraw"
                         ? "bg-[#2B4C3B] text-white shadow-sm"
                         : "text-[#5A635B] hover:text-[#1C241E] hover:bg-[#FAF8F5]",
                     )}
                   >
-                    <ArrowUpRight size={16} />
+                    <ArrowUpRight size={14} className="sm:w-4 sm:h-4 shrink-0" />
                     <span>Tarik ke Bank</span>
                   </button>
                 </div>
@@ -858,8 +858,8 @@ export function PranataPayModal({
                         disabled={submitting}
                         onClick={handleOpenTopUpConfirm}
                         className={cn(
-                          "w-full py-4 rounded-2xl bg-[#2B4C3B] hover:bg-[#223d2f] text-white font-extrabold text-xs sm:text-sm",
-                          "shadow-lg shadow-[#2B4C3B]/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98",
+                          "w-full py-4 rounded-full bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] font-bold text-xs sm:text-sm",
+                          "shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] transition-all duration-200 transform-gpu flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10",
                           submitting && "opacity-75 cursor-not-allowed",
                         )}
                       >
@@ -973,8 +973,8 @@ export function PranataPayModal({
                         }
                         onClick={handleOpenWithdrawConfirm}
                         className={cn(
-                          "w-full py-4 rounded-2xl bg-[#2B4C3B] hover:bg-[#223d2f] text-white font-extrabold text-xs sm:text-sm",
-                          "shadow-lg shadow-[#2B4C3B]/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98",
+                          "w-full py-4 rounded-full bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] font-bold text-xs sm:text-sm",
+                          "shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] transition-all duration-200 transform-gpu flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10",
                           (submitting ||
                             withdrawAmount > (walletData?.walletBalance || 0) ||
                             withdrawAmount < 20000 ||
@@ -998,7 +998,7 @@ export function PranataPayModal({
             {showTopUpConfirm && (
               <div
                 data-lenis-prevent="true"
-                className="fixed inset-0 z-[100002] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto overscroll-contain"
+                className="fixed inset-0 z-100002 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto overscroll-contain"
               >
                 <motion.div
                   data-lenis-prevent="true"
@@ -1006,7 +1006,7 @@ export function PranataPayModal({
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 15 }}
                   transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                  className="w-full max-w-md sm:max-w-lg bg-white rounded-3xl p-6 sm:p-8 border border-[#E8E3D2] shadow-2xl relative space-y-5 text-[#1C241E] my-auto"
+                  className="w-full max-w-sm sm:max-w-md md:max-w-lg bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 border border-[#E8E3D2] shadow-2xl relative space-y-4 sm:space-y-5 text-[#1C241E] my-auto max-h-[92vh] overflow-y-auto custom-scrollbar"
                 >
                   {/* Header */}
                   <div className="flex items-center justify-between pb-3.5 border-b border-[#E8E3D2]">
@@ -1096,7 +1096,7 @@ export function PranataPayModal({
                       type="button"
                       disabled={submitting}
                       onClick={() => setShowTopUpConfirm(false)}
-                      className="w-full sm:w-1/2 py-3.5 px-4 rounded-full border border-[#E8E3D2] bg-white hover:bg-[#FAF8F5] text-[#5A635B] font-bold text-xs sm:text-sm transition-all cursor-pointer order-2 sm:order-1"
+                      className="w-full sm:w-1/2 py-3.5 px-4 rounded-full border border-[#D5D0C5] bg-white/70 hover:bg-white text-[#3F4841] hover:text-[#1C241E] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs order-2 sm:order-1"
                     >
                       Ubah Rincian
                     </button>
@@ -1104,7 +1104,7 @@ export function PranataPayModal({
                       type="button"
                       disabled={submitting}
                       onClick={handleTopUp}
-                      className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-[#2B4C3B] hover:bg-[#223d2f] text-white font-extrabold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 order-1 sm:order-2"
+                      className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10 order-1 sm:order-2"
                     >
                       {submitting ? (
                         <>
@@ -1129,7 +1129,7 @@ export function PranataPayModal({
             {showWithdrawConfirm && (
               <div
                 data-lenis-prevent="true"
-                className="fixed inset-0 z-[100002] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto overscroll-contain"
+                className="fixed inset-0 z-100002 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto overscroll-contain"
               >
                 <motion.div
                   data-lenis-prevent="true"
@@ -1137,7 +1137,7 @@ export function PranataPayModal({
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 15 }}
                   transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                  className="w-full max-w-md sm:max-w-lg bg-white rounded-3xl p-6 sm:p-8 border border-[#E8E3D2] shadow-2xl relative space-y-5 text-[#1C241E] my-auto"
+                  className="w-full max-w-sm sm:max-w-md md:max-w-lg bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 border border-[#E8E3D2] shadow-2xl relative space-y-4 sm:space-y-5 text-[#1C241E] my-auto max-h-[92vh] overflow-y-auto custom-scrollbar"
                 >
                   {/* Header */}
                   <div className="flex items-center justify-between pb-3.5 border-b border-[#E8E3D2]">
@@ -1229,7 +1229,7 @@ export function PranataPayModal({
                       type="button"
                       disabled={submitting}
                       onClick={() => setShowWithdrawConfirm(false)}
-                      className="w-full sm:w-1/2 py-3.5 px-4 rounded-full border border-[#E8E3D2] bg-white hover:bg-[#FAF8F5] text-[#5A635B] font-bold text-xs sm:text-sm transition-all cursor-pointer order-2 sm:order-1"
+                      className="w-full sm:w-1/2 py-3.5 px-4 rounded-full border border-[#D5D0C5] bg-white/70 hover:bg-white text-[#3F4841] hover:text-[#1C241E] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs order-2 sm:order-1"
                     >
                       Periksa Lagi
                     </button>
@@ -1237,7 +1237,7 @@ export function PranataPayModal({
                       type="button"
                       disabled={submitting}
                       onClick={handleWithdraw}
-                      className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-[#2B4C3B] hover:bg-[#223d2f] text-white font-extrabold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 order-1 sm:order-2"
+                      className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10 order-1 sm:order-2"
                     >
                       {submitting ? (
                         <>
@@ -1262,7 +1262,7 @@ export function PranataPayModal({
             {transactionResult && (
               <div
                 data-lenis-prevent="true"
-                className="fixed inset-0 z-[100005] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto overscroll-contain"
+                className="fixed inset-0 z-100005 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto overscroll-contain"
               >
                 <motion.div
                   data-lenis-prevent="true"
@@ -1271,7 +1271,7 @@ export function PranataPayModal({
                   exit={{ opacity: 0, scale: 0.9, y: 20 }}
                   transition={{ type: "spring", damping: 25, stiffness: 300 }}
                   className={cn(
-                    "w-full max-w-md sm:max-w-lg bg-white rounded-3xl sm:rounded-[2rem] p-6 sm:p-8 border shadow-2xl relative space-y-6 text-[#1C241E] my-auto overflow-hidden",
+                    "w-full max-w-sm sm:max-w-md md:max-w-lg bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-7 md:p-8 border shadow-2xl relative space-y-5 sm:space-y-6 text-[#1C241E] my-auto overflow-hidden max-h-[92vh] overflow-y-auto custom-scrollbar",
                     transactionResult.status === "success"
                       ? "border-emerald-200"
                       : "border-rose-200",
@@ -1282,8 +1282,8 @@ export function PranataPayModal({
                     className={cn(
                       "absolute top-0 left-0 right-0 h-2",
                       transactionResult.status === "success"
-                        ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600"
-                        : "bg-gradient-to-r from-rose-500 via-red-500 to-rose-600",
+                        ? "bg-linear-to-r from-emerald-500 via-teal-500 to-emerald-600"
+                        : "bg-linear-to-r from-rose-500 via-red-500 to-rose-600",
                     )}
                   />
 
@@ -1372,7 +1372,7 @@ export function PranataPayModal({
                       {transactionResult.accountNumber && (
                         <div className="flex justify-between text-[#5A635B]">
                           <span>No. Rekening / Pemilik:</span>
-                          <span className="font-bold text-[#1C241E] text-right truncate max-w-[200px]">
+                          <span className="font-bold text-[#1C241E] text-right truncate max-w-50">
                             {transactionResult.accountNumber} ({transactionResult.accountHolder})
                           </span>
                         </div>
@@ -1424,7 +1424,7 @@ export function PranataPayModal({
                             fetchWallet();
                             if (onSuccess) onSuccess();
                           }}
-                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-[#2B4C3B] hover:bg-[#223d2f] text-white font-extrabold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 order-1"
+                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10 order-1"
                         >
                           <History size={16} />
                           <span>Lihat Mutasi</span>
@@ -1436,7 +1436,7 @@ export function PranataPayModal({
                             fetchWallet();
                             if (onSuccess) onSuccess();
                           }}
-                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full border border-[#E8E3D2] bg-white hover:bg-[#FAF8F5] text-[#5A635B] font-bold text-xs sm:text-sm transition-all cursor-pointer order-2"
+                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full border border-[#D5D0C5] bg-white/70 hover:bg-white text-[#3F4841] hover:text-[#1C241E] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs order-2"
                         >
                           Tutup
                         </button>
@@ -1453,14 +1453,14 @@ export function PranataPayModal({
                               setShowWithdrawConfirm(true);
                             }
                           }}
-                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-[#2B4C3B] hover:bg-[#223d2f] text-white font-extrabold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 order-1"
+                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full bg-pranata hover:bg-[#1E362A] text-[#F8F6F0] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10 order-1"
                         >
                           <span>Coba Lagi</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setTransactionResult(null)}
-                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full border border-[#E8E3D2] bg-white hover:bg-[#FAF8F5] text-[#5A635B] font-bold text-xs sm:text-sm transition-all cursor-pointer order-2"
+                          className="w-full sm:w-1/2 py-3.5 px-4 rounded-full border border-[#D5D0C5] bg-white/70 hover:bg-white text-[#3F4841] hover:text-[#1C241E] font-bold text-xs sm:text-sm transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs order-2"
                         >
                           Tutup
                         </button>

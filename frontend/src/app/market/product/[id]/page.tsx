@@ -48,6 +48,8 @@ import {
 import { useRouter } from "next/navigation";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 import { ImageSwiper } from "@/components/ui/image-swiper";
+import { PlusBadge } from "@/components/ui/plus-badge";
+import { AvatarHalo } from "@/components/ui/avatar-halo";
 
 const API_BASE = getApiBaseUrl();
 
@@ -148,7 +150,7 @@ export default function ProductDetailPage({
     useState(false);
   usePageLoading(loading);
   const router = useRouter();
-  const { navigateTo } = useGlobalLoading();
+  const { navigateTo, goBack } = useGlobalLoading();
   const [quantity, setQuantity] =
     useState(1);
   const [
@@ -448,7 +450,7 @@ export default function ProductDetailPage({
               <div
                 className={cn(
                   "w-full md:w-2/5 lg:w-1/2",
-                  "aspect-[4/5] sm:aspect-square lg:aspect-[4/5]",
+                  "aspect-4/5 sm:aspect-square lg:aspect-4/5",
                   "skeleton-shimmer",
                 )}
               />
@@ -492,12 +494,11 @@ export default function ProductDetailPage({
             Produk tidak ditemukan.
           </p>
           <button
-            onClick={() =>
-              navigateTo("/market")
-            }
-            className="mt-4 text-[#2B4C3B] font-bold underline"
+            onClick={goBack}
+            data-back="true"
+            className="mt-4 text-[#2B4C3B] font-bold underline cursor-pointer"
           >
-            Kembali ke Marketplace
+            Kembali
           </button>
         </div>
       </div>
@@ -535,16 +536,16 @@ export default function ProductDetailPage({
           )}
         >
           <button
-            onClick={() =>
-              navigateTo("/market")
-            }
+            onClick={goBack}
+            data-back="true"
             className={cn(
               "w-9 h-9 rounded-full",
               "bg-white border border-[#E8E3D2]",
               "flex items-center justify-center",
               "text-[#1C241E] hover:bg-[#F8F6F0] active:scale-95",
-              "transition-all shadow-sm",
+              "transition-all shadow-sm cursor-pointer",
             )}
+            title="Kembali ke halaman sebelumnya"
           >
             <ArrowLeft
               size={18}
@@ -619,7 +620,7 @@ export default function ProductDetailPage({
             className={cn(
               "w-full flex items-center",
               "justify-center py-2 select-none",
-              "overflow-visible min-h-[330px]",
+              "overflow-visible min-h-82.5",
             )}
           >
             <ImageSwiper
@@ -691,39 +692,14 @@ export default function ProductDetailPage({
               "active:scale-98 transition-all group",
             )}
           >
-            <div
-              className={cn(
-                "w-11 h-11 rounded-full",
-                "bg-[#2B4C3B] text-white flex",
-                "items-center justify-center font-black",
-                "text-lg overflow-hidden shrink-0",
-                "border border-[#E8E3D2] shadow-xs",
-              )}
-            >
-              {seller?.avatarUrl ? (
-                <img
-                  src={seller.avatarUrl}
-                  alt={
-                    seller.farmName ||
-                    seller.fullName
-                  }
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                />
-              ) : (
-                <span>
-                  {(
-                    seller?.farmName ||
-                    seller?.fullName ||
-                    seller?.username ||
-                    "?"
-                  )
-                    .charAt(0)
-                    .toUpperCase()}
-                </span>
-              )}
-            </div>
+            <AvatarHalo
+              isPlus={seller?.subscriptionTier === "PLUS"}
+              avatarUrl={seller?.avatarUrl}
+              name={seller?.farmName || seller?.fullName || seller?.username}
+              size="md"
+              shape="circle"
+              className="shrink-0"
+            />
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
@@ -747,17 +723,24 @@ export default function ProductDetailPage({
                   Terverifikasi
                 </span>
               </div>
-              <h4
-                className={cn(
-                  "text-xs font-black text-[#1C241E]",
-                  "truncate group-hover:text-[#2B4C3B] transition-colors",
-                  "mt-0.5",
+              <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                <h4
+                  className={cn(
+                    "text-xs font-black text-[#1C241E]",
+                    "truncate group-hover:text-[#2B4C3B] transition-colors",
+                  )}
+                >
+                  {seller?.farmName ||
+                    seller?.fullName ||
+                    "Petani Sleman"}
+                </h4>
+                {seller?.subscriptionTier === "PLUS" && (
+                  <PlusBadge
+                    variant="black"
+                    size="xs"
+                  />
                 )}
-              >
-                {seller?.farmName ||
-                  seller?.fullName ||
-                  "Petani Sleman"}
-              </h4>
+              </div>
               {seller?.location && (
                 <p
                   className={cn(
@@ -924,11 +907,11 @@ export default function ProductDetailPage({
                   <button
                     className={cn(
                       "w-full h-11 px-4",
-                      "rounded-full bg-[#2B4C3B] hover:bg-[#1E362A]",
-                      "text-white font-extrabold text-xs",
+                      "rounded-full bg-pranata hover:bg-[#1E362A]",
+                      "text-[#F8F6F0] font-bold text-xs",
                       "sm:text-sm flex items-center",
-                      "justify-center gap-2 shadow-md",
-                      "cursor-pointer active:scale-95 transition-all",
+                      "justify-center gap-2 shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)]",
+                      "cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 transform-gpu border border-white/10",
                     )}
                   >
                     <Edit3 size={16} />
@@ -1023,12 +1006,12 @@ export default function ProductDetailPage({
                       maxQ === 0 ||
                       isSubmitting
                     }
-                    className={`flex-1 h-11 px-3.5 sm:px-4 rounded-full font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-md transition-all whitespace-nowrap active:scale-95 cursor-pointer ${
+                    className={`flex-1 h-11 px-3.5 sm:px-4 rounded-full font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] transition-all duration-200 transform-gpu whitespace-nowrap active:scale-[0.98] hover:scale-[1.02] cursor-pointer border border-white/10 ${
                       maxQ === 0
-                        ? "bg-gray-400 opacity-60 text-white cursor-not-allowed"
+                        ? "bg-gray-400 opacity-60 text-white cursor-not-allowed shadow-none"
                         : addedSuccess
-                          ? "bg-[#1E362A] text-white shadow-emerald-900/30 ring-2 ring-[#B4C179]"
-                          : "bg-gradient-to-r from-[#2B4C3B] via-[#32452C] to-[#1E362A] hover:brightness-110 text-white shadow-[#2B4C3B]/30"
+                          ? "bg-[#1E362A] text-[#F8F6F0] shadow-emerald-900/30 ring-2 ring-[#B4C179]"
+                          : "bg-pranata hover:bg-[#1E362A] text-[#F8F6F0]"
                     }`}
                   >
                     {isSubmitting ? (
@@ -1091,20 +1074,19 @@ export default function ProductDetailPage({
       >
         <div className="mb-6">
           <button
-            onClick={() =>
-              navigateTo("/market")
-            }
+            onClick={goBack}
+            data-back="true"
             className={cn(
               "inline-flex items-center gap-2",
               "bg-white border border-[#E8E3D2]",
               "hover:bg-[#F8F6F0] text-[#1C241E] hover:text-[#2B4C3B]",
               "font-bold text-sm px-4",
               "py-2 rounded-full transition-colors",
-              "shadow-sm",
+              "shadow-sm active:scale-95 cursor-pointer",
             )}
+            title="Kembali ke halaman sebelumnya"
           >
             <ChevronLeft size={18} /> Kembali
-            ke Marketplace
           </button>
         </div>
 
@@ -1121,8 +1103,8 @@ export default function ProductDetailPage({
                 )
               }
               className={cn(
-                "relative w-full aspect-[4/5]",
-                "sm:aspect-square lg:aspect-[4/5] bg-white",
+                "relative w-full aspect-4/5",
+                "sm:aspect-square lg:aspect-4/5 bg-white",
                 "border border-[#E8E3D2] rounded-[2.5rem]",
                 "overflow-hidden shadow-md p-0",
                 "flex items-center justify-center",
@@ -1262,38 +1244,14 @@ export default function ProductDetailPage({
                     "group",
                   )}
                 >
-                  {seller.avatarUrl ? (
-                    <img
-                      src={seller.avatarUrl}
-                      alt="Seller Avatar"
-                      className={cn(
-                        "w-12 h-12 rounded-full",
-                        "object-cover shrink-0 shadow-inner",
-                        "group-hover:scale-105 transition-transform",
-                      )}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    <div
-                      className={cn(
-                        "w-12 h-12 rounded-full",
-                        "bg-[#2B4C3B] text-white flex",
-                        "items-center justify-center font-black",
-                        "text-xl shrink-0 shadow-inner",
-                        "group-hover:scale-105 transition-transform",
-                      )}
-                    >
-                      {(
-                        seller.farmName ||
-                        seller.fullName ||
-                        seller.username ||
-                        "?"
-                      )
-                        .charAt(0)
-                        .toUpperCase()}
-                    </div>
-                  )}
+                  <AvatarHalo
+                    isPlus={seller.subscriptionTier === "PLUS"}
+                    avatarUrl={seller.avatarUrl}
+                    name={seller.farmName || seller.fullName || seller.username}
+                    size="md"
+                    shape="circle"
+                    className="shrink-0 group-hover:scale-105 transition-transform"
+                  />
                   <div className="flex-1">
                     <span
                       className={cn(
@@ -1306,9 +1264,8 @@ export default function ProductDetailPage({
                     </span>
                     <h3
                       className={cn(
-                        "text-sm font-black text-[#1C241E]",
-                        "flex items-center gap-1.5",
-                        "mb-0.5",
+                        "font-extrabold text-sm text-[#1C241E]",
+                        "flex items-center gap-1.5 flex-wrap",
                       )}
                     >
                       {seller.farmName ||
@@ -1317,6 +1274,12 @@ export default function ProductDetailPage({
                         size={14}
                         className="text-emerald-500 shrink-0"
                       />
+                      {seller.subscriptionTier === "PLUS" && (
+                        <PlusBadge
+                          variant="black"
+                          size="xs"
+                        />
+                      )}
                     </h3>
                     {seller.location && (
                       <p className="text-xs text-[#5A635B] flex items-center gap-1">
@@ -1463,11 +1426,11 @@ export default function ProductDetailPage({
                 >
                   <button
                     className={cn(
-                      "w-full h-14 rounded-2xl",
-                      "bg-[#2B4C3B] hover:bg-[#1E362A] text-white",
-                      "font-black text-base shadow-xl",
+                      "w-full h-14 rounded-full",
+                      "bg-pranata hover:bg-[#1E362A] text-[#F8F6F0]",
+                      "font-bold text-base shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)]",
                       "flex items-center justify-center",
-                      "gap-2.5 transition-all cursor-pointer",
+                      "gap-2.5 transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] cursor-pointer border border-white/10",
                     )}
                   >
                     <Edit3 size={20} />
@@ -1565,12 +1528,12 @@ export default function ProductDetailPage({
                       maxQ === 0 ||
                       isSubmitting
                     }
-                    className={`flex-1 h-14 rounded-2xl font-black text-base shadow-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
+                    className={`flex-1 h-14 rounded-full font-bold text-base shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] flex items-center justify-center gap-2.5 transition-all duration-200 transform-gpu cursor-pointer border border-white/10 ${
                       maxQ === 0
                         ? "bg-gray-400 opacity-60 text-white cursor-not-allowed shadow-none"
                         : addedSuccess
-                          ? "bg-[#1E362A] text-white shadow-emerald-900/30 ring-2 ring-[#B4C179]"
-                          : "bg-gradient-to-r from-[#2B4C3B] via-[#32452C] to-[#1E362A] hover:brightness-110 text-white shadow-[#2B4C3B]/30"
+                          ? "bg-[#1E362A] text-[#F8F6F0] shadow-emerald-900/30 ring-2 ring-[#B4C179]"
+                          : "bg-pranata hover:bg-[#1E362A] text-[#F8F6F0]"
                     }`}
                   >
                     {isSubmitting ? (
@@ -1628,7 +1591,7 @@ export default function ProductDetailPage({
               setFullscreenImg(null)
             }
             className={cn(
-              "fixed inset-0 z-[100]",
+              "fixed inset-0 z-100",
               "bg-black/90 backdrop-blur-md flex",
               "items-center justify-center p-4",
               "sm:p-8 select-none cursor-zoom-out",
@@ -1642,7 +1605,7 @@ export default function ProductDetailPage({
               }}
               className={cn(
                 "absolute top-5 right-5",
-                "z-[110] w-12 h-12",
+                "z-110 w-12 h-12",
                 "rounded-full bg-white/20 hover:bg-white/40",
                 "text-white backdrop-blur-md flex",
                 "items-center justify-center border",

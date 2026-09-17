@@ -89,7 +89,7 @@ export default function BrandLogoSwitcher({
           <img
             src={"/logos/hub/hub-black.webp" + v}
             alt="Pranata Hub"
-            className="h-[26px] w-auto object-contain object-left"
+            className="h-6.5 w-auto object-contain object-left"
             loading="eager"
             decoding="sync"
           />
@@ -102,7 +102,7 @@ export default function BrandLogoSwitcher({
               v
             }
             alt="Pranata Intelligence"
-            className="h-[32px] w-auto object-contain object-left"
+            className="h-8 w-auto object-contain object-left"
             loading="eager"
             decoding="sync"
           />
@@ -115,7 +115,7 @@ export default function BrandLogoSwitcher({
               v
             }
             alt="Pranata Basic"
-            className="h-[32px] w-auto object-contain object-left"
+            className="h-8 w-auto object-contain object-left"
             loading="eager"
             decoding="sync"
           />
@@ -129,7 +129,7 @@ export default function BrandLogoSwitcher({
               v
             }
             alt="Pranata Market"
-            className="h-[26px] w-auto object-contain object-left"
+            className="h-6.5 w-auto object-contain object-left"
             loading="eager"
             decoding="sync"
           />
@@ -148,11 +148,7 @@ export default function BrandLogoSwitcher({
 
   const handleIntelligenceClick = () => {
     setIsOpen(false);
-    if (isProducer) {
-      navigateTo("/hub/intelligence");
-    } else {
-      setShowWarningModal(true);
-    }
+    navigateTo("/intelligence");
   };
 
   return (
@@ -242,7 +238,7 @@ export default function BrandLogoSwitcher({
                   <img
                     src="/logos/basic/logo black.webp?v=2"
                     alt="Pranata Basic"
-                    className="h-[32px] w-auto object-contain object-left"
+                    className="h-8 w-auto object-contain object-left"
                     loading="eager"
                     decoding="sync"
                   />
@@ -271,7 +267,7 @@ export default function BrandLogoSwitcher({
                   <img
                     src="/logos/market/market-black.webp?v=2"
                     alt="Pranata Market"
-                    className="h-[26px] w-auto object-contain object-left"
+                    className="h-6.5 w-auto object-contain object-left"
                     loading="eager"
                     decoding="sync"
                   />
@@ -302,7 +298,7 @@ export default function BrandLogoSwitcher({
                   <img
                     src="/logos/hub/hub-black.webp?v=2"
                     alt="Pranata Hub"
-                    className={`h-[26px] w-auto object-contain object-left ${!isProducer ? "grayscale" : ""}`}
+                    className={`h-6.5 w-auto object-contain object-left ${!isProducer ? "grayscale" : ""}`}
                     loading="eager"
                     decoding="sync"
                   />
@@ -336,55 +332,28 @@ export default function BrandLogoSwitcher({
 
               {/* Option 4: Intelligence */}
               <button
-                onClick={
-                  handleIntelligenceClick
-                }
-                title={
-                  !isProducer
-                    ? "Kamu belum mendaftar sebagai penjual"
-                    : undefined
-                }
+                onClick={handleIntelligenceClick}
                 className={`w-full px-3.5 py-2 flex items-center justify-between transition-all cursor-pointer ${
-                  currentApp ===
-                  "intelligence"
+                  currentApp === "intelligence"
                     ? "bg-[#EEF2E6]"
                     : "hover:bg-[#F8F6F0]"
-                } ${!isProducer ? "opacity-60" : ""}`}
+                }`}
               >
                 <div className="h-8 flex items-center justify-start shrink-0">
                   <img
                     src="/logos/intelligence/intelligence-black.webp?v=2"
                     alt="Pranata Intelligence"
-                    className={`h-[32px] w-auto object-contain object-left ${!isProducer ? "grayscale" : ""}`}
+                    className="h-8 w-auto object-contain object-left"
                     loading="eager"
                     decoding="sync"
                   />
                 </div>
 
-                {isProducer ? (
-                  currentApp ===
-                    "intelligence" && (
-                    <Check
-                      size={16}
-                      className="text-[#2B4C3B] shrink-0 ml-2"
-                    />
-                  )
-                ) : (
-                  <div
-                    className={cn(
-                      "flex items-center gap-1",
-                      "bg-amber-100 text-amber-800 text-[10px]",
-                      "font-extrabold px-1.5 py-0.5",
-                      "rounded-md border border-amber-200",
-                      "shrink-0 ml-2 shadow-2xs",
-                    )}
-                  >
-                    <Lock
-                      size={11}
-                      className="text-amber-700"
-                    />
-                    <span>Locked</span>
-                  </div>
+                {currentApp === "intelligence" && (
+                  <Check
+                    size={16}
+                    className="text-[#2B4C3B] shrink-0 ml-2"
+                  />
                 )}
               </button>
             </motion.div>

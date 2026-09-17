@@ -73,7 +73,7 @@ function ActivityContent() {
 
   const [loading, setLoading] =
     useState(true);
-  const { navigateTo } = useGlobalLoading();
+  const { navigateTo, goBack } = useGlobalLoading();
 
   // Cart state
   const [cart, setCart] = useState<any[]>(
@@ -408,19 +408,19 @@ function ActivityContent() {
           "w-full pb-16",
         )}
       >
-        <div className="mb-6 hidden sm:block">
+        <div className="mb-6">
           <button
-            onClick={() =>
-              router.push("/market")
-            }
+            onClick={goBack}
+            data-back="true"
             className={cn(
               "inline-flex items-center gap-2",
               "bg-white border border-[#E8E3D2]",
               "hover:bg-[#F8F6F0] text-[#1C241E] hover:text-[#2B4C3B]",
               "font-bold text-sm px-4",
               "py-2 rounded-full transition-colors",
-              "shadow-sm active:scale-95",
+              "shadow-sm active:scale-95 cursor-pointer",
             )}
+            title="Kembali ke halaman sebelumnya"
           >
             <ChevronLeft size={18} /> Kembali
           </button>
@@ -495,10 +495,11 @@ function ActivityContent() {
                     }
                     className={cn(
                       "px-6 py-3 sm:px-8",
-                      "sm:py-3.5 bg-pranata text-white",
-                      "font-black text-xs sm:text-sm",
-                      "rounded-full hover:bg-[#1E362A] transition-colors",
-                      "shadow-lg active:scale-95 cursor-pointer",
+                      "sm:py-3.5 bg-pranata text-[#F8F6F0]",
+                      "font-bold text-xs sm:text-sm",
+                      "rounded-full hover:bg-[#1E362A] transition-all duration-200 transform-gpu",
+                      "shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)]",
+                      "hover:scale-[1.02] active:scale-[0.98] cursor-pointer border border-white/10",
                     )}
                   >
                     Mulai Belanja
@@ -526,7 +527,7 @@ function ActivityContent() {
                           className={cn(
                             "w-20 h-20 sm:w-32",
                             "sm:h-32 rounded-xl sm:rounded-[1.5rem]",
-                            "bg-[#F1EBE1] flex-shrink-0 overflow-hidden",
+                            "bg-[#F1EBE1] shrink-0 overflow-hidden",
                             "flex items-center justify-center",
                             "text-3xl sm:text-5xl relative",
                           )}
@@ -836,10 +837,11 @@ function ActivityContent() {
                         )
                       }
                       className={cn(
-                        "w-full bg-[#1C241E] hover:bg-pranata",
-                        "text-white py-4 rounded-full",
-                        "font-bold transition-all shadow-lg",
-                        "shadow-[#1C241E]/20 hover:shadow-[#2B4C3B]/30 hover:-translate-y-0.5",
+                        "w-full bg-pranata hover:bg-[#1E362A]",
+                        "text-[#F8F6F0] py-4 rounded-full",
+                        "font-bold text-sm sm:text-base transition-all duration-200 transform-gpu",
+                        "shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)]",
+                        "hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 border border-white/10",
                       )}
                     >
                       Lanjut ke Pembayaran
@@ -912,9 +914,10 @@ function ActivityContent() {
                       navigateTo("/market")
                     }
                     className={cn(
-                      "px-6 py-3 bg-pranata",
-                      "text-white font-black rounded-2xl",
-                      "hover:bg-[#1E362A] transition-colors",
+                      "px-6 py-3 bg-pranata hover:bg-[#1E362A]",
+                      "text-[#F8F6F0] font-bold text-xs sm:text-sm rounded-full",
+                      "shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)]",
+                      "transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] cursor-pointer border border-white/10",
                     )}
                   >
                     Mulai Belanja
@@ -1166,7 +1169,7 @@ export default function CombinedActivityPage() {
               className={cn(
                 "bg-pranata rounded-[2rem] p-4",
                 "flex items-center justify-between",
-                "shadow-md h-[88px]",
+                "shadow-md h-22",
               )}
             />
           </div>

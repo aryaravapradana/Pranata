@@ -97,7 +97,7 @@ const CustomDropdown = ({
           ) : (
             <Icon size={14} className="text-[#32452C] shrink-0" />
           )}
-          <span className="truncate max-w-[110px] sm:max-w-[140px]">{displayValue}</span>
+          <span className="truncate max-w-27.5 sm:max-w-35">{displayValue}</span>
         </div>
         <ChevronRight
           size={14}
@@ -523,12 +523,11 @@ export default function StoreDashboardPage() {
               router.push("/hub/store/new");
             }}
             className={cn(
-              "w-full sm:w-auto bg-white",
-              "hover:bg-[#F8F6F0] text-[#124024] px-5",
-              "py-3 rounded-xl font-extrabold",
-              "flex items-center justify-center",
-              "gap-2 shadow-lg transition-all",
-              "text-xs sm:text-sm active:scale-95",
+              "w-full sm:w-auto bg-white hover:bg-[#F8F6F0]",
+              "text-[#2B4C3B] px-6 py-2.5 rounded-full font-bold",
+              "flex items-center justify-center gap-2",
+              "shadow-sm hover:shadow-[0_8px_20px_-6px_rgba(43,76,59,0.25)] transition-all duration-200 transform-gpu",
+              "text-xs sm:text-sm hover:scale-[1.02] active:scale-[0.98]",
               "shrink-0 cursor-pointer",
             )}
           >
@@ -829,7 +828,7 @@ export default function StoreDashboardPage() {
                         className={cn(
                           "w-full mb-2 py-1.5 px-3 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs",
                           p.isSponsored
-                            ? "bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-white hover:opacity-95"
+                            ? "bg-linear-to-r from-[#D4AF37] to-[#AA820A] text-white hover:opacity-95"
                             : "bg-[#FAF8F5] hover:bg-[#EEF2E6] text-[#856608] border border-[#D4AF37]/60"
                         )}
                       >

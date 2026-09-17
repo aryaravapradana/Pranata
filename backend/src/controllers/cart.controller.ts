@@ -5,7 +5,7 @@ import { z } from "zod";
 const updateCartSchema = z.object({
   productId: z
     .string()
-    .uuid("productId tidak valid"),
+    .min(1, "productId tidak valid"),
   quantity: z
     .number()
     .int()
@@ -32,7 +32,23 @@ export const getCart = async (
     const cart =
       await prisma.cartItem.findMany({
         where: { buyerId },
-        include: { product: true },
+        include: {
+          product: {
+            select: {
+              id: true,
+              title: true,
+              price: true,
+              stock: true,
+              unit: true,
+              minOrder: true,
+              imageUrls: true,
+              category: true,
+              sellerId: true,
+              isSponsored: true,
+              grade: true,
+            },
+          },
+        },
       });
     return res.json(cart);
   } catch (error) {

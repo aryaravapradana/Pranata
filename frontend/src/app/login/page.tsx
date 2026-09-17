@@ -378,20 +378,20 @@ function AuthContent() {
                   type="submit"
                   disabled={loading}
                   className={cn(
-                    "w-full bg-[#2B4C3B] hover:bg-[#1E362A]",
-                    "active:scale-[0.99] text-[#F8F6F0] rounded-2xl",
-                    "font-extrabold text-sm sm:text-base",
-                    "py-3.5 shadow-md shadow-[#2B4C3B]/20",
-                    "transition-all disabled:opacity-50 mt-2",
+                    "w-full bg-pranata hover:bg-[#1E362A]",
+                    "hover:scale-[1.02] active:scale-[0.98] text-[#F8F6F0] rounded-full",
+                    "font-bold text-sm sm:text-base",
+                    "py-3.5 shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)]",
+                    "transition-all duration-200 transform-gpu disabled:opacity-50 mt-2",
                     "flex items-center justify-center",
-                    "gap-2 cursor-pointer",
+                    "gap-2 cursor-pointer border border-white/10",
                   )}
                 >
                   {loading ? (
                     <>
                       <Loader2
                         size={18}
-                        className="animate-spin"
+                        className="animate-spin text-[#F8F6F0]"
                       />
                       <span>
                         Memproses Masuk...

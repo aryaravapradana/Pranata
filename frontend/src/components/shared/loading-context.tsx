@@ -25,6 +25,7 @@ const LoadingContext = createContext({
   phase: "IDLE" as TransitionPhase,
   triggerTransition: () => {},
   navigateTo: (url: string) => {},
+  goBack: () => {},
   registerBlocker: (id: string) => {},
   removeBlocker: (id: string) => {},
 });
@@ -122,11 +123,16 @@ export const LoadingProvider = ({
           setTimeout(() => {
             setPhase("COVERED");
             router.push(url);
+            // Guaranteed release of nav-lock after route swap initiation
+            setTimeout(() => {
+              removeBlocker("nav-lock");
+            }, 180);
           }, 550);
       },
       [
         router,
         registerBlocker,
+        removeBlocker,
       ],
     );
 
@@ -137,6 +143,24 @@ export const LoadingProvider = ({
     [startNavigationSequence],
   );
 
+  const goBack = useCallback(() => {
+    clearPendingTimeout();
+    registerBlocker("nav-lock");
+    setPhase("CLOSING");
+    transitionTimeoutRef.current = setTimeout(() => {
+      setPhase("COVERED");
+      if (typeof window !== "undefined" && window.history.length > 1) {
+        router.back();
+      } else {
+        router.push("/market");
+      }
+      // Guaranteed release of nav-lock after route swap initiation
+      setTimeout(() => {
+        removeBlocker("nav-lock");
+      }, 180);
+    }, 550);
+  }, [router, registerBlocker, removeBlocker]);
+
   const triggerTransition =
     useCallback(() => {
       clearPendingTimeout();
@@ -145,8 +169,11 @@ export const LoadingProvider = ({
       transitionTimeoutRef.current =
         setTimeout(() => {
           setPhase("COVERED");
+          setTimeout(() => {
+            removeBlocker("nav-lock");
+          }, 180);
         }, 550);
-    }, [registerBlocker]);
+    }, [registerBlocker, removeBlocker]);
 
   // Initial mount: Release initial nav-lock after mount tick
   useEffect(() => {
@@ -156,7 +183,40 @@ export const LoadingProvider = ({
     return () => clearTimeout(timer);
   }, [removeBlocker]);
 
-  // Release nav-lock ONLY AFTER Next.js DOM route swap has actually completed (pathname changed)
+  // Failsafe Watchdog: under NO circumstances should the screen be stuck in COVERED or CLOSING for > 2.5s
+  useEffect(() => {
+    if (phase === "CLOSING" || phase === "COVERED") {
+      const watchdog = setTimeout(() => {
+        setBlockers(new Set());
+        setPhase("OPENING");
+        setTimeout(() => {
+          setPhase("IDLE");
+        }, 950);
+      }, 2500);
+      return () => clearTimeout(watchdog);
+    }
+  }, [phase]);
+
+  // Browser Back/Forward (popstate):
+  // Native browser back is managed by the browser engine (instant bfcache/DOM swap).
+  // If a transition was pending or active, gracefully open and clear locks so it NEVER hangs.
+  useEffect(() => {
+    const handlePopState = () => {
+      clearPendingTimeout();
+      removeBlocker("nav-lock");
+      if (phase === "CLOSING" || phase === "COVERED") {
+        setPhase("OPENING");
+        setTimeout(() => {
+          setPhase("IDLE");
+        }, 950);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [phase, removeBlocker]);
+
+  // Release nav-lock when Next.js DOM route swap has completed (pathname changed)
   useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
@@ -167,13 +227,12 @@ export const LoadingProvider = ({
       phase === "COVERED" ||
       phase === "CLOSING"
     ) {
-      // 120ms tick allows new route component to mount and invoke usePageLoading(true) before nav-lock is released
       const timer = setTimeout(() => {
         removeBlocker("nav-lock");
-      }, 120);
+      }, 100);
       return () => clearTimeout(timer);
     }
-  }, [pathname, removeBlocker]);
+  }, [pathname, phase, removeBlocker]);
 
   // Global Click Interceptor: Catch link & navigate clicks BEFORE Next.js page swap
   useEffect(() => {
@@ -185,6 +244,19 @@ export const LoadingProvider = ({
         e.altKey
       )
         return;
+
+      // Check for back button triggers first
+      const backTarget = (
+        e.target as HTMLElement
+      ).closest(
+        "[data-back], [data-navigate='back'], [data-navigate-back], [data-action='back']",
+      );
+      if (backTarget) {
+        e.preventDefault();
+        e.stopPropagation();
+        goBack();
+        return;
+      }
 
       const target = (
         e.target as HTMLElement
@@ -239,7 +311,7 @@ export const LoadingProvider = ({
           capture: true,
         },
       );
-  }, [startNavigationSequence]);
+  }, [startNavigationSequence, goBack]);
 
   // STEP 3: BARU BUKA -> ONLY OPEN Splash Screen WHEN ALL DATA IS 100% LOADED (blockers.size === 0)
   useEffect(() => {
@@ -273,6 +345,7 @@ export const LoadingProvider = ({
         phase,
         triggerTransition,
         navigateTo,
+        goBack,
         registerBlocker,
         removeBlocker,
       }}

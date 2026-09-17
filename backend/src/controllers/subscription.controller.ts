@@ -139,3 +139,47 @@ export const getSubscriptionStatus = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Gagal mengambil status langganan" });
   }
 };
+
+export const cancelSubscription = async (req: Request, res: Response) => {
+  const profileId = req.user?.id;
+  if (!profileId) return res.status(401).json({ error: "Unauthorized" });
+
+  try {
+    const updated = await prisma.$transaction(async (tx) => {
+      const profile = await tx.profile.update({
+        where: { id: profileId },
+        data: {
+          subscriptionTier: "FREE",
+          subscriptionExpiresAt: null,
+        },
+        select: {
+          id: true,
+          username: true,
+          fullName: true,
+          walletBalance: true,
+          subscriptionTier: true,
+          subscriptionExpiresAt: true,
+        },
+      });
+
+      await tx.subscriptionRecord.create({
+        data: {
+          profileId,
+          plan: "FREE",
+          amount: 0,
+          durationDays: 0,
+        },
+      });
+
+      return profile;
+    });
+
+    return res.status(200).json({
+      message: "Langganan Pranata Plus berhasil dibatalkan. Akun Anda kembali ke Pranata Gratis.",
+      profile: updated,
+    });
+  } catch (error) {
+    logger.error("Error cancelling subscription", error);
+    return res.status(500).json({ error: "Gagal membatalkan langganan" });
+  }
+};

@@ -54,6 +54,7 @@ import { usePageLoading } from "@/components/shared/loading-context";
 import { SellerOnboardingModal } from "@/components/modals/SellerOnboardingModal";
 import { PranataPayModal } from "@/components/modals/PranataPayModal";
 import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
+import { PlusBadge } from "@/components/ui/plus-badge";
 
 export default function MainDashboard() {
   const router = useRouter();
@@ -644,7 +645,7 @@ export default function MainDashboard() {
             Hi,{" "}
             <span
               className={cn(
-                "text-transparent bg-clip-text bg-gradient-to-r",
+                "text-transparent bg-clip-text bg-linear-to-r",
                 "from-[#2B4C3B] to-[#4A7C59]",
               )}
             >
@@ -698,12 +699,12 @@ export default function MainDashboard() {
               <div
                 className={cn(
                   "md:col-span-1 lg:col-span-1 order-1",
-                  "bg-gradient-to-br from-[#2B4C3B] to-[#4A7C59]",
+                  "bg-linear-to-br from-[#2B4C3B] to-[#4A7C59]",
                   "rounded-3xl sm:rounded-[2rem] p-5",
                   "sm:p-7 text-white shadow-xl",
                   "relative overflow-hidden flex",
-                  "flex-col justify-between min-h-[220px]",
-                  "sm:min-h-[240px] border border-[#4A7C59]",
+                  "flex-col justify-between min-h-55",
+                  "sm:min-h-60 border border-[#4A7C59]",
                   "transition-all",
                 )}
               >
@@ -900,12 +901,12 @@ export default function MainDashboard() {
           <div
             className={cn(
               "md:col-span-1 lg:col-span-1 order-3",
-              "lg:order-2 bg-gradient-to-br from-[#2B4C3B]",
+              "lg:order-2 bg-linear-to-br from-[#2B4C3B]",
               "to-[#4A7C59] rounded-3xl sm:rounded-[2rem]",
               "p-4.5 sm:p-5 border",
               "border-[#4A7C59] shadow-lg text-white",
               "flex flex-col relative",
-              "overflow-hidden min-h-[140px]",
+              "overflow-hidden min-h-35",
             )}
           >
             <div className="flex items-center justify-between mb-1">
@@ -1053,11 +1054,11 @@ export default function MainDashboard() {
                 className={cn(
                   "inline-flex items-center gap-1.5",
                   "sm:gap-2 text-xs sm:text-sm",
-                  "font-extrabold text-[#2B4C3B] bg-white",
+                  "font-bold text-[#2B4C3B] bg-white/90 hover:bg-white",
                   "px-4 py-2 sm:px-6",
-                  "sm:py-3 rounded-full hover:bg-[#EEF2E6]",
-                  "transition-all shadow-md hover:shadow-lg",
-                  "active:scale-95 w-fit",
+                  "sm:py-2.5 rounded-full hover:shadow-[0_8px_20px_-6px_rgba(43,76,59,0.25)]",
+                  "transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98]",
+                  "shadow-sm w-fit cursor-pointer",
                 )}
               >
                 <span>Semua Pesanan</span>
@@ -1075,7 +1076,7 @@ export default function MainDashboard() {
               "md:py-8 md:px-8 shadow-lg",
               "shadow-[#2B4C3B]/20 relative flex",
               "flex-col md:flex-row gap-3",
-              "md:gap-6 md:min-h-[280px] overflow-hidden",
+              "md:gap-6 md:min-h-70 overflow-hidden",
             )}
           >
             {/* Left Side: Header & Event List */}
@@ -1275,10 +1276,10 @@ export default function MainDashboard() {
                   href="/hub/calendar"
                   className={cn(
                     "inline-flex items-center gap-1.5",
-                    "text-xs font-extrabold text-[#2B4C3B]",
-                    "bg-white px-4 py-2",
-                    "rounded-full hover:bg-[#EEF2E6] transition-all",
-                    "shadow-md active:scale-95 w-fit",
+                    "text-xs font-bold text-[#2B4C3B]",
+                    "bg-white/90 hover:bg-white px-4 py-2",
+                    "rounded-full hover:shadow-[0_8px_20px_-6px_rgba(43,76,59,0.25)] transition-all duration-200 transform-gpu",
+                    "hover:scale-[1.02] active:scale-[0.98] shadow-sm w-fit cursor-pointer",
                   )}
                 >
                   <span>
@@ -1428,11 +1429,10 @@ export default function MainDashboard() {
                   href="/hub/calendar"
                   className={cn(
                     "inline-flex items-center gap-2",
-                    "text-sm font-extrabold text-[#2B4C3B]",
-                    "bg-white px-6 py-3",
-                    "rounded-full hover:bg-[#EEF2E6] transition-all",
-                    "shadow-md hover:shadow-lg active:scale-95",
-                    "w-fit",
+                    "text-sm font-bold text-[#2B4C3B]",
+                    "bg-white/90 hover:bg-white px-6 py-2.5",
+                    "rounded-full hover:shadow-[0_8px_20px_-6px_rgba(43,76,59,0.25)] transition-all duration-200 transform-gpu",
+                    "hover:scale-[1.02] active:scale-[0.98] shadow-sm w-fit cursor-pointer",
                   )}
                 >
                   <span>
@@ -1450,11 +1450,11 @@ export default function MainDashboard() {
               "md:col-span-1 lg:col-span-1 md:col-start-2",
               "lg:col-start-auto md:row-start-1 lg:row-start-auto",
               "md:row-span-2 lg:row-span-2 order-2",
-              "lg:order-3 bg-gradient-to-br from-[#2B4C3B]",
+              "lg:order-3 bg-linear-to-br from-[#2B4C3B]",
               "to-[#4A7C59] rounded-3xl sm:rounded-[2rem]",
               "border border-[#4A7C59] shadow-xl",
               "flex flex-col overflow-hidden",
-              "h-full min-h-[260px] sm:min-h-[296px]",
+              "h-full min-h-65 sm:min-h-74",
               "relative",
             )}
           >
@@ -1584,7 +1584,7 @@ export default function MainDashboard() {
                     <p
                       className={cn(
                         "text-[11px] sm:text-xs text-[#DDE2D6]",
-                        "font-medium leading-relaxed max-w-[200px]",
+                        "font-medium leading-relaxed max-w-50",
                       )}
                     >
                       Menyinkronkan data toko
@@ -1914,7 +1914,7 @@ export default function MainDashboard() {
                                         className={cn(
                                           "text-lg sm:text-xl md:text-2xl",
                                           "font-black text-white leading-tight",
-                                          "md:leading-snug break-words md:tracking-tight",
+                                          "md:leading-snug wrap-break-word md:tracking-tight",
                                         )}
                                       >
                                         {val}
@@ -1945,11 +1945,11 @@ export default function MainDashboard() {
                                           }
                                           className={cn(
                                             "inline-flex items-center gap-1",
-                                            "text-[10px] md:text-xs font-extrabold",
-                                            "bg-white text-[#2B4C3B] px-3",
-                                            "py-1 md:px-3.5 md:py-1.5",
-                                            "rounded-full hover:bg-[#EEF2E6] transition-all",
-                                            "shadow-sm group-hover:scale-105 origin-right",
+                                            "text-[10px] md:text-xs font-bold",
+                                            "bg-white/90 hover:bg-white text-[#2B4C3B] px-3.5",
+                                            "py-1 md:px-4 md:py-1.5",
+                                            "rounded-full hover:shadow-[0_6px_16px_-4px_rgba(43,76,59,0.25)] transition-all duration-200 transform-gpu",
+                                            "hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer",
                                           )}
                                         >
                                           {
@@ -2012,7 +2012,7 @@ export default function MainDashboard() {
         {/* ── 2nd Row: Pranata Pay Financial Hub & P&L Analytics ── */}
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Pranata Pay Wallet Card */}
-          <div className="bg-gradient-to-br from-[#1C241E] via-[#2B4C3B] to-[#1E362A] text-white rounded-3xl p-6 border border-[#2B4C3B] shadow-xl flex flex-col justify-between relative overflow-hidden">
+          <div className="bg-linear-to-br from-[#1C241E] via-[#2B4C3B] to-[#1E362A] text-white rounded-3xl p-6 border border-[#2B4C3B] shadow-xl flex flex-col justify-between relative overflow-hidden">
             {/* Background Glow */}
             <div className="absolute top-0 right-0 w-48 h-48 bg-[#D4AF37] opacity-15 blur-[60px] rounded-full pointer-events-none" />
 
@@ -2029,13 +2029,11 @@ export default function MainDashboard() {
                   </span>
                 </div>
                 {isPlus && (
-                  <span className="px-2 py-0.5 rounded-full bg-black/40 border border-[#D4AF37]/50 flex items-center">
-                    <img
-                      src="/logos/plus/plus-white.webp"
-                      alt="Pranata Plus"
-                      className="h-4.5 w-auto object-contain"
-                    />
-                  </span>
+                  <PlusBadge
+                    variant="white"
+                    size="sm"
+                    wrapper="pill"
+                  />
                 )}
               </div>
 
@@ -2187,7 +2185,7 @@ export default function MainDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowUpgradeModal(true)}
-                  className="text-xs font-black px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-white hover:opacity-95 shadow-xs transition-all cursor-pointer flex items-center gap-1"
+                  className="text-xs font-black px-3.5 py-1.5 rounded-full bg-linear-to-r from-[#D4AF37] to-[#AA820A] text-white hover:opacity-95 shadow-xs transition-all cursor-pointer flex items-center gap-1"
                 >
                   <Crown size={12} />
                   <span>Akses Penuh (Plus)</span>

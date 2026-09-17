@@ -23,6 +23,7 @@ import {
 import UserDropdown from "./UserDropdown";
 import BrandLogoSwitcher from "./BrandLogoSwitcher";
 import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
+import { PlusBadge } from "@/components/ui/plus-badge";
 import { Sparkles } from "lucide-react";
 
 export default function MarketplaceNavbar({
@@ -215,13 +216,12 @@ export default function MarketplaceNavbar({
           {/* Pranata Plus Badge or Upgrade CTA */}
           {profile && (
             isPlus ? (
-              <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full bg-[#1C2E24] shadow-xs border border-[#D4AF37]/50">
-                <img
-                  src="/logos/plus/plus-white.webp"
-                  alt="Pranata Plus"
-                  className="h-5 sm:h-5.5 w-auto object-contain"
-                />
-              </span>
+              <PlusBadge
+                variant="white"
+                size="md"
+                wrapper="pill"
+                className="hidden sm:inline-flex"
+              />
             ) : (
               <button
                 type="button"

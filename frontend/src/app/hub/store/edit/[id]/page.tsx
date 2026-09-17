@@ -412,15 +412,20 @@ export default function EditProductPage() {
         {/* Header */}
         <div className="flex items-center gap-3 sm:gap-4">
           <button
-            onClick={() =>
-              router.push(`/hub/store?page=${returnPage}`)
-            }
+            onClick={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                router.back();
+              } else {
+                router.push(`/hub/store?page=${returnPage}`);
+              }
+            }}
             className={cn(
               "text-[#5A635B] hover:text-[#2B4C3B] p-2.5",
               "sm:p-3 bg-white rounded-full",
               "shadow-sm transition-all hover:shadow-md",
-              "shrink-0",
+              "shrink-0 cursor-pointer active:scale-95",
             )}
+            title="Kembali"
           >
             <ArrowLeft
               size={20}
@@ -1352,17 +1357,17 @@ export default function EditProductPage() {
                   type="submit"
                   form="productForm"
                   disabled={isDisabled}
-                  className={`w-full py-3.5 sm:py-5 text-base sm:text-lg font-black text-white rounded-xl sm:rounded-2xl transition-all flex items-center justify-center gap-2 sm:gap-3 ${
+                  className={`w-full py-3.5 sm:py-5 text-base sm:text-lg font-bold text-[#F8F6F0] rounded-full transition-all duration-200 transform-gpu flex items-center justify-center gap-2 sm:gap-3 cursor-pointer border border-white/10 ${
                     isDisabled
                       ? "bg-gray-400 opacity-60 cursor-not-allowed shadow-none"
-                      : "bg-pranata hover:opacity-90 shadow-xl shadow-green-900/20 hover:-translate-y-1 active:scale-95"
+                      : "bg-pranata hover:bg-[#1E362A] shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)] hover:scale-[1.01] active:scale-[0.98]"
                   }`}
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2
                         size={20}
-                        className="animate-spin text-white sm:w-6 sm:h-6"
+                        className="animate-spin text-[#F8F6F0] sm:w-6 sm:h-6"
                       />
                       <span>
                         Menyimpan

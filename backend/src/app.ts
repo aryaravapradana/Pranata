@@ -4,6 +4,7 @@ import express, {
 } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import compression from "compression";
 import rateLimit from "express-rate-limit";
 import routes from "./routes";
 import { verifyToken } from "./middlewares/auth.middleware";
@@ -18,7 +19,15 @@ import {
 
 const app = express();
 app.set("trust proxy", 1);
-app.set("etag", true);
+app.set("etag", "strong");
+
+// ── Ultra-Fast Gzip / Deflate Compression (70-85% smaller payloads) ──
+app.use(
+  compression({
+    threshold: 512, // Compress any response > 512 bytes
+    level: 6,       // Optimal balance of CPU speed vs compression ratio
+  }),
+);
 
 // ── Bulletproof CORS & Preflight OPTIONS Handler ──
 app.use(
@@ -43,12 +52,26 @@ app.use(
       "Content-Type, Authorization, X-Requested-With, Accept, Origin, X-CSRF-Token",
     );
 
-    // Set no-cache for dynamic API GET requests so browser always gets fresh data after mutations
+    // Smart caching for maximum speed: SWR for public data, private for user mutations
     if (req.method === "GET") {
-      res.setHeader(
-        "Cache-Control",
-        "no-cache, private, must-revalidate",
-      );
+      const path = req.path;
+      if (
+        path === "/api/products" ||
+        path.startsWith("/api/products/") ||
+        path === "/api/prices" ||
+        path === "/api/status" ||
+        path === "/api/hub/overview"
+      ) {
+        res.setHeader(
+          "Cache-Control",
+          "public, max-age=15, stale-while-revalidate=60",
+        );
+      } else {
+        res.setHeader(
+          "Cache-Control",
+          "no-cache, private, must-revalidate",
+        );
+      }
     }
 
     if (req.method === "OPTIONS") {
@@ -58,7 +81,7 @@ app.use(
   },
 );
 
-// ── Security Headers (Vercel Edge automatically handles Gzip/Brotli compression) ──
+// ── Security Headers ──
 app.use(helmet({ hidePoweredBy: true }));
 
 // ── Body Parser ──

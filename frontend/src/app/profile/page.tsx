@@ -28,12 +28,9 @@ import {
   ImageIcon,
   AlertTriangle,
   X,
-  Wallet,
-  CreditCard,
-  ArrowDownRight,
-  ArrowUpRight,
   Crown,
   Sparkles,
+  Calendar,
 } from "lucide-react";
 import {
   motion,
@@ -47,8 +44,10 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
 import { uploadImage } from "@/lib/supabaseStorage";
-import { PranataPayModal } from "@/components/modals/PranataPayModal";
 import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
+import { CancelPlusModal } from "@/components/modals/CancelPlusModal";
+import { PlusBadge } from "@/components/ui/plus-badge";
+import { AvatarHalo } from "@/components/ui/avatar-halo";
 
 const API_BASE = getApiBaseUrl();
 
@@ -250,11 +249,9 @@ export default function AccountSettingsPage() {
     showLogoutModal,
     setShowLogoutModal,
   ] = useState(false);
-  const [showPayModal, setShowPayModal] =
-    useState(false);
-  const [payModalTab, setPayModalTab] =
-    useState<"overview" | "topup" | "withdraw">("overview");
   const [showUpgradeModal, setShowUpgradeModal] =
+    useState(false);
+  const [showCancelPlusModal, setShowCancelPlusModal] =
     useState(false);
 
   const fetchProfileData = useCallback(async (userId: string) => {
@@ -529,22 +526,28 @@ export default function AccountSettingsPage() {
             )}
           >
             <button
-              onClick={() =>
-                navigateTo(backPath)
-              }
+              data-back="true"
+              onClick={() => {
+                if (typeof window !== "undefined" && window.history.length > 1) {
+                  router.back();
+                } else {
+                  navigateTo(backPath);
+                }
+              }}
               className={cn(
                 "flex items-center gap-1.5",
                 "sm:gap-2 text-[#5A635B] hover:text-[#2B4C3B]",
                 "font-extrabold text-xs sm:text-sm",
-                "transition-colors shrink-0 active:scale-95",
+                "transition-colors shrink-0 active:scale-95 cursor-pointer",
               )}
+              title="Kembali ke halaman sebelumnya"
             >
               <ChevronLeft
                 size={18}
                 className="shrink-0"
               />
               <span className="truncate">
-                {backLabel}
+                Kembali
               </span>
             </button>
             <div
@@ -716,22 +719,28 @@ export default function AccountSettingsPage() {
           )}
         >
           <button
-            onClick={() =>
-              navigateTo(backPath)
-            }
+            data-back="true"
+            onClick={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                router.back();
+              } else {
+                navigateTo(backPath);
+              }
+            }}
             className={cn(
               "flex items-center gap-1.5",
               "sm:gap-2 text-[#5A635B] hover:text-[#2B4C3B]",
               "font-extrabold text-xs sm:text-sm",
-              "transition-colors shrink-0 active:scale-95",
+              "transition-colors shrink-0 active:scale-95 cursor-pointer",
             )}
+            title="Kembali ke halaman sebelumnya"
           >
             <ChevronLeft
               size={18}
               className="shrink-0"
             />
             <span className="truncate">
-              {backLabel}
+              Kembali
             </span>
           </button>
           <h2
@@ -881,7 +890,7 @@ export default function AccountSettingsPage() {
                 >
                   <Camera
                     size={14}
-                    className="sm:w-[15px] sm:h-[15px]"
+                    className="sm:w-3.75 sm:h-3.75"
                   />{" "}
                   <span>Ganti Sampul</span>
                 </div>
@@ -917,40 +926,19 @@ export default function AccountSettingsPage() {
               >
                 {/* Avatar */}
                 <div className="relative group shrink-0">
-                  <div
-                    className={cn(
-                      "w-20 h-20 sm:w-28",
-                      "sm:h-28 rounded-full bg-pranata",
-                      "border-4 border-white overflow-hidden",
-                      "shadow-lg",
-                    )}
-                  >
-                    {avatarUrl ? (
-                      <img
-                        src={avatarUrl}
-                        alt="Avatar"
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : (
-                      <div
-                        className={cn(
-                          "w-full h-full flex",
-                          "items-center justify-center text-white",
-                          "font-black text-2xl sm:text-4xl",
-                        )}
-                      >
-                        {initials}
-                      </div>
-                    )}
-                  </div>
+                  <AvatarHalo
+                    isPlus={profile?.subscriptionTier === "PLUS"}
+                    avatarUrl={avatarUrl}
+                    initials={initials}
+                    size="xl"
+                    shape="circle"
+                  />
                   <label
                     className={cn(
                       "absolute inset-0 flex",
                       "items-center justify-center rounded-full",
                       "bg-black/40 opacity-0 group-hover:opacity-100",
-                      "transition-opacity cursor-pointer",
+                      "transition-opacity cursor-pointer z-20",
                     )}
                   >
                     <Camera
@@ -1005,12 +993,12 @@ export default function AccountSettingsPage() {
                   {saving ? (
                     <Loader2
                       size={14}
-                      className="animate-spin sm:w-[15px] sm:h-[15px]"
+                      className="animate-spin sm:w-3.75 sm:h-3.75"
                     />
                   ) : (
                     <Save
                       size={14}
-                      className="sm:w-[15px] sm:h-[15px]"
+                      className="sm:w-3.75 sm:h-3.75"
                     />
                   )}
                   <span>
@@ -1022,15 +1010,23 @@ export default function AccountSettingsPage() {
               </div>
 
               {/* Name / username */}
-              <h1
-                className={cn(
-                  "text-xl sm:text-2xl font-black",
-                  "text-[#1C241E] leading-tight",
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1
+                  className={cn(
+                    "text-xl sm:text-2xl font-black",
+                    "text-[#1C241E] leading-tight",
+                  )}
+                >
+                  {profile?.fullName ||
+                    profile?.username}
+                </h1>
+                {profile?.subscriptionTier === "PLUS" && (
+                  <PlusBadge
+                    variant="black"
+                    size="sm"
+                  />
                 )}
-              >
-                {profile?.fullName ||
-                  profile?.username}
-              </h1>
+              </div>
               <p className="text-xs sm:text-sm font-bold text-[#7A8678]">
                 @{profile?.username}
               </p>
@@ -1091,7 +1087,7 @@ export default function AccountSettingsPage() {
             </div>
           </motion.div>
 
-          {/* ── Keanggotaan & Dompet Pranata Pay ── */}
+          {/* ── Keanggotaan Pranata Plus (Redesigned) ── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1102,126 +1098,154 @@ export default function AccountSettingsPage() {
               damping: 20,
               delay: 0.15,
             }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            className="lg:col-span-1"
           >
-            {/* Pranata Pay Card */}
-            <div className="bg-gradient-to-br from-[#1C241E] via-[#2B4C3B] to-[#1E362A] text-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-[#2B4C3B] shadow-lg flex flex-col justify-between relative overflow-hidden">
+            <div className="relative overflow-hidden rounded-3xl sm:rounded-[2.5rem] bg-linear-to-br from-[#12231A] via-[#1A3125] to-[#0E1A13] border border-[#D4AF37]/30 hover:border-[#D4AF37]/50 shadow-xl shadow-[#12231A]/20 p-6 sm:p-7 flex flex-col justify-between h-full min-h-115 text-white transition-all">
+              {/* Glowing decorative ambient light */}
+              <div className="absolute -top-14 -right-14 w-44 h-44 bg-[#D4AF37]/15 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-[#2B4C3B]/50 rounded-full blur-2xl pointer-events-none" />
+
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2.5">
-                    <img
-                      src="/logos/pay/pay-white.webp"
-                      alt="Pranata Pay"
-                      className="h-7 sm:h-8 w-auto object-contain"
-                    />
-                    <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-white/15 text-white tracking-wider">
-                      E-Wallet
-                    </span>
-                  </div>
-                </div>
-
-                <div className="my-2">
-                  <span className="text-[11px] text-[#A4C4A8] font-bold block mb-0.5">Saldo Tersedia</span>
-                  <div className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                    Rp {(profile?.walletBalance || 0).toLocaleString("id-ID")}
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-white/15 grid grid-cols-3 gap-2 mt-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPayModalTab("topup");
-                    setShowPayModal(true);
-                  }}
-                  className="py-2 px-1 rounded-xl bg-white text-[#2B4C3B] hover:bg-[#EEF2E6] font-black text-xs transition-all flex items-center justify-center gap-1 shadow-sm cursor-pointer"
-                >
-                  <ArrowDownRight size={13} className="text-emerald-700" />
-                  <span>+ Isi Saldo</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPayModalTab("withdraw");
-                    setShowPayModal(true);
-                  }}
-                  className="py-2 px-1 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs transition-all flex items-center justify-center gap-1 border border-white/15 cursor-pointer"
-                >
-                  <ArrowUpRight size={13} className="text-amber-300" />
-                  <span>Tarik Dana</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPayModalTab("overview");
-                    setShowPayModal(true);
-                  }}
-                  className="py-2 px-1 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs transition-all flex items-center justify-center gap-1 border border-white/15 cursor-pointer"
-                >
-                  <CreditCard size={13} className="text-blue-300" />
-                  <span>Mutasi</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Pranata Plus Membership Card */}
-            <div className="bg-white border border-[#E8E3D2] rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col justify-between relative overflow-hidden">
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src="/logos/plus/plus-black.webp"
-                      alt="Pranata Plus"
-                      className="h-7 sm:h-8 w-auto object-contain"
-                    />
-                  </div>
+                {/* Header: Logo & Status Badge */}
+                <div className="flex items-center justify-between gap-3 relative z-10">
                   {profile?.subscriptionTier === "PLUS" ? (
-                    <span className="px-2 py-0.5 rounded-full bg-[#1C2E24] shadow-xs border border-[#D4AF37]/50 flex items-center">
-                      <img
-                        src="/logos/plus/plus-white.webp"
-                        alt="Pranata Plus"
-                        className="h-4.5 w-auto object-contain"
-                      />
-                    </span>
+                    <PlusBadge
+                      variant="white"
+                      size="lg"
+                    />
                   ) : (
-                    <span className="px-2.5 py-1 rounded-full bg-gray-100 text-[#5A635B] text-[10px] font-black uppercase">
-                      FREE TIER
+                    <img
+                      src="/logos/plus/plus-white.webp"
+                      alt="Pranata Plus"
+                      className="h-7 sm:h-8 w-auto object-contain drop-shadow-sm"
+                    />
+                  )}
+                  {profile?.subscriptionTier === "PLUS" ? (
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37] text-[#FDE68A] text-[10px] font-black tracking-wider uppercase shadow-xs">
+                      <Crown size={12} className="text-[#FDE68A] fill-[#FDE68A]" />
+                      <span>MEMBER AKTIF</span>
+                    </div>
+                  ) : (
+                    <span className="px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/80 text-[10px] font-black uppercase tracking-wider backdrop-blur-xs">
+                      Tier Gratis
                     </span>
                   )}
                 </div>
 
-                <div className="my-2">
-                  <span className="text-[11px] text-[#7A8678] font-bold block mb-0.5">Status Akses</span>
-                  <div className="text-lg font-black text-[#1C241E]">
-                    {profile?.subscriptionTier === "PLUS" ? "Pranata Plus (Aktif)" : "Pranata Gratis"}
-                  </div>
-                  <p className="text-xs text-[#5A635B] mt-1 leading-relaxed">
+                {/* Main Heading & Subtitle */}
+                <div className="my-5 relative z-10">
+                  <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
+                    {profile?.subscriptionTier === "PLUS" ? "Member Pranata Plus" : "Buka Potensi Pranata Plus"}
+                  </h3>
+                  <p className="text-xs text-[#A4C4A8] mt-1.5 leading-relaxed font-medium">
                     {profile?.subscriptionTier === "PLUS"
-                      ? `Berlaku hingga: ${profile?.subscriptionExpiresAt ? new Date(profile.subscriptionExpiresAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "30 Hari Kedepan"}`
-                      : "Dapatkan akses tak terbatas ke Agentic AI Intelligence, Promosi Produk Sponsor, dan Papan Pasokan B2B Restoran."}
+                      ? "Nikmati akses tak terbatas ke seluruh kecerdasan buatan dan fitur eksklusif pasar."
+                      : "Tingkatkan akun Anda ke tier premium untuk mengakses rangkaian fitur produktivitas tercanggih."}
                   </p>
                 </div>
+
+                {/* Feature Highlights / Active Perks */}
+                {profile?.subscriptionTier === "PLUS" ? (
+                  <div className="space-y-3 my-4 bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-xs relative z-10">
+                    <div className="flex items-center gap-2 text-xs text-white/70">
+                      <Calendar size={13} className="text-[#D4AF37]" />
+                      <span>Masa Berlaku Langganan:</span>
+                    </div>
+                    <div className="text-sm sm:text-base font-black text-[#FDE68A]">
+                      {profile?.subscriptionExpiresAt
+                        ? new Date(profile.subscriptionExpiresAt).toLocaleDateString("id-ID", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })
+                        : "30 Hari Kedepan"}
+                    </div>
+                    <div className="pt-2 border-t border-white/10 space-y-2 text-xs text-white/85">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                        <span>Pranata Intelligence Copilot (Tanpa Batas)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                        <span>1-Click Agentic Cart untuk seluruh resep</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                        <span>Lencana Emas & prioritas produk di pasar</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5 my-4 bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-xs relative z-10">
+                    <div className="flex items-start gap-3 text-xs text-white/90">
+                      <div className="w-5 h-5 rounded-lg bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center shrink-0 mt-0.5">
+                        <Sparkles size={11} className="text-[#FDE68A]" />
+                      </div>
+                      <span className="leading-tight">
+                        <strong className="text-white font-bold">Agentic AI Copilot:</strong> Rekomendasi resep masakan & simulasi laba bisnis tani.
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3 text-xs text-white/90">
+                      <div className="w-5 h-5 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0 mt-0.5">
+                        <CheckCircle size={11} className="text-emerald-300" />
+                      </div>
+                      <span className="leading-tight">
+                        <strong className="text-white font-bold">1-Click Smart Cart:</strong> Auto-isi bahan ke keranjang dari pedagang pasar.
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3 text-xs text-white/90">
+                      <div className="w-5 h-5 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0 mt-0.5">
+                        <Crown size={11} className="text-[#FDE68A]" />
+                      </div>
+                      <span className="leading-tight">
+                        <strong className="text-white font-bold">Prioritas Pasar:</strong> Lencana Plus emas & visibilitas produk unggulan.
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="pt-3 border-t border-[#E8E3D2] mt-3">
+              {/* Action Buttons & Pricing */}
+              <div className="pt-4 border-t border-white/10 relative z-10">
                 {profile?.subscriptionTier === "PLUS" ? (
-                  <button
-                    type="button"
-                    onClick={() => setShowUpgradeModal(true)}
-                    className="w-full py-2 px-3 rounded-xl bg-[#FAF8F5] hover:bg-[#EEF2E6] border border-[#2B4C3B]/30 text-[#2B4C3B] font-black text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <Crown size={13} />
-                    <span>Perpanjang Masa Aktif Plus</span>
-                  </button>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="w-full py-3 px-4 rounded-xl bg-linear-to-r from-[#D4AF37] via-[#F3C04D] to-[#AA820A] hover:opacity-95 text-[#132219] font-black text-xs sm:text-sm transition-all shadow-md shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                    >
+                      <Crown size={15} className="text-[#132219] fill-[#132219]" />
+                      <span>Perpanjang Masa Aktif Plus</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowCancelPlusModal(true)}
+                      className="w-full py-2 px-3 rounded-xl hover:bg-rose-500/10 text-rose-300 hover:text-rose-200 font-bold text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                    >
+                      <span>Batalkan Langganan Plus</span>
+                    </button>
+                  </div>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => setShowUpgradeModal(true)}
-                    className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] hover:opacity-95 text-white font-black text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <span className="flex items-center gap-1.5">Upgrade ke <img src="/logos/plus/plus-white.webp" alt="Pranata Plus" className="h-5 w-auto object-contain inline" /> (Rp 79rb/bln)</span>
-                  </button>
+                  <div>
+                    <div className="flex items-baseline justify-between mb-3 px-1">
+                      <span className="text-xs font-semibold text-white/60">Biaya Langganan</span>
+                      <div className="text-right">
+                        <span className="text-lg font-black text-[#FDE68A]">Rp 79.000</span>
+                        <span className="text-[11px] text-white/60 font-semibold"> / bulan</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="w-full py-3.5 px-4 rounded-xl bg-linear-to-r from-[#D4AF37] via-[#F3C04D] to-[#AA820A] hover:opacity-95 text-[#132219] font-black text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 cursor-pointer active:scale-98 group"
+                    >
+                      <Crown size={16} className="text-[#132219] fill-[#132219] group-hover:rotate-12 transition-transform" />
+                      <span>Upgrade ke Pranata Plus</span>
+                    </button>
+                    <p className="text-[10px] text-center text-white/50 font-medium mt-2">
+                      Dapat dibatalkan kapan saja melalui profil
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
@@ -1523,11 +1547,12 @@ export default function AccountSettingsPage() {
                 className={cn(
                   "w-full py-3.5 sm:py-4",
                   "bg-pranata hover:bg-[#1E362A] disabled:opacity-50",
-                  "text-white font-black text-xs",
-                  "sm:text-sm rounded-xl sm:rounded-2xl",
-                  "shadow-[0_10px_20px_-10px_rgba(43,76,59,0.5)] transition-colors flex",
+                  "text-[#F8F6F0] font-bold text-xs",
+                  "sm:text-sm rounded-full",
+                  "shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)]",
+                  "transition-all duration-200 transform-gpu flex",
                   "items-center justify-center gap-2",
-                  "cursor-pointer active:scale-95",
+                  "cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-white/10",
                 )}
               >
                 {saving ? (
@@ -1557,11 +1582,10 @@ export default function AccountSettingsPage() {
               delay: 0.3,
             }}
             className={cn(
-              "lg:col-span-1 bg-white border",
+              "lg:col-span-3 bg-white border",
               "border-[#E2E8F0]/50 rounded-2xl sm:rounded-3xl",
-              "lg:rounded-[2.5rem] p-4 sm:p-8",
-              "md:p-10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] flex",
-              "flex-col",
+              "lg:rounded-[2.5rem] p-5 sm:p-8",
+              "md:p-10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]",
             )}
           >
             <h2
@@ -1583,10 +1607,10 @@ export default function AccountSettingsPage() {
                   className="text-[#C25939]"
                 />
               </div>
-              Ubah Password
+              Keamanan & Ubah Password
             </h2>
 
-            <div className="space-y-3.5 sm:space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
               {[
                 {
                   label: "Password Saat Ini",
@@ -1664,34 +1688,24 @@ export default function AccountSettingsPage() {
                   </div>
                 </div>
               ))}
-
-              {newPw && newPw.length < 6 && (
-                <p
-                  className={cn(
-                    "text-xs text-[#C25939] font-bold",
-                    "flex items-center gap-1.5",
-                  )}
-                >
-                  <AlertCircle size={13} />{" "}
-                  Minimal 6 karakter.
-                </p>
-              )}
-              {newPw &&
-                confirmPw &&
-                newPw !== confirmPw && (
-                  <p
-                    className={cn(
-                      "text-xs text-[#C25939] font-bold",
-                      "flex items-center gap-1.5",
-                    )}
-                  >
-                    <AlertCircle size={13} />{" "}
-                    Password tidak cocok.
-                  </p>
-                )}
             </div>
 
-            <div className="mt-auto pt-6 sm:pt-8">
+            {/* Validation & Submit Button Row */}
+            <div className="mt-5 pt-5 border-t border-[#E8E3D2]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="text-xs text-[#7A8678] font-semibold">
+                {newPw && newPw.length < 6 ? (
+                  <p className="text-xs text-[#C25939] font-bold flex items-center gap-1.5">
+                    <AlertCircle size={13} /> Minimal 6 karakter.
+                  </p>
+                ) : newPw && confirmPw && newPw !== confirmPw ? (
+                  <p className="text-xs text-[#C25939] font-bold flex items-center gap-1.5">
+                    <AlertCircle size={13} /> Password baru dan konfirmasi tidak cocok.
+                  </p>
+                ) : (
+                  <span className="text-[#A4B0A7]">Gunakan kombinasi password yang kuat untuk menjaga keamanan akun Anda.</span>
+                )}
+              </div>
+
               <motion.button
                 whileHover={
                   !(
@@ -1724,26 +1738,29 @@ export default function AccountSettingsPage() {
                   newPw.length < 6
                 }
                 className={cn(
-                  "w-full py-3.5 sm:py-4",
-                  "bg-[#18181B] hover:bg-black disabled:opacity-50",
-                  "text-white font-black text-xs",
-                  "sm:text-sm rounded-xl sm:rounded-2xl",
-                  "shadow-[0_10px_20px_-10px_rgba(0,0,0,0.5)] transition-colors flex",
+                  "w-full sm:w-auto px-7 py-3.5",
+                  "bg-pranata hover:bg-[#1E362A] disabled:opacity-40",
+                  "text-[#F8F6F0] font-bold text-xs",
+                  "sm:text-sm rounded-full",
+                  "shadow-[0_10px_20px_-8px_rgba(43,76,59,0.4)] hover:shadow-[0_14px_26px_-8px_rgba(43,76,59,0.5)]",
+                  "transition-all duration-200 transform-gpu flex",
                   "items-center justify-center gap-2",
-                  "cursor-pointer active:scale-95",
+                  "cursor-pointer hover:scale-[1.02] active:scale-[0.98] shrink-0 border border-white/10",
                 )}
               >
                 {savingPw ? (
                   <Loader2
-                    size={18}
+                    size={17}
                     className="animate-spin"
                   />
                 ) : (
-                  <Lock size={18} />
+                  <Lock size={17} />
                 )}
-                {savingPw
-                  ? "Menyimpan…"
-                  : "Perbarui Password"}
+                <span>
+                  {savingPw
+                    ? "Menyimpan…"
+                    : "Perbarui Password"}
+                </span>
               </motion.button>
             </div>
           </motion.div>
@@ -1811,7 +1828,7 @@ export default function AccountSettingsPage() {
         {showLogoutModal && (
           <div
             className={cn(
-              "fixed inset-0 z-[99999]",
+              "fixed inset-0 z-99999",
               "flex items-center justify-center",
               "p-4",
             )}
@@ -1936,11 +1953,11 @@ export default function AccountSettingsPage() {
         )}
       </AnimatePresence>
 
-      {/* Pranata Pay In-App Wallet Modal */}
-      <PranataPayModal
-        isOpen={showPayModal}
-        initialTab={payModalTab}
-        onClose={() => setShowPayModal(false)}
+
+      {/* Upgrade Plus Modal */}
+      <UpgradePlusModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
         onSuccess={() => {
           if (profile?.id) {
             fetchProfileData(profile.id);
@@ -1948,10 +1965,10 @@ export default function AccountSettingsPage() {
         }}
       />
 
-      {/* Upgrade Plus Modal */}
-      <UpgradePlusModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
+      {/* Cancel Plus Modal */}
+      <CancelPlusModal
+        isOpen={showCancelPlusModal}
+        onClose={() => setShowCancelPlusModal(false)}
         onSuccess={() => {
           if (profile?.id) {
             fetchProfileData(profile.id);

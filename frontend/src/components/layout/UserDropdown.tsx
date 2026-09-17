@@ -27,6 +27,8 @@ import Cookies from "js-cookie";
 import { SellerOnboardingModal } from "@/components/modals/SellerOnboardingModal";
 import { PranataPayModal } from "@/components/modals/PranataPayModal";
 import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
+import { PlusBadge } from "@/components/ui/plus-badge";
+import { AvatarHalo } from "@/components/ui/avatar-halo";
 
 export default function UserDropdown({
   profile,
@@ -121,39 +123,12 @@ export default function UserDropdown({
           "cursor-pointer focus:outline-none",
         )}
       >
-        <div
-          className={cn(
-            "w-8 h-8 sm:w-10",
-            "sm:h-10 rounded-lg sm:rounded-xl",
-            "bg-[#E8E3D2] overflow-hidden shadow-sm",
-            "flex items-center justify-center",
-            "border-2 border-white relative",
-          )}
-        >
-          {profile?.avatarUrl ||
-          profile?.avatar ? (
-            <img
-              src={
-                profile.avatarUrl ||
-                profile.avatar
-              }
-              alt="Profile"
-              className="w-full h-full object-cover"
-              decoding="async"
-            />
-          ) : (
-            <div
-              className={cn(
-                "w-full h-full bg-[#2B4C3B]",
-                "flex items-center justify-center",
-                "text-white font-bold text-xs",
-                "sm:text-lg",
-              )}
-            >
-              {initials}
-            </div>
-          )}
-        </div>
+        <AvatarHalo
+          isPlus={isPlus}
+          avatarUrl={profile?.avatarUrl || profile?.avatar}
+          initials={initials}
+          size="sm"
+        />
       </button>
 
       {/* Dropdown Menu */}
@@ -201,13 +176,11 @@ export default function UserDropdown({
                     "Pengguna"}
                 </p>
                 {isPlus ? (
-                  <span className="px-2 py-0.5 rounded-full bg-[#1C2E24] shadow-xs border border-[#D4AF37]/50 flex items-center">
-                    <img
-                      src="/logos/plus/plus-white.webp"
-                      alt="Pranata Plus"
-                      className="h-4.5 w-auto object-contain"
-                    />
-                  </span>
+                  <PlusBadge
+                    variant="white"
+                    size="sm"
+                    wrapper="pill"
+                  />
                 ) : (
                   <span className="px-2 py-0.5 rounded-full bg-gray-100 text-[#7A8678] text-[9px] font-bold uppercase">
                     FREE
@@ -375,7 +348,7 @@ export default function UserDropdown({
             {showLogoutModal && (
               <div
                 className={cn(
-                  "fixed inset-0 z-[99999]",
+                  "fixed inset-0 z-99999",
                   "flex items-center justify-center",
                   "p-4",
                 )}
@@ -470,10 +443,10 @@ export default function UserDropdown({
                       }
                       className={cn(
                         "flex-1 py-3 px-4",
-                        "rounded-xl border-2 border-[#DDE2D6]",
-                        "text-[#1C241E] font-bold text-xs",
-                        "sm:text-sm hover:bg-[#F8F6F0] transition-colors",
-                        "cursor-pointer",
+                        "rounded-full border border-[#D5D0C5] bg-white/70 hover:bg-white",
+                        "text-[#3F4841] hover:text-[#1C241E] font-bold text-xs",
+                        "sm:text-sm transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98]",
+                        "cursor-pointer shadow-xs",
                       )}
                     >
                       Batal
@@ -483,10 +456,10 @@ export default function UserDropdown({
                       onClick={handleLogout}
                       className={cn(
                         "flex-1 py-3 px-4",
-                        "rounded-xl bg-red-600 hover:bg-red-700",
+                        "rounded-full bg-red-600 hover:bg-red-700",
                         "text-white font-bold text-xs",
-                        "sm:text-sm transition-all shadow-lg",
-                        "shadow-red-600/30 cursor-pointer active:scale-95",
+                        "sm:text-sm transition-all duration-200 transform-gpu shadow-[0_10px_20px_-8px_rgba(220,38,38,0.4)]",
+                        "cursor-pointer hover:scale-[1.02] active:scale-[0.98] border border-red-400/20",
                       )}
                     >
                       Ya, Keluar
