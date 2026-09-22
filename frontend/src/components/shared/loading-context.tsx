@@ -20,9 +20,9 @@ export type TransitionPhase =
   | "COVERED"
   | "OPENING";
 
-export const SPLASH_CLOSE_DURATION = 0.45; // 450ms close animation
-export const SPLASH_OPEN_DURATION = 0.65;  // 650ms open animation
-export const SPLASH_SETTLE_MS = 300;       // Settle time for DOM paint & initial data fetch
+export const SPLASH_CLOSE_DURATION = 0.85; // 850ms smooth, deliberate iris close
+export const SPLASH_OPEN_DURATION = 1.15;  // 1150ms majestic, smooth iris reveal
+export const SPLASH_SETTLE_MS = 350;       // Settle time for DOM paint & initial data fetch
 
 interface LoadingContextType {
   isGlobalReady: boolean;
@@ -73,17 +73,9 @@ export const LoadingProvider = ({
   const [phase, setPhase] = useState<TransitionPhase>("INITIAL");
   const pathname = usePathname();
   const nextRouter = useRouter();
-  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const targetUrlRef = useRef<string | null>(null);
   const targetPathRef = useRef<string | null>(null);
   const isFirstMount = useRef(true);
-
-  const clearPendingTimeout = () => {
-    if (transitionTimeoutRef.current) {
-      clearTimeout(transitionTimeoutRef.current);
-      transitionTimeoutRef.current = null;
-    }
-  };
 
   const registerBlocker = useCallback((id: string) => {
     setBlockers((prev) => {
@@ -103,9 +95,9 @@ export const LoadingProvider = ({
 
   /**
    * CORE SPECIFICATION:
-   * 1. splash screen nutup (CLOSING 450ms, old page stays visible underneath)
+   * 1. splash screen nutup (CLOSING 850ms, old page stays visible underneath)
    * 2. setelah fully close (COVERED), page ganti (router.push) dan load
-   * 3. setelah selesai load (blockers cleared + DOM painted), baru di buka (OPENING 650ms)
+   * 3. setelah selesai load (blockers cleared + DOM painted), baru di buka (OPENING 1150ms)
    */
   const startNavigationSequence = useCallback(
     (url: string) => {
@@ -115,30 +107,21 @@ export const LoadingProvider = ({
 
       const urlPath = url.split("?")[0].split("#")[0];
 
-      // If already transitioning, don't restart; redirect target destination
+      // If already transitioning, redirect target destination
       if (phase === "CLOSING" || phase === "COVERED") {
         targetUrlRef.current = url;
         targetPathRef.current = urlPath;
         return;
       }
 
-      clearPendingTimeout();
       targetUrlRef.current = url;
       targetPathRef.current = urlPath;
 
       // STEP 1: SPLASH SCREEN NUTUP
-      // Lock navigation so screen stays closed until route loads
       registerBlocker("nav-transition");
       setPhase("CLOSING");
-
-      // STEP 2: SETELAH FULLY CLOSE (450ms), BARU GANTI PAGE
-      transitionTimeoutRef.current = setTimeout(() => {
-        setPhase("COVERED");
-        const dest = targetUrlRef.current || url;
-        nextRouter.push(dest);
-      }, SPLASH_CLOSE_DURATION * 1000);
     },
-    [phase, nextRouter, registerBlocker],
+    [phase, registerBlocker],
   );
 
   const navigateTo = useCallback(
@@ -150,42 +133,72 @@ export const LoadingProvider = ({
 
   const goBack = useCallback(() => {
     if (phase === "CLOSING" || phase === "COVERED") return;
-    clearPendingTimeout();
     targetPathRef.current = null;
+    targetUrlRef.current = null;
     registerBlocker("nav-transition");
     setPhase("CLOSING");
-
-    transitionTimeoutRef.current = setTimeout(() => {
-      setPhase("COVERED");
-      if (typeof window !== "undefined" && window.history.length > 1) {
-        nextRouter.back();
-      } else {
-        nextRouter.push("/market");
-      }
-    }, SPLASH_CLOSE_DURATION * 1000);
-  }, [phase, nextRouter, registerBlocker]);
+  }, [phase, registerBlocker]);
 
   const triggerTransition = useCallback(() => {
-    clearPendingTimeout();
     registerBlocker("nav-transition");
     setPhase("CLOSING");
-    transitionTimeoutRef.current = setTimeout(() => {
-      setPhase("COVERED");
-      setTimeout(() => {
-        removeBlocker("nav-transition");
-      }, SPLASH_SETTLE_MS);
-    }, SPLASH_CLOSE_DURATION * 1000);
-  }, [registerBlocker, removeBlocker]);
+  }, [registerBlocker]);
 
-  // Initial app load: release initial lock once mounted
+  // 1. Initial app mount: release initial lock after mount tick
   useEffect(() => {
     const timer = setTimeout(() => {
       removeBlocker("nav-initial");
-    }, 200);
+    }, 150);
     return () => clearTimeout(timer);
   }, [removeBlocker]);
 
-  // STEP 2 (continuation): When pathname changes while COVERED, wait for DOM & initial data settle
+  // 2. When blockers clear while INITIAL or COVERED, transition to OPENING
+  useEffect(() => {
+    if (
+      (phase === "INITIAL" || phase === "COVERED") &&
+      blockers.size === 0
+    ) {
+      const timer = setTimeout(() => {
+        setPhase("OPENING");
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [phase, blockers.size]);
+
+  // 3. When in OPENING, wait for SPLASH_OPEN_DURATION then transition to IDLE
+  useEffect(() => {
+    if (phase === "OPENING") {
+      const timer = setTimeout(() => {
+        setPhase("IDLE");
+        setBlockers(new Set());
+        targetUrlRef.current = null;
+        targetPathRef.current = null;
+      }, SPLASH_OPEN_DURATION * 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [phase]);
+
+  // 4. When in CLOSING, wait for SPLASH_CLOSE_DURATION then transition to COVERED and push route
+  useEffect(() => {
+    if (phase === "CLOSING") {
+      const timer = setTimeout(() => {
+        setPhase("COVERED");
+        const dest = targetUrlRef.current;
+        if (dest) {
+          nextRouter.push(dest);
+        } else {
+          if (typeof window !== "undefined" && window.history.length > 1) {
+            nextRouter.back();
+          } else {
+            nextRouter.push("/market");
+          }
+        }
+      }, SPLASH_CLOSE_DURATION * 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [phase, nextRouter]);
+
+  // 5. When COVERED and pathname changes, wait SPLASH_SETTLE_MS then clear transition blocker
   useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
@@ -193,11 +206,9 @@ export const LoadingProvider = ({
     }
 
     if (phase === "COVERED") {
-      // If we are waiting for a specific destination path, hold until pathname matches
       if (targetPathRef.current && pathname !== targetPathRef.current) {
         return;
       }
-
       const timer = setTimeout(() => {
         targetPathRef.current = null;
         removeBlocker("nav-transition");
@@ -206,37 +217,15 @@ export const LoadingProvider = ({
     }
   }, [pathname, phase, removeBlocker]);
 
-  // STEP 3: SETELAH SELESAI LOAD (blockers.size === 0), BARU DI BUKA
+  // 6. Global Failsafe Watchdog: Ensure the app NEVER stays locked or unclickable
   useEffect(() => {
-    if (
-      (phase === "INITIAL" || phase === "COVERED") &&
-      blockers.size === 0
-    ) {
-      clearPendingTimeout();
-      // Brief 60ms paint tick so the browser paints the real UI under the solid cover
-      transitionTimeoutRef.current = setTimeout(() => {
-        setPhase("OPENING");
-        transitionTimeoutRef.current = setTimeout(() => {
-          setPhase("IDLE");
-          targetUrlRef.current = null;
-        }, SPLASH_OPEN_DURATION * 1000);
-      }, 60);
-
-      return () => clearPendingTimeout();
-    }
-  }, [phase, blockers.size]);
-
-  // Failsafe Watchdog: Under no circumstances should the screen be stuck covered for > 3.0s
-  useEffect(() => {
-    if (phase === "CLOSING" || phase === "COVERED") {
+    if (phase !== "IDLE") {
       const watchdog = setTimeout(() => {
         setBlockers(new Set());
-        setPhase("OPENING");
-        setTimeout(() => {
-          setPhase("IDLE");
-          targetUrlRef.current = null;
-        }, SPLASH_OPEN_DURATION * 1000);
-      }, 3000);
+        setPhase("IDLE");
+        targetUrlRef.current = null;
+        targetPathRef.current = null;
+      }, 3500);
       return () => clearTimeout(watchdog);
     }
   }, [phase]);
@@ -244,19 +233,13 @@ export const LoadingProvider = ({
   // Browser Back/Forward (popstate)
   useEffect(() => {
     const handlePopState = () => {
-      clearPendingTimeout();
       removeBlocker("nav-transition");
-      if (phase === "CLOSING" || phase === "COVERED") {
-        setPhase("OPENING");
-        setTimeout(() => {
-          setPhase("IDLE");
-        }, SPLASH_OPEN_DURATION * 1000);
-      }
+      setPhase("OPENING");
     };
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [phase, removeBlocker]);
+  }, [removeBlocker]);
 
   // Global Click Interceptor: Catch all internal link clicks before Next.js swaps the page
   useEffect(() => {
@@ -269,6 +252,8 @@ export const LoadingProvider = ({
         e.button !== 0
       )
         return;
+
+      if (phase === "CLOSING" || phase === "COVERED") return;
 
       // Check for back button triggers first
       const backTarget = (e.target as HTMLElement).closest(
@@ -287,6 +272,7 @@ export const LoadingProvider = ({
       if (!target) return;
 
       if (target.getAttribute("target") === "_blank") return;
+      if (target.hasAttribute("download")) return;
 
       const href =
         target.getAttribute("href") ||
@@ -296,6 +282,8 @@ export const LoadingProvider = ({
 
       if (
         href.startsWith("/") &&
+        !href.startsWith("//") &&
+        !href.startsWith("/api") &&
         !href.startsWith("#") &&
         !href.startsWith("mailto:") &&
         !href.startsWith("tel:")
@@ -313,7 +301,7 @@ export const LoadingProvider = ({
     document.addEventListener("click", handleClick, { capture: true });
     return () =>
       document.removeEventListener("click", handleClick, { capture: true });
-  }, [startNavigationSequence, goBack]);
+  }, [startNavigationSequence, goBack, phase]);
 
   const isGlobalReady = phase === "IDLE";
   const isTransitioning = phase !== "IDLE";

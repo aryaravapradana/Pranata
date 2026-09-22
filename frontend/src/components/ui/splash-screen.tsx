@@ -52,16 +52,20 @@ export function SplashScreen() {
     phase === "CLOSING" ||
     phase === "COVERED";
 
-  // STEP 1: TUTUP DULU - Smooth & snappy iris close
+  // Only block pointer events when the screen is actually closed/covered!
+  // During OPENING and IDLE, pointer-events-none guarantees the user can click anywhere!
+  const isPointerBlocked = phase === "CLOSING" || phase === "COVERED";
+
+  // STEP 1: TUTUP DULU - Smooth & deliberate iris close
   const inTransition = {
     duration: SPLASH_CLOSE_DURATION,
-    ease: [0.65, 0, 0.35, 1] as import("framer-motion").Easing,
+    ease: [0.7, 0, 0.3, 1] as import("framer-motion").Easing,
   };
 
   // STEP 3: BARU BUKA - Expansive smooth iris open revealing the loaded page
   const outTransition = {
     duration: SPLASH_OPEN_DURATION,
-    ease: [0.15, 0.85, 0.35, 1] as import("framer-motion").Easing,
+    ease: [0.16, 1, 0.3, 1] as import("framer-motion").Easing,
   };
 
   return (
@@ -69,8 +73,10 @@ export function SplashScreen() {
       className={cn(
         "fixed inset-0 z-[99999]",
         isGlobalReady
-          ? "pointer-events-none opacity-0"
-          : "pointer-events-auto opacity-100",
+          ? "pointer-events-none opacity-0 invisible"
+          : isPointerBlocked
+          ? "pointer-events-auto opacity-100 visible"
+          : "pointer-events-none opacity-100 visible",
       )}
       style={{
         contain: "strict",
