@@ -135,13 +135,17 @@ export const warmupDatabase = async (): Promise<void> => {
 };
 
 // Heartbeat ping every 2.5 minutes to prevent NAT / PgBouncer pooler connection drop
-setInterval(async () => {
+const heartbeatInterval = setInterval(async () => {
   try {
     await prisma.$queryRawUnsafe("SELECT 1 as heartbeat");
   } catch {
     // Ignored, next query will auto-reconnect or failover
   }
 }, 2.5 * 60 * 1000);
+
+if (typeof heartbeatInterval.unref === "function") {
+  heartbeatInterval.unref();
+}
 
 globalForPrisma.prisma = prisma;
 

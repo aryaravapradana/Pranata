@@ -8,7 +8,7 @@ dotenv.config();
 import app from "./app";
 import cluster from "cluster";
 import os from "os";
-import { warmupDatabase } from "./config/prisma";
+import prisma, { fallbackPrisma, warmupDatabase } from "./config/prisma";
 import { preloadProductCache } from "./controllers/product.controller";
 import { preloadPricesCache } from "./controllers/hub.controller";
 
@@ -54,4 +54,31 @@ if (
   // Optimize HTTP keep-alive connections for performance
   server.keepAliveTimeout = 65000; // 65 seconds
   server.headersTimeout = 66000; // 66 seconds
+
+  // Graceful shutdown handling
+  const shutdown = (signal: string) => {
+    console.log(`\n🛑 Received ${signal}, initiating graceful shutdown...`);
+    server.close(async () => {
+      console.log("HTTP server closed.");
+      try {
+        await prisma.$disconnect();
+        if (fallbackPrisma) {
+          await fallbackPrisma.$disconnect();
+        }
+        console.log("Database connections disconnected cleanly.");
+      } catch (err) {
+        console.error("Error disconnecting database:", err);
+      }
+      process.exit(0);
+    });
+
+    // Fallback: force exit after 10s if connections fail to close
+    setTimeout(() => {
+      console.error("Forcefully terminating process after shutdown timeout.");
+      process.exit(1);
+    }, 10000).unref();
+  };
+
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
 }

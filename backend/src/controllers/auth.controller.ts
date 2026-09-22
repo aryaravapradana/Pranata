@@ -85,6 +85,7 @@ export const register = async (
           { username: { equals: cleanUsername, mode: "insensitive" } },
         ],
       },
+      select: { id: true },
     });
     if (existing)
       return res

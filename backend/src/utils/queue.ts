@@ -2,37 +2,42 @@ import { logger } from "./logger";
 
 export class JobQueue<T> {
   private queue: T[] = [];
-  private processing = false;
+  private activeWorkers = 0;
 
   constructor(
-    private executor: (
-      job: T,
-    ) => Promise<void>,
+    private executor: (job: T) => Promise<void>,
+    private concurrency: number = 3,
   ) {}
 
   async add(job: T): Promise<void> {
     this.queue.push(job);
-    if (!this.processing) {
-      this.process();
+    this.dispatch();
+  }
+
+  private dispatch(): void {
+    while (this.activeWorkers < this.concurrency && this.queue.length > 0) {
+      const job = this.queue.shift()!;
+      this.activeWorkers++;
+      this.runJob(job);
     }
   }
 
-  private async process(): Promise<void> {
-    this.processing = true;
-
-    while (this.queue.length > 0) {
-      const job = this.queue.shift()!;
-      try {
-        await this.executor(job);
-      } catch (error) {
-        logger.error(
-          "Job execution failed",
-          error,
-          { job },
-        );
-      }
+  private async runJob(job: T): Promise<void> {
+    try {
+      await this.executor(job);
+    } catch (error) {
+      logger.error("Job execution failed", error, { job });
+    } finally {
+      this.activeWorkers--;
+      this.dispatch();
     }
+  }
 
-    this.processing = false;
+  get size(): number {
+    return this.queue.length;
+  }
+
+  get isIdle(): boolean {
+    return this.activeWorkers === 0 && this.queue.length === 0;
   }
 }
