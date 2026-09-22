@@ -38,7 +38,7 @@ export function SplashScreen() {
         Math.hypot(w - originXPhysical, h - originYPhysical),
       );
 
-      const requiredRadius = maxCornerDist / ratio + 10000;
+      const requiredRadius = Math.ceil((maxCornerDist / ratio) * 1.08);
       setTargetRadius(requiredRadius);
     };
 
@@ -62,10 +62,10 @@ export function SplashScreen() {
     ease: [0.7, 0, 0.3, 1] as import("framer-motion").Easing,
   };
 
-  // STEP 3: BARU BUKA - Expansive smooth iris open revealing the loaded page
+  // STEP 3: BARU BUKA - Slower, majestic, smooth iris expansion across the viewport
   const outTransition = {
     duration: SPLASH_OPEN_DURATION,
-    ease: [0.16, 1, 0.3, 1] as import("framer-motion").Easing,
+    ease: [0.35, 0.05, 0.2, 1] as import("framer-motion").Easing,
   };
 
   return (

@@ -21,7 +21,7 @@ export type TransitionPhase =
   | "OPENING";
 
 export const SPLASH_CLOSE_DURATION = 0.85; // 850ms smooth, deliberate iris close
-export const SPLASH_OPEN_DURATION = 1.15;  // 1150ms majestic, smooth iris reveal
+export const SPLASH_OPEN_DURATION = 1.5;   // 1500ms slow, smooth, cinematic iris reveal
 export const SPLASH_SETTLE_MS = 350;       // Settle time for DOM paint & initial data fetch
 
 interface LoadingContextType {
@@ -225,7 +225,7 @@ export const LoadingProvider = ({
         setPhase("IDLE");
         targetUrlRef.current = null;
         targetPathRef.current = null;
-      }, 3500);
+      }, 4000);
       return () => clearTimeout(watchdog);
     }
   }, [phase]);
