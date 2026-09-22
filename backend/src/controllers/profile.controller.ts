@@ -345,6 +345,7 @@ export const createEvent = async (
           sellerId,
         },
       });
+    delCache(`seller_events_${sellerId}`);
     res.json(event);
   } catch (error) {
     console.error(error);
@@ -389,6 +390,7 @@ export const updateEvent = async (
           type,
         },
       });
+    delCache(`seller_events_${existing.sellerId}`);
     res.json(event);
   } catch (error) {
     console.error(error);
@@ -420,6 +422,7 @@ export const deleteEvent = async (
     await prisma.sellerEvent.delete({
       where: { id },
     });
+    delCache(`seller_events_${existing.sellerId}`);
     res.json({ success: true });
   } catch (error) {
     console.error(error);

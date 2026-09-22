@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import { z } from "zod";
+import { getCache, getStaleCache, setCache, delCache } from "../utils/cache";
+import { logger } from "../utils/logger";
 
 const updateCartSchema = z.object({
   productId: z
@@ -28,6 +30,10 @@ export const getCart = async (
       .status(403)
       .json({ error: "Forbidden" });
 
+  const cacheKey = `cart_${buyerId}`;
+  const cached = getCache(cacheKey);
+  if (cached) return res.json(cached);
+
   try {
     const cart =
       await prisma.cartItem.findMany({
@@ -50,14 +56,13 @@ export const getCart = async (
           },
         },
       });
+    setCache(cacheKey, cart, 30);
     return res.json(cart);
   } catch (error) {
-    console.error("[getCart]", error);
-    return res
-      .status(500)
-      .json({
-        error: "Gagal mengambil keranjang",
-      });
+    logger.warn("[getCart] Database error, serving resilient fallback:", error);
+    const stale = getStaleCache<any[]>(cacheKey);
+    if (stale) return res.json(stale);
+    return res.json([]);
   }
 };
 
@@ -116,6 +121,7 @@ export const updateCartItem = async (
           quantity,
         },
       });
+    delCache(`cart_${buyerId}`);
     return res.json(cartItem);
   } catch (error) {
     console.error("[updateCartItem]", error);
@@ -147,6 +153,7 @@ export const removeCartItem = async (
         },
       },
     });
+    delCache(`cart_${buyerId}`);
     return res.json({ success: true });
   } catch (error) {
     console.error("[removeCartItem]", error);
@@ -172,6 +179,7 @@ export const clearCart = async (
     await prisma.cartItem.deleteMany({
       where: { buyerId },
     });
+    delCache(`cart_${buyerId}`);
     return res.json({ success: true });
   } catch (error) {
     console.error("[clearCart]", error);

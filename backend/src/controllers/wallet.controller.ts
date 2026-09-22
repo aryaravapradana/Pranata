@@ -15,7 +15,7 @@ const withdrawSchema = z.object({
   accountHolder: z.string().min(2, "Nama pemilik rekening wajib diisi"),
 });
 
-import { getCache, getStaleCache, setCache } from "../utils/cache";
+import { getCache, getStaleCache, setCache, delCache } from "../utils/cache";
 
 export const getWallet = async (req: Request, res: Response) => {
   const profileId = String(req.params.profileId || req.user?.id);
@@ -29,27 +29,28 @@ export const getWallet = async (req: Request, res: Response) => {
   if (cached) return res.json(cached);
 
   try {
-    const profile = await prisma.profile.findUnique({
-      where: { id: profileId },
-      select: {
-        id: true,
-        username: true,
-        fullName: true,
-        walletBalance: true,
-        subscriptionTier: true,
-        subscriptionExpiresAt: true,
-      },
-    });
+    const [profile, transactions] = await Promise.all([
+      prisma.profile.findUnique({
+        where: { id: profileId },
+        select: {
+          id: true,
+          username: true,
+          fullName: true,
+          walletBalance: true,
+          subscriptionTier: true,
+          subscriptionExpiresAt: true,
+        },
+      }),
+      prisma.walletTransaction.findMany({
+        where: { profileId },
+        orderBy: { createdAt: "desc" },
+        take: 50,
+      }),
+    ]);
 
     if (!profile) {
       return res.status(404).json({ error: "Profil tidak ditemukan" });
     }
-
-    const transactions = await prisma.walletTransaction.findMany({
-      where: { profileId },
-      orderBy: { createdAt: "desc" },
-      take: 50,
-    });
 
     const result = {
       profileId: profile.id,
@@ -119,6 +120,8 @@ export const topUpWallet = async (req: Request, res: Response) => {
       return { updatedProfile, txRecord };
     });
 
+    delCache([`wallet_${profileId}`, `profile_${profileId}`]);
+
     return res.status(201).json({
       message: "Top-up saldo berhasil",
       walletBalance: result.updatedProfile.walletBalance,
@@ -182,6 +185,8 @@ export const withdrawWallet = async (req: Request, res: Response) => {
 
       return { updatedProfile, txRecord };
     });
+
+    delCache([`wallet_${profileId}`, `profile_${profileId}`]);
 
     return res.status(200).json({
       message: "Penarikan saldo berhasil diproses",

@@ -43,7 +43,28 @@ export const delCache = (
   }
 };
 
+export const delCacheByPrefix = (prefix: string) => {
+  const allKeys = cache.keys();
+  const matched = allKeys.filter((k) => k.startsWith(prefix));
+  if (matched.length > 0) {
+    cache.del(matched);
+  }
+  for (const k of staleFallbackCache.keys()) {
+    if (k.startsWith(prefix)) {
+      staleFallbackCache.delete(k);
+    }
+  }
+};
+
 export const flushCache = () => {
   cache.flushAll();
+  staleFallbackCache.clear();
+};
+
+export const getCacheStats = () => {
+  return {
+    ...cache.getStats(),
+    staleFallbackSize: staleFallbackCache.size,
+  };
 };
 

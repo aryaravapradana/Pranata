@@ -129,6 +129,7 @@ model Product {
   @@index([sellerId])
   @@index([sellerId, deletedAt])
   @@index([deletedAt])
+  @@index([category, deletedAt])
   @@index([deletedAt, createdAt(sort: Desc)])
   @@index([deletedAt, isSponsored(sort: Desc), createdAt(sort: Desc)])
 }
@@ -161,6 +162,8 @@ model Order {
   @@index([sellerId])
   @@index([buyerId, createdAt(sort: Desc)])
   @@index([sellerId, createdAt(sort: Desc)])
+  @@index([buyerId, status])
+  @@index([sellerId, status])
 }
 
 model OrderItem {
@@ -172,6 +175,9 @@ model OrderItem {
   createdAt   DateTime @default(now())
   order       Order    @relation(fields: [orderId], references: [id])
   product     Product  @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 model CartItem {
@@ -186,6 +192,7 @@ model CartItem {
 
   @@unique([buyerId, productId])
   @@index([buyerId])
+  @@index([productId])
 }
 
 model ProcurementRequest {
@@ -199,6 +206,9 @@ model ProcurementRequest {
   description  String?
   status       String   @default("OPEN")
   createdAt    DateTime @default(now())
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([category])
 }
 
 enum Role {

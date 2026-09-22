@@ -5,6 +5,8 @@ import {
   getCache,
   getStaleCache,
   setCache,
+  delCache,
+  delCacheByPrefix,
   flushCache,
 } from "../utils/cache";
 import { logger } from "../utils/logger";
@@ -45,19 +47,20 @@ export const getAllProducts = async (
   req: Request,
   res: Response,
 ) => {
-  try {
-    const page = Math.max(
-      1,
-      parseInt(String(req.query.page)) || 1,
-    );
-    const limit = Math.min(
-      50,
-      parseInt(String(req.query.limit)) ||
-        20,
-    );
+  const page = Math.max(
+    1,
+    parseInt(String(req.query.page)) || 1,
+  );
+  const limit = Math.min(
+    200,
+    parseInt(String(req.query.limit)) || 20,
+  );
+  const search = req.query.search ? String(req.query.search).trim() : "";
+  const category = req.query.category ? String(req.query.category).trim() : "ALL";
+  const cacheKey = `products_${page}_${limit}_${category}_${search}`;
 
+  try {
     // Check cache
-    const cacheKey = `products_${page}_${limit}`;
     const cached = getCache(cacheKey);
     if (cached) {
       return res.json(cached);
@@ -65,10 +68,21 @@ export const getAllProducts = async (
 
     const skip = (page - 1) * limit;
 
+    const where: any = { deletedAt: null };
+    if (category && category !== "ALL") {
+      where.category = category;
+    }
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+      ];
+    }
+
     const [products, total] =
       await Promise.all([
         prisma.product.findMany({
-          where: { deletedAt: null },
+          where,
           include: {
             seller: {
               select: {
@@ -90,7 +104,7 @@ export const getAllProducts = async (
           skip,
         }),
         prisma.product.count({
-          where: { deletedAt: null },
+          where,
         }),
       ]);
 
@@ -111,27 +125,34 @@ export const getAllProducts = async (
       "Database unreachable, serving high-resilience stale cache or marketplace fallback products",
       error,
     );
-    const page = Math.max(1, parseInt(String(req.query.page)) || 1);
-    const limit = Math.min(50, parseInt(String(req.query.limit)) || 20);
-    const search = (String(req.query.search || "")).toLowerCase().trim();
-    const category = String(req.query.category || "ALL");
-    const sortBy = String(req.query.sortBy || "latest");
-    const featuredOnly = String(req.query.featured || "") === "true";
-    const isSponsoredOnly = String(req.query.sponsored || "") === "true";
-    const cacheKey = `products_${page}_${limit}_${search}_${category}_${sortBy}_${featuredOnly}_${isSponsoredOnly}`;
     const stale = getStaleCache<any>(cacheKey);
     if (stale) return res.json(stale);
 
-    // Gracefully serve fallback catalog so Marketplace and AI Copilot never break
+    // Gracefully serve fallback catalog with search/category support
+    let filtered = FALLBACK_PRODUCTS;
+    if (category && category !== "ALL") {
+      filtered = filtered.filter(
+        (p) => p.category.toLowerCase() === category.toLowerCase(),
+      );
+    }
+    if (search) {
+      const searchLower = search.toLowerCase();
+      filtered = filtered.filter(
+        (p) =>
+          p.title.toLowerCase().includes(searchLower) ||
+          (p.description && p.description.toLowerCase().includes(searchLower)),
+      );
+    }
+
     const skip = (page - 1) * limit;
-    const paginated = FALLBACK_PRODUCTS.slice(skip, skip + limit);
+    const paginated = filtered.slice(skip, skip + limit);
 
     return res.json({
       data: paginated,
-      total: FALLBACK_PRODUCTS.length,
+      total: filtered.length,
       page,
       limit,
-      totalPages: Math.ceil(FALLBACK_PRODUCTS.length / limit),
+      totalPages: Math.ceil(filtered.length / limit) || 1,
     });
   }
 };
@@ -176,7 +197,9 @@ export const toggleSponsoredProduct = async (
       data: { isSponsored: nextState },
     });
 
-    flushCache();
+    delCacheByPrefix("products_");
+    delCacheByPrefix(`seller_products_${sellerId}`);
+    delCache(`product_detail_${productId}`);
 
     return res.json({
       message: nextState
@@ -375,7 +398,8 @@ export const createProduct = async (
       await prisma.product.create({
         data: { sellerId, ...parse.data },
       });
-    flushCache();
+    delCacheByPrefix("products_");
+    delCacheByPrefix(`seller_products_${sellerId}`);
     return res.status(201).json(product);
   } catch (error) {
     console.error("[createProduct]", error);
@@ -428,7 +452,9 @@ export const updateProduct = async (
         where: { id },
         data: parse.data,
       });
-    flushCache();
+    delCacheByPrefix("products_");
+    delCacheByPrefix(`seller_products_${existing.sellerId}`);
+    delCache(`product_detail_${id}`);
     return res.json(updatedProduct);
   } catch (error) {
     console.error("[updateProduct]", error);
@@ -470,7 +496,9 @@ export const deleteProduct = async (
       where: { id },
       data: { deletedAt: new Date() },
     });
-    flushCache();
+    delCacheByPrefix("products_");
+    delCacheByPrefix(`seller_products_${existing.sellerId}`);
+    delCache(`product_detail_${id}`);
     return res.json({
       success: true,
       message: "Produk dihapus",
@@ -487,46 +515,48 @@ export const deleteProduct = async (
 
 export const preloadProductCache = async (): Promise<void> => {
   try {
-    const page = 1;
-    const limit = 20;
-    const cacheKey = `products_${page}_${limit}`;
-    const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where: { deletedAt: null },
-        include: {
-          seller: {
-            select: {
-              id: true,
-              username: true,
-              fullName: true,
-              farmName: true,
-              avatarUrl: true,
-              location: true,
-              subscriptionTier: true,
+    const limits = [20, 200];
+    for (const limit of limits) {
+      const page = 1;
+      const cacheKey = `products_${page}_${limit}_ALL_`;
+      const [products, total] = await Promise.all([
+        prisma.product.findMany({
+          where: { deletedAt: null },
+          include: {
+            seller: {
+              select: {
+                id: true,
+                username: true,
+                fullName: true,
+                farmName: true,
+                avatarUrl: true,
+                location: true,
+                subscriptionTier: true,
+              },
             },
           },
-        },
-        orderBy: [
-          { isSponsored: "desc" },
-          { createdAt: "desc" },
-        ],
-        take: limit,
-        skip: 0,
-      }),
-      prisma.product.count({
-        where: { deletedAt: null },
-      }),
-    ]);
+          orderBy: [
+            { isSponsored: "desc" },
+            { createdAt: "desc" },
+          ],
+          take: limit,
+          skip: 0,
+        }),
+        prisma.product.count({
+          where: { deletedAt: null },
+        }),
+      ]);
 
-    const result = {
-      data: products,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
-    setCache(cacheKey, result, 60);
-    console.log(`⚡ Product cache pre-warmed: ${products.length} items in RAM`);
+      const result = {
+        data: products,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+      setCache(cacheKey, result, 120);
+      console.log(`⚡ Product cache pre-warmed (limit=${limit}): ${products.length} items in RAM`);
+    }
   } catch (err) {
     console.warn("⚠️ Product cache pre-warm warning:", err);
   }

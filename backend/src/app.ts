@@ -93,6 +93,8 @@ const globalLimiter = rateLimit({
   max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
+  skipSuccessfulRequests: true,
+  skip: (req) => req.method === "OPTIONS" || req.path === "/api/status",
   message: {
     error:
       "Terlalu banyak request, coba lagi dalam 15 menit.",

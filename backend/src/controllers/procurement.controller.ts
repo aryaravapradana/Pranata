@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import { z } from "zod";
 import { logger } from "../utils/logger";
-import { getCache, getStaleCache, setCache } from "../utils/cache";
+import { getCache, getStaleCache, setCache, delCache } from "../utils/cache";
 
 export const FALLBACK_PROCUREMENT_REQUESTS = [
   {
@@ -109,6 +109,8 @@ export const createProcurementRequest = async (req: Request, res: Response) => {
         status: "OPEN",
       },
     });
+
+    delCache("procurement_requests");
 
     return res.status(201).json(created);
   } catch (error) {

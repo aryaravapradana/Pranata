@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import { z } from "zod";
 import { logger } from "../utils/logger";
+import { getCache, getStaleCache, setCache, delCache } from "../utils/cache";
 
 const upgradeSchema = z.object({
   paymentMethod: z.string().default("pranata_pay"),
@@ -105,6 +106,8 @@ export const upgradeToPlus = async (req: Request, res: Response) => {
       return updated;
     });
 
+    delCache([`profile_${profileId}`, `wallet_${profileId}`, `subscription_${profileId}`]);
+
     return res.status(200).json({
       message: `Selamat! Akun Anda berhasil di-upgrade ke ${planTitle}`,
       profile: result,
@@ -118,6 +121,9 @@ export const upgradeToPlus = async (req: Request, res: Response) => {
 
 export const getSubscriptionStatus = async (req: Request, res: Response) => {
   const profileId = String(req.params.profileId || req.user?.id);
+  const cacheKey = `subscription_${profileId}`;
+  const cached = getCache<any>(cacheKey);
+  if (cached) return res.json(cached);
 
   try {
     const profile = await prisma.profile.findUnique({
@@ -138,15 +144,25 @@ export const getSubscriptionStatus = async (req: Request, res: Response) => {
         profile.subscriptionTier === "SELLER_PLUS") &&
       (!profile.subscriptionExpiresAt || new Date(profile.subscriptionExpiresAt) > new Date());
 
-    return res.json({
+    const result = {
       profileId: profile.id,
       tier: isPlusActive ? profile.subscriptionTier : "FREE",
       expiresAt: profile.subscriptionExpiresAt,
       isPlusActive,
-    });
+    };
+
+    setCache(cacheKey, result, 60);
+    return res.json(result);
   } catch (error) {
-    logger.error("Error fetching subscription status", error);
-    return res.status(500).json({ error: "Gagal mengambil status langganan" });
+    logger.warn("Error fetching subscription status, serving stale fallback:", error);
+    const stale = getStaleCache<any>(cacheKey);
+    if (stale) return res.json(stale);
+    return res.json({
+      profileId,
+      tier: "FREE",
+      expiresAt: null,
+      isPlusActive: false,
+    });
   }
 };
 
@@ -183,6 +199,8 @@ export const cancelSubscription = async (req: Request, res: Response) => {
 
       return profile;
     });
+
+    delCache([`profile_${profileId}`, `wallet_${profileId}`, `subscription_${profileId}`]);
 
     return res.status(200).json({
       message: "Langganan Pranata Plus berhasil dibatalkan. Akun Anda kembali ke Pranata Gratis.",

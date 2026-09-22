@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import {
   getCache,
+  getStaleCache,
   setCache,
   delCache,
+  delCacheByPrefix,
   flushCache,
 } from "../utils/cache";
 import prisma from "../config/prisma";
@@ -258,10 +260,12 @@ export const checkout = async (
       sellerId: order.sellerId,
     });
 
-    // Invalidate order and product caches so buyers & sellers see fresh stock and order lists
+    // Invalidate order, wallet and product caches selectively
     delCache(`orders_BUYER_${order.buyerId}`);
     delCache(`orders_PRODUCER_${order.sellerId}`);
-    flushCache();
+    delCache(`wallet_${order.buyerId}`);
+    delCacheByPrefix("products_");
+    delCacheByPrefix(`seller_products_${order.sellerId}`);
 
     return res.status(201).json(order);
   } catch (error: any) {
@@ -313,7 +317,19 @@ export const getOrdersByRole = async (
             : { buyerId: id },
         include: {
           items: {
-            include: { product: true },
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  title: true,
+                  price: true,
+                  unit: true,
+                  imageUrls: true,
+                  category: true,
+                  grade: true,
+                },
+              },
+            },
           },
           buyer: {
             select: {
@@ -338,10 +354,12 @@ export const getOrdersByRole = async (
     setCache(cacheKey, orders, 30);
     return res.json(orders);
   } catch (error) {
-    console.error(
-      "[getOrdersByRole]",
+    logger.warn(
+      "[getOrdersByRole] Database error, serving stale fallback:",
       error,
     );
+    const stale = getStaleCache(cacheKey);
+    if (stale) return res.json(stale);
     return res
       .status(500)
       .json({
@@ -430,6 +448,7 @@ export const updateOrderStatus = async (
     delCache(
       `orders_BUYER_${order.buyerId}`,
     );
+    delCache(`wallet_${order.sellerId}`);
 
     return res.json(updatedOrder);
   } catch (error) {
