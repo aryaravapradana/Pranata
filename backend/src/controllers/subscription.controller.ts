@@ -5,6 +5,7 @@ import { logger } from "../utils/logger";
 
 const upgradeSchema = z.object({
   paymentMethod: z.string().default("pranata_pay"),
+  plan: z.string().default("SELLER_PLUS"),
 });
 
 export const upgradeToPlus = async (req: Request, res: Response) => {
@@ -13,8 +14,14 @@ export const upgradeToPlus = async (req: Request, res: Response) => {
 
   const parse = upgradeSchema.safeParse(req.body);
   const paymentMethod = parse.success ? parse.data.paymentMethod : "pranata_pay";
+  const plan = parse.success ? parse.data.plan : "SELLER_PLUS";
 
-  const SUBSCRIPTION_PRICE = 79000;
+  const isCustomer = plan === "CUSTOMER_PLUS" || plan === "CUSTOMER";
+  const SUBSCRIPTION_PRICE = isCustomer ? 39000 : 79000;
+  const tierCode = isCustomer ? "CUSTOMER_PLUS" : "SELLER_PLUS";
+  const planTitle = isCustomer ? "Pranata Plus Customer" : "Pranata Plus Seller";
+  const isPranataPay = paymentMethod === "pranata_pay";
+  const adminFee = isPranataPay ? 0 : 2500;
   const DURATION_DAYS = 30;
 
   try {
@@ -32,9 +39,9 @@ export const upgradeToPlus = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Profil tidak ditemukan" });
     }
 
-    if (paymentMethod === "pranata_pay" && profile.walletBalance < SUBSCRIPTION_PRICE) {
+    if (isPranataPay && profile.walletBalance < SUBSCRIPTION_PRICE) {
       return res.status(400).json({
-        error: "Saldo Pranata Pay tidak mencukupi untuk berlangganan (Dibutuhkan Rp 79.000)",
+        error: `Saldo Pranata Pay tidak mencukupi untuk berlangganan (Dibutuhkan Rp ${SUBSCRIPTION_PRICE.toLocaleString("id-ID")})`,
       });
     }
 
@@ -43,7 +50,7 @@ export const upgradeToPlus = async (req: Request, res: Response) => {
 
     const result = await prisma.$transaction(async (tx) => {
       // 1. If paid with wallet, decrement balance
-      if (paymentMethod === "pranata_pay") {
+      if (isPranataPay) {
         await tx.profile.update({
           where: { id: profileId },
           data: {
@@ -58,7 +65,7 @@ export const upgradeToPlus = async (req: Request, res: Response) => {
       const updated = await tx.profile.update({
         where: { id: profileId },
         data: {
-          subscriptionTier: "PLUS",
+          subscriptionTier: tierCode,
           subscriptionExpiresAt: expiresAt,
         },
         select: {
@@ -75,7 +82,7 @@ export const upgradeToPlus = async (req: Request, res: Response) => {
       await tx.subscriptionRecord.create({
         data: {
           profileId,
-          plan: "PLUS",
+          plan: tierCode,
           amount: SUBSCRIPTION_PRICE,
           durationDays: DURATION_DAYS,
         },
@@ -86,10 +93,10 @@ export const upgradeToPlus = async (req: Request, res: Response) => {
         data: {
           profileId,
           type: "SUBSCRIPTION_FEE",
-          amount: SUBSCRIPTION_PRICE,
-          fee: 0,
+          amount: SUBSCRIPTION_PRICE + adminFee,
+          fee: adminFee,
           netAmount: -SUBSCRIPTION_PRICE,
-          description: `Langganan Pranata Plus (30 Hari) via ${paymentMethod.toUpperCase()}`,
+          description: `Langganan ${planTitle} (30 Hari) via ${paymentMethod.toUpperCase()}`,
           paymentMethod,
           status: "SUCCESS",
         },
@@ -99,8 +106,9 @@ export const upgradeToPlus = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({
-      message: "Selamat! Akun Anda berhasil di-upgrade ke Pranata Plus",
+      message: `Selamat! Akun Anda berhasil di-upgrade ke ${planTitle}`,
       profile: result,
+      tier: tierCode,
     });
   } catch (error) {
     logger.error("Error upgrading to Plus", error);
@@ -125,12 +133,14 @@ export const getSubscriptionStatus = async (req: Request, res: Response) => {
     if (!profile) return res.status(404).json({ error: "Profil tidak ditemukan" });
 
     const isPlusActive =
-      profile.subscriptionTier === "PLUS" &&
+      (profile.subscriptionTier === "PLUS" ||
+        profile.subscriptionTier === "CUSTOMER_PLUS" ||
+        profile.subscriptionTier === "SELLER_PLUS") &&
       (!profile.subscriptionExpiresAt || new Date(profile.subscriptionExpiresAt) > new Date());
 
     return res.json({
       profileId: profile.id,
-      tier: isPlusActive ? "PLUS" : "FREE",
+      tier: isPlusActive ? profile.subscriptionTier : "FREE",
       expiresAt: profile.subscriptionExpiresAt,
       isPlusActive,
     });

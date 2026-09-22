@@ -15,12 +15,18 @@ const withdrawSchema = z.object({
   accountHolder: z.string().min(2, "Nama pemilik rekening wajib diisi"),
 });
 
+import { getCache, getStaleCache, setCache } from "../utils/cache";
+
 export const getWallet = async (req: Request, res: Response) => {
   const profileId = String(req.params.profileId || req.user?.id);
 
   if (req.user?.id !== profileId) {
     return res.status(403).json({ error: "Forbidden" });
   }
+
+  const cacheKey = `wallet_${profileId}`;
+  const cached = getCache<any>(cacheKey);
+  if (cached) return res.json(cached);
 
   try {
     const profile = await prisma.profile.findUnique({
@@ -45,16 +51,27 @@ export const getWallet = async (req: Request, res: Response) => {
       take: 50,
     });
 
-    return res.json({
+    const result = {
       profileId: profile.id,
       walletBalance: profile.walletBalance,
       subscriptionTier: profile.subscriptionTier,
       subscriptionExpiresAt: profile.subscriptionExpiresAt,
       transactions,
-    });
+    };
+
+    setCache(cacheKey, result, 30);
+    return res.json(result);
   } catch (error) {
-    logger.error("Error getting wallet", error);
-    return res.status(500).json({ error: "Gagal mengambil data dompet" });
+    logger.warn("Error getting wallet, serving stale or fallback:", error);
+    const stale = getStaleCache<any>(cacheKey);
+    if (stale) return res.json(stale);
+    return res.json({
+      profileId,
+      walletBalance: 0,
+      subscriptionTier: "FREE",
+      subscriptionExpiresAt: null,
+      transactions: [],
+    });
   }
 };
 
@@ -68,7 +85,7 @@ export const topUpWallet = async (req: Request, res: Response) => {
   const profileId = req.user?.id;
   if (!profileId) return res.status(401).json({ error: "Unauthorized" });
 
-  const TOPUP_FEE = 1500;
+  const TOPUP_FEE = 2500;
 
   try {
     const result = await prisma.$transaction(async (tx) => {

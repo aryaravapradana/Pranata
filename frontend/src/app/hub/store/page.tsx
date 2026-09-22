@@ -36,8 +36,9 @@ import {
 import {
   usePageLoading,
   useGlobalLoading,
+  useAppRouter as useRouter,
 } from "@/components/shared/loading-context";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { ProductGridSkeleton } from "@/components/ui/skeleton";
 import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
 
@@ -222,7 +223,7 @@ export default function StoreDashboardPage() {
   const [sortBy, setSortBy] = useState("Terbaru");
 
   const handleToggleSponsor = async (product: any) => {
-    if (profile?.subscriptionTier !== "PLUS") {
+    if (profile?.subscriptionTier !== "PLUS" && profile?.subscriptionTier !== "SELLER_PLUS") {
       setShowUpgradeModal(true);
       return;
     }
@@ -1229,6 +1230,7 @@ export default function StoreDashboardPage() {
       <UpgradePlusModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
+        initialPlan="seller"
         onSuccess={() => {
           loadData();
         }}

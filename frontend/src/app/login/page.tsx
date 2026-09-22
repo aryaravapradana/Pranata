@@ -16,10 +16,8 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import Link from "next/link";
-import {
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useAppRouter as useRouter } from "@/components/shared/loading-context";
 import {
   Bird,
   Eye,
@@ -53,6 +51,26 @@ function AuthContent() {
   );
   const { navigateTo } = useGlobalLoading();
 
+  // If user is already logged in, redirect to appropriate destination
+  useEffect(() => {
+    const sessionStr =
+      localStorage.getItem("pranata_session") ||
+      localStorage.getItem("farmpro_session");
+    const token = Cookies.get("auth-token");
+    if (sessionStr && token) {
+      try {
+        const user = JSON.parse(sessionStr);
+        if (user && user.id) {
+          router.replace(user.role === "PRODUCER" ? "/hub" : "/market");
+        }
+      } catch (e) {
+        localStorage.removeItem("pranata_session");
+        localStorage.removeItem("farmpro_session");
+        Cookies.remove("auth-token");
+      }
+    }
+  }, [router]);
+
   // Sync mode with query params
   useEffect(() => {
     const mode = searchParams.get("mode");
@@ -84,10 +102,21 @@ function AuthContent() {
     e: React.FormEvent,
   ) => {
     e.preventDefault();
+    if (loading) return; // Prevent double submit
     setLoading(true);
     setError(null);
 
+    // Watchdog timer: ensures UI NEVER hangs in an infinite loading state
+    let isSettled = false;
+    const watchdog = setTimeout(() => {
+      if (!isSettled) {
+        setLoading(false);
+        setError("Koneksi memakan waktu terlalu lama. Silakan periksa jaringan Wi-Fi Anda dan coba lagi.");
+      }
+    }, 10000);
+
     try {
+      const cleanUsername = username.trim().toLowerCase();
       const res = await fetchApi(
         `${getApiBaseUrl()}/api/profile/login`,
         {
@@ -97,19 +126,19 @@ function AuthContent() {
               "application/json",
           },
           body: JSON.stringify({
-            username: username
-              .toLowerCase()
-              .trim(),
+            username: cleanUsername,
             password,
           }),
         },
       );
 
       const data = await res.json();
+      isSettled = true;
+      clearTimeout(watchdog);
 
       if (!res.ok) {
         throw new Error(
-          data.error || "Login failed",
+          data.error || "Login gagal. Periksa username dan password Anda.",
         );
       }
 
@@ -126,10 +155,14 @@ function AuthContent() {
         expires: 7,
         path: "/",
       });
-      navigateTo("/market");
+
+      // Role-aware destination
+      const dest = data.role === "PRODUCER" ? "/hub" : "/market";
+      navigateTo(dest);
     } catch (err: any) {
-      setError(err.message);
-    } finally {
+      isSettled = true;
+      clearTimeout(watchdog);
+      setError(err.message || "Gagal masuk. Silakan coba kembali.");
       setLoading(false);
     }
   };
@@ -295,16 +328,15 @@ function AuthContent() {
                       "font-extrabold mb-1.5 text-[#2B4C3B]",
                     )}
                   >
-                    Username
+                    Username atau Email
                   </label>
                   <input
                     type="text"
                     value={username}
-                    onChange={(e) =>
-                      setUsername(
-                        e.target.value,
-                      )
-                    }
+                    onChange={(e) => {
+                      setUsername(e.target.value);
+                      if (error) setError(null);
+                    }}
                     className={cn(
                       "w-full bg-[#F8F6F0] border",
                       "border-[#DDE2D6] rounded-2xl px-4",
@@ -314,7 +346,7 @@ function AuthContent() {
                       "placeholder:text-[#9A9E96]",
                     )}
                     required
-                    placeholder="Contoh: budi_farm"
+                    placeholder="Contoh: budi_farm atau budi@gmail.com"
                   />
                 </div>
 
@@ -335,11 +367,10 @@ function AuthContent() {
                           : "password"
                       }
                       value={password}
-                      onChange={(e) =>
-                        setPassword(
-                          e.target.value,
-                        )
-                      }
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (error) setError(null);
+                      }}
                       className={cn(
                         "w-full bg-[#F8F6F0] border",
                         "border-[#DDE2D6] rounded-2xl px-4",

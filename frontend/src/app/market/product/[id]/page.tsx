@@ -44,8 +44,8 @@ import {
 import {
   usePageLoading,
   useGlobalLoading,
+  useAppRouter as useRouter,
 } from "@/components/shared/loading-context";
-import { useRouter } from "next/navigation";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 import { ImageSwiper } from "@/components/ui/image-swiper";
 import { PlusBadge } from "@/components/ui/plus-badge";
@@ -693,7 +693,7 @@ export default function ProductDetailPage({
             )}
           >
             <AvatarHalo
-              isPlus={seller?.subscriptionTier === "PLUS"}
+              isPlus={Boolean(seller?.subscriptionTier && seller.subscriptionTier !== "FREE")}
               avatarUrl={seller?.avatarUrl}
               name={seller?.farmName || seller?.fullName || seller?.username}
               size="md"
@@ -734,7 +734,7 @@ export default function ProductDetailPage({
                     seller?.fullName ||
                     "Petani Sleman"}
                 </h4>
-                {seller?.subscriptionTier === "PLUS" && (
+                {seller?.subscriptionTier && seller?.subscriptionTier !== "FREE" && (
                   <PlusBadge
                     variant="black"
                     size="xs"
@@ -1245,7 +1245,7 @@ export default function ProductDetailPage({
                   )}
                 >
                   <AvatarHalo
-                    isPlus={seller.subscriptionTier === "PLUS"}
+                    isPlus={Boolean(seller.subscriptionTier && seller.subscriptionTier !== "FREE")}
                     avatarUrl={seller.avatarUrl}
                     name={seller.farmName || seller.fullName || seller.username}
                     size="md"
@@ -1274,7 +1274,7 @@ export default function ProductDetailPage({
                         size={14}
                         className="text-emerald-500 shrink-0"
                       />
-                      {seller.subscriptionTier === "PLUS" && (
+                      {seller.subscriptionTier && seller.subscriptionTier !== "FREE" && (
                         <PlusBadge
                           variant="black"
                           size="xs"

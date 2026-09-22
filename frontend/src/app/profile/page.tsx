@@ -39,8 +39,8 @@ import {
 import {
   usePageLoading,
   useGlobalLoading,
+  useAppRouter as useRouter,
 } from "@/components/shared/loading-context";
-import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
 import { uploadImage } from "@/lib/supabaseStorage";
@@ -927,7 +927,7 @@ export default function AccountSettingsPage() {
                 {/* Avatar */}
                 <div className="relative group shrink-0">
                   <AvatarHalo
-                    isPlus={profile?.subscriptionTier === "PLUS"}
+                    isPlus={Boolean(profile?.subscriptionTier && profile.subscriptionTier !== "FREE")}
                     avatarUrl={avatarUrl}
                     initials={initials}
                     size="xl"
@@ -1020,7 +1020,7 @@ export default function AccountSettingsPage() {
                   {profile?.fullName ||
                     profile?.username}
                 </h1>
-                {profile?.subscriptionTier === "PLUS" && (
+                {profile?.subscriptionTier && profile.subscriptionTier !== "FREE" && (
                   <PlusBadge
                     variant="black"
                     size="sm"
@@ -1108,7 +1108,7 @@ export default function AccountSettingsPage() {
               <div>
                 {/* Header: Logo & Status Badge */}
                 <div className="flex items-center justify-between gap-3 relative z-10">
-                  {profile?.subscriptionTier === "PLUS" ? (
+                  {profile?.subscriptionTier && profile.subscriptionTier !== "FREE" ? (
                     <PlusBadge
                       variant="white"
                       size="lg"
@@ -1120,10 +1120,10 @@ export default function AccountSettingsPage() {
                       className="h-7 sm:h-8 w-auto object-contain drop-shadow-sm"
                     />
                   )}
-                  {profile?.subscriptionTier === "PLUS" ? (
+                  {profile?.subscriptionTier && profile.subscriptionTier !== "FREE" ? (
                     <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37] text-[#FDE68A] text-[10px] font-black tracking-wider uppercase shadow-xs">
                       <Crown size={12} className="text-[#FDE68A] fill-[#FDE68A]" />
-                      <span>MEMBER AKTIF</span>
+                      <span>{profile.subscriptionTier === "CUSTOMER_PLUS" ? "CUSTOMER PLUS" : "SELLER PLUS"}</span>
                     </div>
                   ) : (
                     <span className="px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/80 text-[10px] font-black uppercase tracking-wider backdrop-blur-xs">
@@ -1135,17 +1135,25 @@ export default function AccountSettingsPage() {
                 {/* Main Heading & Subtitle */}
                 <div className="my-5 relative z-10">
                   <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
-                    {profile?.subscriptionTier === "PLUS" ? "Member Pranata Plus" : "Buka Potensi Pranata Plus"}
+                    {profile?.subscriptionTier === "CUSTOMER_PLUS"
+                      ? "Member Pranata Plus Customer"
+                      : profile?.subscriptionTier === "SELLER_PLUS" || profile?.subscriptionTier === "PLUS"
+                      ? "Member Pranata Plus Seller"
+                      : "Buka Potensi Pranata Plus"}
                   </h3>
                   <p className="text-xs text-[#A4C4A8] mt-1.5 leading-relaxed font-medium">
-                    {profile?.subscriptionTier === "PLUS"
-                      ? "Nikmati akses tak terbatas ke seluruh kecerdasan buatan dan fitur eksklusif pasar."
-                      : "Tingkatkan akun Anda ke tier premium untuk mengakses rangkaian fitur produktivitas tercanggih."}
+                    {profile?.subscriptionTier === "CUSTOMER_PLUS"
+                      ? "Nikmati akses tak terbatas ke AI Chef, 1-Click Smart Cart, bebas biaya layanan checkout, dan garansi cold-chain segar."
+                      : profile?.subscriptionTier === "SELLER_PLUS" || profile?.subscriptionTier === "PLUS"
+                      ? "Nikmati akses tak terbatas ke etalase prioritas teratas, slot sponsor produk, Farm Copilot kandang, dan tender B2B."
+                      : profile?.role === "PRODUCER"
+                      ? "Tingkatkan akun peternakan Anda ke tier seller pro untuk melipatgandakan omzet penjualan ternak dan tender B2B."
+                      : "Tingkatkan akun belanja Anda ke tier customer plus untuk kemudahan asisten masak resep & bebas biaya layanan."}
                   </p>
                 </div>
 
                 {/* Feature Highlights / Active Perks */}
-                {profile?.subscriptionTier === "PLUS" ? (
+                {profile?.subscriptionTier && profile.subscriptionTier !== "FREE" ? (
                   <div className="space-y-3 my-4 bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-xs relative z-10">
                     <div className="flex items-center gap-2 text-xs text-white/70">
                       <Calendar size={13} className="text-[#D4AF37]" />
@@ -1161,53 +1169,111 @@ export default function AccountSettingsPage() {
                         : "30 Hari Kedepan"}
                     </div>
                     <div className="pt-2 border-t border-white/10 space-y-2 text-xs text-white/85">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle size={13} className="text-emerald-400 shrink-0" />
-                        <span>Pranata Intelligence Copilot (Tanpa Batas)</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle size={13} className="text-emerald-400 shrink-0" />
-                        <span>1-Click Agentic Cart untuk seluruh resep</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle size={13} className="text-emerald-400 shrink-0" />
-                        <span>Lencana Emas & prioritas produk di pasar</span>
-                      </div>
+                      {profile?.subscriptionTier === "CUSTOMER_PLUS" ? (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                            <span>Agentic AI Chef & Nutrisi (Tanpa Batas)</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                            <span>1-Click Agentic Smart Cart resep masakan</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                            <span>Bebas Biaya Layanan Platform (Hemat Rp 2.500)</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                            <span>Garansi Kesegaran Rantai Dingin Prioritas</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                            <span>Top Placement Prioritas Katalog Teratas</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                            <span>Slot Sponsor 1 Produk ke radar pembeli</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                            <span>Farm Copilot terhubung kandang & FCR</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                            <span>Akses kirim tender pasokan B2B restoran</span>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-2.5 my-4 bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-xs relative z-10">
-                    <div className="flex items-start gap-3 text-xs text-white/90">
-                      <div className="w-5 h-5 rounded-lg bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center shrink-0 mt-0.5">
-                        <Sparkles size={11} className="text-[#FDE68A]" />
-                      </div>
-                      <span className="leading-tight">
-                        <strong className="text-white font-bold">Agentic AI Copilot:</strong> Rekomendasi resep masakan & simulasi laba bisnis tani.
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3 text-xs text-white/90">
-                      <div className="w-5 h-5 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0 mt-0.5">
-                        <CheckCircle size={11} className="text-emerald-300" />
-                      </div>
-                      <span className="leading-tight">
-                        <strong className="text-white font-bold">1-Click Smart Cart:</strong> Auto-isi bahan ke keranjang dari pedagang pasar.
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3 text-xs text-white/90">
-                      <div className="w-5 h-5 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0 mt-0.5">
-                        <Crown size={11} className="text-[#FDE68A]" />
-                      </div>
-                      <span className="leading-tight">
-                        <strong className="text-white font-bold">Prioritas Pasar:</strong> Lencana Plus emas & visibilitas produk unggulan.
-                      </span>
-                    </div>
+                    {profile?.role === "PRODUCER" ? (
+                      <>
+                        <div className="flex items-start gap-3 text-xs text-white/90">
+                          <div className="w-5 h-5 rounded-lg bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center shrink-0 mt-0.5">
+                            <Crown size={11} className="text-[#FDE68A]" />
+                          </div>
+                          <span className="leading-tight">
+                            <strong className="text-white font-bold">Top Placement Prioritas:</strong> Produk ternak tampil paling atas di katalog pasar.
+                          </span>
+                        </div>
+                        <div className="flex items-start gap-3 text-xs text-white/90">
+                          <div className="w-5 h-5 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0 mt-0.5">
+                            <Sparkles size={11} className="text-emerald-300" />
+                          </div>
+                          <span className="leading-tight">
+                            <strong className="text-white font-bold">Farm AI Copilot:</strong> Analisis riil pakan, FCR & simulasi margin laba kandang.
+                          </span>
+                        </div>
+                        <div className="flex items-start gap-3 text-white/90">
+                          <div className="w-5 h-5 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0 mt-0.5">
+                            <CheckCircle size={11} className="text-[#FDE68A]" />
+                          </div>
+                          <span className="leading-tight">
+                            <strong className="text-white font-bold">Tender Pasokan B2B:</strong> Kontrak rutin pasokan restoran, hotel & katering.
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-start gap-3 text-xs text-white/90">
+                          <div className="w-5 h-5 rounded-lg bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center shrink-0 mt-0.5">
+                            <Sparkles size={11} className="text-[#FDE68A]" />
+                          </div>
+                          <span className="leading-tight">
+                            <strong className="text-white font-bold">1-Click Smart Cart:</strong> Auto-isi bahan resep masakan dari pedagang terdekat.
+                          </span>
+                        </div>
+                        <div className="flex items-start gap-3 text-xs text-white/90">
+                          <div className="w-5 h-5 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0 mt-0.5">
+                            <CheckCircle size={11} className="text-emerald-300" />
+                          </div>
+                          <span className="leading-tight">
+                            <strong className="text-white font-bold">Agentic AI Chef 24/7:</strong> Konsultasi resep ternak & asisten gizi keluarga tanpa batas.
+                          </span>
+                        </div>
+                        <div className="flex items-start gap-3 text-xs text-white/90">
+                          <div className="w-5 h-5 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0 mt-0.5">
+                            <Crown size={11} className="text-[#FDE68A]" />
+                          </div>
+                          <span className="leading-tight">
+                            <strong className="text-white font-bold">Bebas Biaya Layanan:</strong> Bebas fee Rp 2.500 di setiap checkout belanja pasar.
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
 
               {/* Action Buttons & Pricing */}
               <div className="pt-4 border-t border-white/10 relative z-10">
-                {profile?.subscriptionTier === "PLUS" ? (
+                {profile?.subscriptionTier && profile.subscriptionTier !== "FREE" ? (
                   <div className="flex flex-col gap-2">
                     <button
                       type="button"
@@ -1228,9 +1294,13 @@ export default function AccountSettingsPage() {
                 ) : (
                   <div>
                     <div className="flex items-baseline justify-between mb-3 px-1">
-                      <span className="text-xs font-semibold text-white/60">Biaya Langganan</span>
+                      <span className="text-xs font-semibold text-white/60">
+                        {profile?.role === "PRODUCER" ? "Membership Seller" : "Membership Customer"}
+                      </span>
                       <div className="text-right">
-                        <span className="text-lg font-black text-[#FDE68A]">Rp 79.000</span>
+                        <span className="text-lg font-black text-[#FDE68A]">
+                          {profile?.role === "PRODUCER" ? "Rp 79.000" : "Rp 39.000"}
+                        </span>
                         <span className="text-[11px] text-white/60 font-semibold"> / bulan</span>
                       </div>
                     </div>
@@ -1958,6 +2028,7 @@ export default function AccountSettingsPage() {
       <UpgradePlusModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
+        initialPlan={profile?.role === "PRODUCER" ? "seller" : "customer"}
         onSuccess={() => {
           if (profile?.id) {
             fetchProfileData(profile.id);

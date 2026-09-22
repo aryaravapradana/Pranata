@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useCallback,
   useRef,
+  useMemo,
 } from "react";
 import {
   usePathname,
@@ -19,122 +20,126 @@ export type TransitionPhase =
   | "COVERED"
   | "OPENING";
 
-const LoadingContext = createContext({
+export const SPLASH_CLOSE_DURATION = 0.45; // 450ms close animation
+export const SPLASH_OPEN_DURATION = 0.65;  // 650ms open animation
+export const SPLASH_SETTLE_MS = 300;       // Settle time for DOM paint & initial data fetch
+
+interface LoadingContextType {
+  isGlobalReady: boolean;
+  isTransitioning: boolean;
+  phase: TransitionPhase;
+  triggerTransition: () => void;
+  navigateTo: (url: string) => void;
+  goBack: () => void;
+  registerBlocker: (id: string) => void;
+  removeBlocker: (id: string) => void;
+  router: {
+    push: (url: string, options?: any) => void;
+    replace: (url: string, options?: any) => void;
+    back: () => void;
+    forward: () => void;
+    refresh: () => void;
+    prefetch: (url: string, options?: any) => void;
+  };
+}
+
+const LoadingContext = createContext<LoadingContextType>({
   isGlobalReady: true,
   isTransitioning: false,
-  phase: "IDLE" as TransitionPhase,
+  phase: "IDLE",
   triggerTransition: () => {},
-  navigateTo: (url: string) => {},
+  navigateTo: () => {},
   goBack: () => {},
-  registerBlocker: (id: string) => {},
-  removeBlocker: (id: string) => {},
+  registerBlocker: () => {},
+  removeBlocker: () => {},
+  router: {
+    push: () => {},
+    replace: () => {},
+    back: () => {},
+    forward: () => {},
+    refresh: () => {},
+    prefetch: () => {},
+  },
 });
-
-// Helper: Internal Hub tab switching (/hub, /hub/calendar, /hub/store, /hub/orders) should skip splash screen for smooth tab pill animation
-const isInternalHubRoute = (currentPath: string, targetUrl: string) => {
-  const targetPath = targetUrl.split("?")[0];
-  return (
-    currentPath.startsWith("/hub") &&
-    targetPath.startsWith("/hub") &&
-    !currentPath.includes("/intelligence") &&
-    !targetPath.includes("/intelligence")
-  );
-};
 
 export const LoadingProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const [blockers, setBlockers] = useState<
-    Set<string>
-  >(new Set(["nav-lock"]));
-  const [phase, setPhase] =
-    useState<TransitionPhase>("INITIAL");
+  const [blockers, setBlockers] = useState<Set<string>>(
+    new Set(["nav-initial"]),
+  );
+  const [phase, setPhase] = useState<TransitionPhase>("INITIAL");
   const pathname = usePathname();
-  const router = useRouter();
-  const transitionTimeoutRef =
-    useRef<NodeJS.Timeout | null>(null);
+  const nextRouter = useRouter();
+  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const targetUrlRef = useRef<string | null>(null);
+  const targetPathRef = useRef<string | null>(null);
   const isFirstMount = useRef(true);
 
   const clearPendingTimeout = () => {
     if (transitionTimeoutRef.current) {
-      clearTimeout(
-        transitionTimeoutRef.current,
-      );
+      clearTimeout(transitionTimeoutRef.current);
       transitionTimeoutRef.current = null;
     }
   };
 
-  const registerBlocker = useCallback(
-    (id: string) => {
-      setBlockers((prev) => {
-        const next = new Set(prev);
-        next.add(id);
-        return next;
-      });
+  const registerBlocker = useCallback((id: string) => {
+    setBlockers((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  }, []);
+
+  const removeBlocker = useCallback((id: string) => {
+    setBlockers((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
+  /**
+   * CORE SPECIFICATION:
+   * 1. splash screen nutup (CLOSING 450ms, old page stays visible underneath)
+   * 2. setelah fully close (COVERED), page ganti (router.push) dan load
+   * 3. setelah selesai load (blockers cleared + DOM painted), baru di buka (OPENING 650ms)
+   */
+  const startNavigationSequence = useCallback(
+    (url: string) => {
+      const currentPath = window.location.pathname;
+      const fullCurrentUrl = currentPath + window.location.search;
+      if (url === fullCurrentUrl) return;
+
+      const urlPath = url.split("?")[0].split("#")[0];
+
+      // If already transitioning, don't restart; redirect target destination
+      if (phase === "CLOSING" || phase === "COVERED") {
+        targetUrlRef.current = url;
+        targetPathRef.current = urlPath;
+        return;
+      }
+
+      clearPendingTimeout();
+      targetUrlRef.current = url;
+      targetPathRef.current = urlPath;
+
+      // STEP 1: SPLASH SCREEN NUTUP
+      // Lock navigation so screen stays closed until route loads
+      registerBlocker("nav-transition");
+      setPhase("CLOSING");
+
+      // STEP 2: SETELAH FULLY CLOSE (450ms), BARU GANTI PAGE
+      transitionTimeoutRef.current = setTimeout(() => {
+        setPhase("COVERED");
+        const dest = targetUrlRef.current || url;
+        nextRouter.push(dest);
+      }, SPLASH_CLOSE_DURATION * 1000);
     },
-    [],
+    [phase, nextRouter, registerBlocker],
   );
-
-  const removeBlocker = useCallback(
-    (id: string) => {
-      setBlockers((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-    },
-    [],
-  );
-
-  // STEP 1: TUTUP DULU (550ms) -> STEP 2: GANTI (router.push) -> STAY COVERED UNTIL DATA IS LOADED (blockers.size === 0)
-  const startNavigationSequence =
-    useCallback(
-      (url: string) => {
-        const currentPath = window.location.pathname;
-        const fullCurrentUrl =
-          currentPath +
-          window.location.search;
-        if (url === fullCurrentUrl) return;
-
-        const targetPath = url.split("?")[0];
-        // 1. Skip splash screen if navigating to exact same pathname (e.g. query filter)
-        if (targetPath === currentPath) {
-          router.push(url);
-          return;
-        }
-
-        // 2. Skip splash screen for in-app Hub tab switching (/hub, /hub/calendar, /hub/store, /hub/orders)
-        if (isInternalHubRoute(currentPath, url)) {
-          router.push(url);
-          return;
-        }
-
-        clearPendingTimeout();
-        // Lock navigation immediately BEFORE animation starts so blockers.size is NEVER 0 during transition
-        registerBlocker("nav-lock");
-
-        // 1. TUTUP DULU: Animate splash screen hole to r=0 (solid white screen + logo)
-        setPhase("CLOSING");
-
-        // 2. GANTI: At 550ms, screen is 100% solid white. NOW swap route in DOM.
-        transitionTimeoutRef.current =
-          setTimeout(() => {
-            setPhase("COVERED");
-            router.push(url);
-            // Guaranteed release of nav-lock after route swap initiation
-            setTimeout(() => {
-              removeBlocker("nav-lock");
-            }, 180);
-          }, 550);
-      },
-      [
-        router,
-        registerBlocker,
-        removeBlocker,
-      ],
-    );
 
   const navigateTo = useCallback(
     (url: string) => {
@@ -144,46 +149,84 @@ export const LoadingProvider = ({
   );
 
   const goBack = useCallback(() => {
+    if (phase === "CLOSING" || phase === "COVERED") return;
     clearPendingTimeout();
-    registerBlocker("nav-lock");
+    targetPathRef.current = null;
+    registerBlocker("nav-transition");
     setPhase("CLOSING");
+
     transitionTimeoutRef.current = setTimeout(() => {
       setPhase("COVERED");
       if (typeof window !== "undefined" && window.history.length > 1) {
-        router.back();
+        nextRouter.back();
       } else {
-        router.push("/market");
+        nextRouter.push("/market");
       }
-      // Guaranteed release of nav-lock after route swap initiation
+    }, SPLASH_CLOSE_DURATION * 1000);
+  }, [phase, nextRouter, registerBlocker]);
+
+  const triggerTransition = useCallback(() => {
+    clearPendingTimeout();
+    registerBlocker("nav-transition");
+    setPhase("CLOSING");
+    transitionTimeoutRef.current = setTimeout(() => {
+      setPhase("COVERED");
       setTimeout(() => {
-        removeBlocker("nav-lock");
-      }, 180);
-    }, 550);
-  }, [router, registerBlocker, removeBlocker]);
+        removeBlocker("nav-transition");
+      }, SPLASH_SETTLE_MS);
+    }, SPLASH_CLOSE_DURATION * 1000);
+  }, [registerBlocker, removeBlocker]);
 
-  const triggerTransition =
-    useCallback(() => {
-      clearPendingTimeout();
-      registerBlocker("nav-lock");
-      setPhase("CLOSING");
-      transitionTimeoutRef.current =
-        setTimeout(() => {
-          setPhase("COVERED");
-          setTimeout(() => {
-            removeBlocker("nav-lock");
-          }, 180);
-        }, 550);
-    }, [registerBlocker, removeBlocker]);
-
-  // Initial mount: Release initial nav-lock after mount tick
+  // Initial app load: release initial lock once mounted
   useEffect(() => {
     const timer = setTimeout(() => {
-      removeBlocker("nav-lock");
-    }, 150);
+      removeBlocker("nav-initial");
+    }, 200);
     return () => clearTimeout(timer);
   }, [removeBlocker]);
 
-  // Failsafe Watchdog: under NO circumstances should the screen be stuck in COVERED or CLOSING for > 2.5s
+  // STEP 2 (continuation): When pathname changes while COVERED, wait for DOM & initial data settle
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+
+    if (phase === "COVERED") {
+      // If we are waiting for a specific destination path, hold until pathname matches
+      if (targetPathRef.current && pathname !== targetPathRef.current) {
+        return;
+      }
+
+      const timer = setTimeout(() => {
+        targetPathRef.current = null;
+        removeBlocker("nav-transition");
+      }, SPLASH_SETTLE_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, phase, removeBlocker]);
+
+  // STEP 3: SETELAH SELESAI LOAD (blockers.size === 0), BARU DI BUKA
+  useEffect(() => {
+    if (
+      (phase === "INITIAL" || phase === "COVERED") &&
+      blockers.size === 0
+    ) {
+      clearPendingTimeout();
+      // Brief 60ms paint tick so the browser paints the real UI under the solid cover
+      transitionTimeoutRef.current = setTimeout(() => {
+        setPhase("OPENING");
+        transitionTimeoutRef.current = setTimeout(() => {
+          setPhase("IDLE");
+          targetUrlRef.current = null;
+        }, SPLASH_OPEN_DURATION * 1000);
+      }, 60);
+
+      return () => clearPendingTimeout();
+    }
+  }, [phase, blockers.size]);
+
+  // Failsafe Watchdog: Under no circumstances should the screen be stuck covered for > 3.0s
   useEffect(() => {
     if (phase === "CLOSING" || phase === "COVERED") {
       const watchdog = setTimeout(() => {
@@ -191,24 +234,23 @@ export const LoadingProvider = ({
         setPhase("OPENING");
         setTimeout(() => {
           setPhase("IDLE");
-        }, 950);
-      }, 2500);
+          targetUrlRef.current = null;
+        }, SPLASH_OPEN_DURATION * 1000);
+      }, 3000);
       return () => clearTimeout(watchdog);
     }
   }, [phase]);
 
-  // Browser Back/Forward (popstate):
-  // Native browser back is managed by the browser engine (instant bfcache/DOM swap).
-  // If a transition was pending or active, gracefully open and clear locks so it NEVER hangs.
+  // Browser Back/Forward (popstate)
   useEffect(() => {
     const handlePopState = () => {
       clearPendingTimeout();
-      removeBlocker("nav-lock");
+      removeBlocker("nav-transition");
       if (phase === "CLOSING" || phase === "COVERED") {
         setPhase("OPENING");
         setTimeout(() => {
           setPhase("IDLE");
-        }, 950);
+        }, SPLASH_OPEN_DURATION * 1000);
       }
     };
 
@@ -216,39 +258,20 @@ export const LoadingProvider = ({
     return () => window.removeEventListener("popstate", handlePopState);
   }, [phase, removeBlocker]);
 
-  // Release nav-lock when Next.js DOM route swap has completed (pathname changed)
-  useEffect(() => {
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
-      return;
-    }
-
-    if (
-      phase === "COVERED" ||
-      phase === "CLOSING"
-    ) {
-      const timer = setTimeout(() => {
-        removeBlocker("nav-lock");
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [pathname, phase, removeBlocker]);
-
-  // Global Click Interceptor: Catch link & navigate clicks BEFORE Next.js page swap
+  // Global Click Interceptor: Catch all internal link clicks before Next.js swaps the page
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (
         e.metaKey ||
         e.ctrlKey ||
         e.shiftKey ||
-        e.altKey
+        e.altKey ||
+        e.button !== 0
       )
         return;
 
       // Check for back button triggers first
-      const backTarget = (
-        e.target as HTMLElement
-      ).closest(
+      const backTarget = (e.target as HTMLElement).closest(
         "[data-back], [data-navigate='back'], [data-navigate-back], [data-action='back']",
       );
       if (backTarget) {
@@ -258,22 +281,17 @@ export const LoadingProvider = ({
         return;
       }
 
-      const target = (
-        e.target as HTMLElement
-      ).closest(
-        "a, [data-navigate], [href]",
+      const target = (e.target as HTMLElement).closest(
+        "a[href], [data-navigate], [data-href]",
       );
       if (!target) return;
 
-      if (
-        target.getAttribute("target") ===
-        "_blank"
-      )
-        return;
+      if (target.getAttribute("target") === "_blank") return;
 
       const href =
         target.getAttribute("href") ||
-        target.getAttribute("data-navigate");
+        target.getAttribute("data-navigate") ||
+        target.getAttribute("data-href");
       if (!href) return;
 
       if (
@@ -283,12 +301,8 @@ export const LoadingProvider = ({
         !href.startsWith("tel:")
       ) {
         const fullCurrentUrl =
-          window.location.pathname +
-          window.location.search;
+          window.location.pathname + window.location.search;
         if (href !== fullCurrentUrl) {
-          if (isInternalHubRoute(window.location.pathname, href)) {
-            return; // Allow Next.js native smooth tab navigation without splash screen interceptor
-          }
           e.preventDefault();
           e.stopPropagation();
           startNavigationSequence(href);
@@ -296,46 +310,26 @@ export const LoadingProvider = ({
       }
     };
 
-    document.addEventListener(
-      "click",
-      handleClick,
-      {
-        capture: true,
-      },
-    );
+    document.addEventListener("click", handleClick, { capture: true });
     return () =>
-      document.removeEventListener(
-        "click",
-        handleClick,
-        {
-          capture: true,
-        },
-      );
+      document.removeEventListener("click", handleClick, { capture: true });
   }, [startNavigationSequence, goBack]);
-
-  // STEP 3: BARU BUKA -> ONLY OPEN Splash Screen WHEN ALL DATA IS 100% LOADED (blockers.size === 0)
-  useEffect(() => {
-    if (
-      (phase === "INITIAL" ||
-        phase === "COVERED") &&
-      blockers.size === 0
-    ) {
-      clearPendingTimeout();
-      // 80ms tick allows React DOM to paint the real UI underneath the white splash cover
-      transitionTimeoutRef.current =
-        setTimeout(() => {
-          setPhase("OPENING");
-          transitionTimeoutRef.current =
-            setTimeout(() => {
-              setPhase("IDLE");
-            }, 950);
-        }, 80);
-      return () => clearPendingTimeout();
-    }
-  }, [phase, blockers.size]);
 
   const isGlobalReady = phase === "IDLE";
   const isTransitioning = phase !== "IDLE";
+
+  const appRouter = useMemo(
+    () => ({
+      ...nextRouter,
+      push: (url: string, _options?: any) => navigateTo(url),
+      replace: (url: string, _options?: any) => navigateTo(url),
+      back: () => goBack(),
+      forward: () => nextRouter.forward(),
+      refresh: () => nextRouter.refresh(),
+      prefetch: (url: string, options?: any) => nextRouter.prefetch(url, options),
+    }),
+    [nextRouter, navigateTo, goBack],
+  );
 
   return (
     <LoadingContext.Provider
@@ -348,6 +342,7 @@ export const LoadingProvider = ({
         goBack,
         registerBlocker,
         removeBlocker,
+        router: appRouter,
       }}
     >
       {children}
@@ -355,29 +350,19 @@ export const LoadingProvider = ({
   );
 };
 
-export const useGlobalLoading = () =>
-  useContext(LoadingContext);
+export const useGlobalLoading = () => useContext(LoadingContext);
 
-// Custom hook for pages to signal when they are done fetching data
-export const usePageLoading = (
-  isLoading: boolean = false,
-) => {
-  const {
-    registerBlocker,
-    removeBlocker,
-    isTransitioning,
-  } = useGlobalLoading();
-  const pathname = usePathname();
+// Custom hook to replace useRouter for seamless splash transitions
+export const useAppRouter = () => {
+  const { router } = useGlobalLoading();
+  return router;
+};
+
+// Custom hook for pages to signal when their async data has finished loading
+export const usePageLoading = (isLoading: boolean = false) => {
+  const { registerBlocker, removeBlocker } = useGlobalLoading();
 
   useEffect(() => {
-    if (
-      pathname?.startsWith("/hub") &&
-      !pathname?.includes("/intelligence") &&
-      !isTransitioning
-    ) {
-      return;
-    }
-
     const id = "page-load";
     if (isLoading) {
       registerBlocker(id);
@@ -387,11 +372,5 @@ export const usePageLoading = (
     } else {
       removeBlocker(id);
     }
-  }, [
-    isLoading,
-    pathname,
-    isTransitioning,
-    registerBlocker,
-    removeBlocker,
-  ]);
+  }, [isLoading, registerBlocker, removeBlocker]);
 };

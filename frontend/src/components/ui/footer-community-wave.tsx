@@ -104,7 +104,7 @@ export function FooterCommunityWave({
             />
           </Link>
 
-          {/* 2. Made by UCCD-ArgentinaJuara for Veternity Beraksi 2026 */}
+          {/* 2. Made by UCCD_PakTonyPastiBangga for Veternity Beraksi 2026 */}
           <p
             className={`text-xs sm:text-sm font-medium ${subtextColor} tracking-wide`}
             style={{
@@ -119,7 +119,7 @@ export function FooterCommunityWave({
               rel="noreferrer"
               className={`${linkTextMain} font-bold underline transition-colors`}
             >
-              UCCD-ArgentinaJuara
+              UCCD_PakTonyPastiBangga
             </a>{" "}
             for{" "}
             <a

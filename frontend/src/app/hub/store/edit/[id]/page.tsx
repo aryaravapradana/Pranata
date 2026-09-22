@@ -2,10 +2,10 @@
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import {
-  useRouter,
   useParams,
   useSearchParams,
 } from "next/navigation";
+import { useAppRouter as useRouter } from "@/components/shared/loading-context";
 import {
   ArrowLeft,
   Sparkles,

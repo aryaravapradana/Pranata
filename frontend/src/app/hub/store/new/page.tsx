@@ -1,7 +1,8 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useAppRouter as useRouter } from "@/components/shared/loading-context";
 import {
   ArrowLeft,
   Sparkles,

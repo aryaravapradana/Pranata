@@ -29,8 +29,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   usePageLoading,
   useGlobalLoading,
+  useAppRouter as useRouter,
 } from "@/components/shared/loading-context";
-import { useRouter } from "next/navigation";
 
 const API_BASE = getApiBaseUrl();
 

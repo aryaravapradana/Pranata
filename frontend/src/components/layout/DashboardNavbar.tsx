@@ -6,10 +6,8 @@ import React, {
   useEffect,
 } from "react";
 import Link from "next/link";
-import {
-  usePathname,
-  useRouter,
-} from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useAppRouter as useRouter } from "@/components/shared/loading-context";
 import { motion } from "framer-motion";
 
 import {

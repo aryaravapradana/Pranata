@@ -3,6 +3,7 @@ import prisma from "../config/prisma";
 import { z } from "zod";
 import {
   getCache,
+  getStaleCache,
   setCache,
   flushCache,
 } from "../utils/cache";
@@ -106,13 +107,22 @@ export const getAllProducts = async (
 
     return res.json(result);
   } catch (error) {
-    logger.error(
-      "Database unreachable, serving high-resilience marketplace fallback products",
+    logger.warn(
+      "Database unreachable, serving high-resilience stale cache or marketplace fallback products",
       error,
     );
-    // Gracefully serve fallback catalog so Marketplace and AI Copilot never break
     const page = Math.max(1, parseInt(String(req.query.page)) || 1);
     const limit = Math.min(50, parseInt(String(req.query.limit)) || 20);
+    const search = (String(req.query.search || "")).toLowerCase().trim();
+    const category = String(req.query.category || "ALL");
+    const sortBy = String(req.query.sortBy || "latest");
+    const featuredOnly = String(req.query.featured || "") === "true";
+    const isSponsoredOnly = String(req.query.sponsored || "") === "true";
+    const cacheKey = `products_${page}_${limit}_${search}_${category}_${sortBy}_${featuredOnly}_${isSponsoredOnly}`;
+    const stale = getStaleCache<any>(cacheKey);
+    if (stale) return res.json(stale);
+
+    // Gracefully serve fallback catalog so Marketplace and AI Copilot never break
     const skip = (page - 1) * limit;
     const paginated = FALLBACK_PRODUCTS.slice(skip, skip + limit);
 
@@ -144,8 +154,17 @@ export const toggleSponsoredProduct = async (
 
     const nextState = !product.isSponsored;
 
-    // If activating sponsor, untoggle any other sponsored products for this seller (max 1 active sponsor)
     if (nextState) {
+      const user = await prisma.profile.findUnique({
+        where: { id: sellerId },
+        select: { subscriptionTier: true },
+      });
+      const isSellerPlus = user?.subscriptionTier === "SELLER_PLUS" || user?.subscriptionTier === "PLUS";
+      if (!isSellerPlus) {
+        return res.status(403).json({ error: "Fitur Promosi Produk Teratas hanya tersedia untuk Membership Seller Plus" });
+      }
+
+      // If activating sponsor, untoggle any other sponsored products for this seller (max 1 active sponsor)
       await prisma.product.updateMany({
         where: { sellerId, isSponsored: true },
         data: { isSponsored: false },
@@ -224,16 +243,30 @@ export const getSellerProducts = async (
     setCache(cacheKey, result, 60);
     return res.json(result);
   } catch (error) {
-    console.error(
-      "[getSellerProducts]",
+    logger.warn(
+      "[getSellerProducts] Database unreachable, checking stale cache or fallback:",
       error,
     );
-    return res
-      .status(500)
-      .json({
-        error:
-          "Gagal mengambil produk seller",
-      });
+    const sellerId = String(req.params.id);
+    const page = Math.max(1, parseInt(String(req.query.page)) || 1);
+    const limit = Math.min(500, parseInt(String(req.query.limit)) || 20);
+    const cacheKey = `seller_products_${sellerId}_${page}_${limit}`;
+    const stale = getStaleCache<any>(cacheKey);
+    if (stale) return res.json(stale);
+
+    // Fallback products filtered for seller or sample catalog
+    const sellerFallback = FALLBACK_PRODUCTS.filter(
+      (p) => p.sellerId === sellerId || p.seller?.id === sellerId
+    );
+    const fallbackList = sellerFallback.length > 0 ? sellerFallback : FALLBACK_PRODUCTS.slice(0, 4);
+
+    return res.json({
+      data: fallbackList,
+      total: fallbackList.length,
+      page,
+      limit,
+      totalPages: 1,
+    });
   }
 };
 
@@ -291,9 +324,13 @@ export const getProductById = async (
     setCache(cacheKey, product, 60);
     return res.json(product);
   } catch (error) {
-    console.error("[getProductById] DB error, checking fallback catalog:", error);
+    logger.warn("[getProductById] DB error, checking stale cache or fallback catalog:", error);
     const id = String(req.params.id);
-    const fallbackProd = FALLBACK_PRODUCTS.find((p) => p.id === id);
+    const cacheKey = `product_detail_${id}`;
+    const stale = getStaleCache<any>(cacheKey);
+    if (stale) return res.json(stale);
+
+    const fallbackProd = FALLBACK_PRODUCTS.find((p) => p.id === id) || FALLBACK_PRODUCTS[0];
     if (fallbackProd) {
       return res.json(fallbackProd);
     }

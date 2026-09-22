@@ -28,7 +28,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useAppRouter as useRouter } from "@/components/shared/loading-context";
 import { UpgradePlusModal } from "@/components/modals/UpgradePlusModal";
 import { PlusBadge } from "@/components/ui/plus-badge";
 import { Lock, Crown, CheckCircle2, TrendingUp, Utensils, ShoppingCart } from "lucide-react";
@@ -450,7 +450,7 @@ export default function StandaloneIntelligencePage() {
     profile?.farmName ||
     "Peternak";
 
-  const isPlus = profile?.subscriptionTier === "PLUS";
+  const isPlus = Boolean(profile?.subscriptionTier && profile.subscriptionTier !== "FREE");
 
   const refreshProfile = async () => {
     const sessionStr =
@@ -1599,6 +1599,7 @@ export default function StandaloneIntelligencePage() {
       <UpgradePlusModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
+        initialPlan={profile?.role === "PRODUCER" ? "seller" : "customer"}
         onSuccess={() => {
           refreshProfile();
         }}

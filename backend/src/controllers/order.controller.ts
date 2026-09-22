@@ -108,9 +108,9 @@ export const checkout = async (
   const takeRateFee = Math.round(itemsSubtotal * 0.035);
   const sellerNetPayout = itemsSubtotal - takeRateFee;
 
-  // Buyer protection fee: Rp 0 if paying with Pranata Pay (promo), otherwise Rp 2.000
+  // Buyer protection fee: Rp 0 if paying with Pranata Pay (promo), otherwise Rp 2.500
   const isPranataPay = paymentMethod === "pranata_pay";
-  const buyerProtectionFee = isPranataPay ? 0 : 2000;
+  const buyerProtectionFee = isPranataPay ? 0 : 2500;
 
   const totalAmount =
     itemsSubtotal +

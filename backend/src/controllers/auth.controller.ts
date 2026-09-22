@@ -75,12 +75,17 @@ export const register = async (
     role,
     livestockTypes,
   } = parse.data;
+  const cleanUsername = username.toLowerCase().trim();
 
   try {
-    const existing =
-      await prisma.profile.findUnique({
-        where: { username },
-      });
+    const existing = await prisma.profile.findFirst({
+      where: {
+        OR: [
+          { username: cleanUsername },
+          { username: { equals: cleanUsername, mode: "insensitive" } },
+        ],
+      },
+    });
     if (existing)
       return res
         .status(400)
@@ -95,7 +100,7 @@ export const register = async (
     const profile =
       await prisma.profile.create({
         data: {
-          username,
+          username: cleanUsername,
           password: hashedPassword,
           fullName,
           role,
@@ -137,43 +142,48 @@ export const login = async (
       });
   }
   const { username, password } = parse.data;
+  const cleanInput = (username || "").trim();
+  const normalized = cleanInput.toLowerCase();
 
   try {
-    const profile =
-      await prisma.profile.findUnique({
-        where: { username },
+    // Robust lookup: support case-insensitive username or email, trimmed
+    const profile = await prisma.profile.findFirst({
+      where: {
+        OR: [
+          { username: normalized },
+          { username: cleanInput },
+          { username: { equals: normalized, mode: "insensitive" } },
+          { email: { equals: normalized, mode: "insensitive" } },
+        ],
+      },
+    });
+
+    if (!profile) {
+      return res.status(401).json({
+        error: "Username atau password salah",
       });
-    if (!profile)
-      return res
-        .status(401)
-        .json({
-          error:
-            "Username atau password salah",
-        });
+    }
 
     const isMatch = await bcrypt.compare(
       password,
       profile.password,
     );
-    if (!isMatch)
-      return res
-        .status(401)
-        .json({
-          error:
-            "Username atau password salah",
-        });
+    if (!isMatch) {
+      return res.status(401).json({
+        error: "Username atau password salah",
+      });
+    }
 
     const token = signToken(profile);
-    const { password: _, ...safeProfile } =
-      profile;
+    const { password: _, ...safeProfile } = profile;
     return res.json({
       ...safeProfile,
       token,
     });
-  } catch (error) {
-    console.error("[login]", error);
-    return res
-      .status(500)
-      .json({ error: "Login gagal" });
+  } catch (error: any) {
+    console.error("[login error]:", error?.message || error);
+    return res.status(503).json({
+      error: "Koneksi database sedang sibuk atau memuat ulang. Silakan coba kembali sesaat lagi.",
+    });
   }
 };

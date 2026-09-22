@@ -51,8 +51,8 @@ import {
 import {
   usePageLoading,
   useGlobalLoading,
+  useAppRouter as useRouter,
 } from "@/components/shared/loading-context";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 import { PranataPayModal } from "@/components/modals/PranataPayModal";
@@ -364,7 +364,7 @@ const ProductCard = memo(
                 <div className={`flex items-center gap-1 mt-1 text-[10px] font-medium truncate ${cartQty > 0 ? "text-white/90" : "text-[#5A635B]"}`}>
                   <Store size={10} className="shrink-0" />
                   <span className="truncate">{p.seller.farmName || p.seller.fullName || p.seller.username}</span>
-                  {p.seller.subscriptionTier === "PLUS" && (
+                  {p.seller.subscriptionTier && p.seller.subscriptionTier !== "FREE" && (
                     <PlusBadge
                       variant={cartQty > 0 ? "white" : "black"}
                       size="xs"
@@ -835,6 +835,7 @@ export default function MarketplacePage() {
       localStorage.getItem("pranata_session") ||
       localStorage.getItem("farmpro_session");
     if (!sessionStr) {
+      if (!silent) setLoading(false);
       if (!silent) router.push("/login");
       return;
     }
@@ -1160,7 +1161,7 @@ export default function MarketplacePage() {
                     className="h-6 sm:h-7 w-auto object-contain"
                   />
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  {profile?.subscriptionTier === "PLUS" ? (
+                  {profile?.subscriptionTier && profile.subscriptionTier !== "FREE" ? (
                     <PlusBadge
                       variant="white"
                       size="sm"
@@ -1247,13 +1248,13 @@ export default function MarketplacePage() {
                 className={cn(
                   "hidden lg:flex items-center justify-center gap-1.5",
                   "py-2 px-3.5 rounded-full",
-                  profile?.subscriptionTier === "PLUS"
+                  Boolean(profile?.subscriptionTier && profile.subscriptionTier !== "FREE")
                     ? "bg-[#1C2E24] border border-[#D4AF37]/60 text-white"
                     : "bg-linear-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37] text-[#1C2E24] shadow-[0_6px_16px_-6px_rgba(212,175,55,0.4)] hover:brightness-105",
                   "font-bold text-xs transition-all duration-200 transform-gpu hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
                 )}
               >
-                {profile?.subscriptionTier === "PLUS" ? (
+                {Boolean(profile?.subscriptionTier && profile.subscriptionTier !== "FREE") ? (
                   <PlusBadge
                     variant="white"
                     size="md"
@@ -1623,6 +1624,7 @@ export default function MarketplacePage() {
       <UpgradePlusModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
+        initialPlan={profile?.role === "PRODUCER" ? "seller" : "customer"}
         onSuccess={() => {
           loadData(true);
         }}

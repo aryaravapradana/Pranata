@@ -263,9 +263,9 @@ export function PranataPayModal({
           {
             id: `tx-${Date.now()}`,
             type: "TOPUP",
-            amount: amount + 1500,
+            amount: amount + 2500,
             netAmount: amount,
-            fee: 1500,
+            fee: 2500,
             description: `Top-up Saldo (${(TOPUP_METHODS.find((m) => m.id === topUpMethod) || TOPUP_METHODS[0]).name})`,
             createdAt: new Date().toISOString(),
           },
@@ -280,7 +280,7 @@ export function PranataPayModal({
         title: "Top-Up Saldo Berhasil!",
         message: `Saldo sebesar Rp ${amount.toLocaleString("id-ID")} telah berhasil ditambahkan ke akun Pranata Pay Anda.`,
         amount,
-        fee: 1500,
+        fee: 2500,
         paymentMethodOrBank: (TOPUP_METHODS.find((m) => m.id === topUpMethod) || TOPUP_METHODS[0]).name,
         transactionId: `TOP-${Date.now().toString().slice(-8)}`,
         timestamp: new Date().toLocaleDateString("id-ID", {
@@ -309,9 +309,9 @@ export function PranataPayModal({
           {
             id: `tx-${Date.now()}`,
             type: "TOPUP",
-            amount: amount + 1500,
+            amount: amount + 2500,
             netAmount: amount,
-            fee: 1500,
+            fee: 2500,
             description: `Top-up Saldo (${(TOPUP_METHODS.find((m) => m.id === topUpMethod) || TOPUP_METHODS[0]).name})`,
             createdAt: new Date().toISOString(),
           },
@@ -326,7 +326,7 @@ export function PranataPayModal({
         title: "Top-Up Saldo Berhasil!",
         message: `Saldo sebesar Rp ${amount.toLocaleString("id-ID")} telah berhasil ditambahkan ke akun Pranata Pay Anda.`,
         amount,
-        fee: 1500,
+        fee: 2500,
         paymentMethodOrBank: (TOPUP_METHODS.find((m) => m.id === topUpMethod) || TOPUP_METHODS[0]).name,
         transactionId: `TOP-${Date.now().toString().slice(-8)}`,
         timestamp: new Date().toLocaleDateString("id-ID", {
@@ -842,12 +842,12 @@ export function PranataPayModal({
                           </div>
                           <div className="flex justify-between text-[#5A635B]">
                             <span>Biaya Admin:</span>
-                            <span className="font-bold text-[#2B4C3B]">Rp 1.500</span>
+                            <span className="font-bold text-[#2B4C3B]">Rp 2.500</span>
                           </div>
                           <div className="border-t border-[#E8E3D2] pt-2 flex justify-between font-extrabold text-sm sm:text-base text-[#1C241E]">
                             <span>Total Tagihan:</span>
                             <span className="text-[#2B4C3B]">
-                              Rp {((customAmount ? parseInt(customAmount) || 0 : topUpAmount) + 1500).toLocaleString("id-ID")}
+                              Rp {((customAmount ? parseInt(customAmount) || 0 : topUpAmount) + 2500).toLocaleString("id-ID")}
                             </span>
                           </div>
                         </div>
@@ -1072,12 +1072,12 @@ export function PranataPayModal({
                     </div>
                     <div className="flex justify-between text-[#5A635B]">
                       <span>Biaya Admin:</span>
-                      <span className="font-bold text-[#2B4C3B]">Rp 1.500</span>
+                      <span className="font-bold text-[#2B4C3B]">Rp 2.500</span>
                     </div>
                     <div className="border-t border-[#E8E3D2] pt-2.5 flex justify-between items-center font-extrabold text-sm sm:text-base text-[#1C241E]">
                       <span>Total Pembayaran:</span>
                       <span className="text-base sm:text-lg font-black text-[#2B4C3B]">
-                        Rp {((customAmount ? parseInt(customAmount) || 0 : topUpAmount) + 1500).toLocaleString("id-ID")}
+                        Rp {((customAmount ? parseInt(customAmount) || 0 : topUpAmount) + 2500).toLocaleString("id-ID")}
                       </span>
                     </div>
                   </div>

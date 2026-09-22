@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { getCache, setCache, delCache } from "../utils/cache";
+import { getCache, getStaleCache, setCache, delCache } from "../utils/cache";
 
 export const upgradeToSeller = async (
   req: Request,
@@ -131,12 +131,12 @@ export const getProfile = async (
   req: Request,
   res: Response,
 ) => {
-  try {
-    const id = req.params.id as string;
-    const cacheKey = `profile_${id}`;
-    const cached = getCache<any>(cacheKey);
-    if (cached) return res.json(cached);
+  const id = req.params.id as string;
+  const cacheKey = `profile_${id}`;
+  const cached = getCache<any>(cacheKey);
+  if (cached) return res.json(cached);
 
+  try {
     const profile =
       await prisma.profile.findUnique({
         where: { id },
@@ -152,6 +152,8 @@ export const getProfile = async (
           avatarUrl: true,
           bannerUrl: true,
           livestockTypes: true,
+          subscriptionTier: true,
+          walletBalance: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -166,10 +168,14 @@ export const getProfile = async (
     setCache(cacheKey, profile, 120);
     return res.json(profile);
   } catch (error) {
+    const stale = getStaleCache<any>(cacheKey);
+    if (stale) {
+      return res.json(stale);
+    }
     return res
       .status(500)
       .json({
-        error: "Failed to fetch profile",
+        error: "Gagal mengambil data profil",
       });
   }
 };
@@ -284,23 +290,28 @@ export const getSellerEvents = async (
   req: Request,
   res: Response,
 ) => {
+  const sellerId = req.params.sellerId as string;
+  const cacheKey = `seller_events_${sellerId}`;
+  const cached = getCache<any[]>(cacheKey);
+  if (cached) return res.json(cached);
+
   try {
-    const sellerId = req.params
-      .sellerId as string;
     const events =
       await prisma.sellerEvent.findMany({
         where: { sellerId },
         orderBy: { eventDate: "asc" },
       });
-    res.json(events);
+    setCache(cacheKey, events, 60);
+    return res.json(events);
   } catch (error: any) {
-    console.error(
-      "getSellerEvents error:",
-      error?.code,
-      error?.message,
+    console.warn(
+      "getSellerEvents DB drop, checking stale cache:",
+      error?.code || error?.message,
     );
-    // Return empty array so frontend does not crash
-    res.json([]);
+    const stale = getStaleCache<any[]>(cacheKey);
+    if (stale) return res.json(stale);
+    // Return empty array so frontend calendar never crashes
+    return res.json([]);
   }
 };
 

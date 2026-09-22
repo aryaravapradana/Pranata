@@ -13,7 +13,7 @@ import {
   Zap,
   ChevronDown,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useAppRouter as useRouter } from "@/components/shared/loading-context";
 import Link from "next/link";
 import {
   motion,
@@ -126,7 +126,7 @@ export default function MarketplaceNavbar({
     };
   }, []);
 
-  const isPlus = profile?.subscriptionTier === "PLUS";
+  const isPlus = Boolean(profile?.subscriptionTier && profile.subscriptionTier !== "FREE");
 
   return (
     <>
@@ -292,6 +292,7 @@ export default function MarketplaceNavbar({
       <UpgradePlusModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
+        initialPlan={profile?.role === "PRODUCER" ? "seller" : "customer"}
         onSuccess={refreshProfile}
       />
     </>

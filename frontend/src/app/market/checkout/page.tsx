@@ -26,8 +26,7 @@ import {
   motion,
   AnimatePresence,
 } from "framer-motion";
-import { usePageLoading, useGlobalLoading } from "@/components/shared/loading-context";
-import { useRouter } from "next/navigation";
+import { usePageLoading, useGlobalLoading, useAppRouter as useRouter } from "@/components/shared/loading-context";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 import { PranataPayModal } from "@/components/modals/PranataPayModal";
 import {
@@ -91,7 +90,7 @@ export default function CheckoutPage() {
   const [
     openPaymentCategory,
     setOpenPaymentCategory,
-  ] = useState<string>("Bank VA Lain (Fee Rp 2.000)");
+  ] = useState<string>("Bank VA Lain (Fee Rp 2.500)");
   const [checkoutError, setCheckoutError] =
     useState<string | null>(null);
   usePageLoading(loading);
@@ -227,7 +226,7 @@ export default function CheckoutPage() {
   const coldChainFee = useColdChain ? 18000 : 0;
   const qcInspectionFee = useQcInspection ? 5000 : 0;
   const isPranataPay = paymentMethod === "pranata_pay";
-  const platformFee = isPranataPay ? 0 : 2000;
+  const platformFee = isPranataPay ? 0 : 2500;
 
   const subtotal = cart.reduce(
     (s, i) =>
@@ -922,7 +921,7 @@ export default function CheckoutPage() {
                           </span>
                         </div>
                         <p className="text-xs text-[#2B4C3B] font-bold mt-1">
-                          Bebas Biaya Layanan (Hemat Rp 2.000) • 1-Klik Bayar
+                          Bebas Biaya Layanan (Hemat Rp 2.500) • 1-Klik Bayar
                         </p>
                       </div>
                     </div>
@@ -962,7 +961,7 @@ export default function CheckoutPage() {
               <div className="space-y-3">
                 {[
                   {
-                    title: "Bank VA Lain (Fee Rp 2.000)",
+                    title: "Bank VA Lain (Fee Rp 2.500)",
                     options: [
                       {
                         label: "BCA VA",
@@ -991,7 +990,7 @@ export default function CheckoutPage() {
                     ],
                   },
                   {
-                    title: "QRIS & E-Money (Fee Rp 2.000)",
+                    title: "QRIS & E-Money (Fee Rp 2.500)",
                     options: [
                       {
                         label: "QRIS All Payment",
@@ -1181,7 +1180,7 @@ export default function CheckoutPage() {
                   "font-extrabold",
                   isPranataPay ? "text-emerald-700" : "text-[#1C241E]"
                 )}>
-                  {isPranataPay ? "Rp 0 (Promo Pay)" : "Rp 2.000"}
+                  {isPranataPay ? "Rp 0 (Promo Pay)" : "Rp 2.500"}
                 </span>
               </div>
 

@@ -21,8 +21,7 @@ import {
   motion,
   AnimatePresence,
 } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { useGlobalLoading } from "@/components/shared/loading-context";
+import { useAppRouter as useRouter, useGlobalLoading } from "@/components/shared/loading-context";
 import Cookies from "js-cookie";
 import { SellerOnboardingModal } from "@/components/modals/SellerOnboardingModal";
 import { PranataPayModal } from "@/components/modals/PranataPayModal";
@@ -96,7 +95,7 @@ export default function UserDropdown({
     window.location.href = "/";
   };
 
-  const isPlus = profile?.subscriptionTier === "PLUS";
+  const isPlus = Boolean(profile?.subscriptionTier && profile.subscriptionTier !== "FREE");
 
   const initials = (
     profile?.fullName ||
@@ -335,6 +334,7 @@ export default function UserDropdown({
       <UpgradePlusModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
+        initialPlan={profile?.role === "PRODUCER" ? "seller" : "customer"}
         onSuccess={() => {
           // Keep state smooth without hard server re-renders
         }}

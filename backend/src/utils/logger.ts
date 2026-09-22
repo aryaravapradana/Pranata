@@ -37,9 +37,18 @@ class Logger {
 
   warn(
     message: string,
+    error?: Error | unknown,
     context?: LogContext,
   ) {
-    this.log("warn", message, context);
+    this.log("warn", message, {
+      ...context,
+      error:
+        error instanceof Error
+          ? error.message
+          : error !== undefined
+            ? String(error)
+            : undefined,
+    });
   }
 
   error(

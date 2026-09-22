@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useAppRouter as useRouter } from "@/components/shared/loading-context";
 import { Loader2 } from "lucide-react";
 
 export default function HubIntelligenceRedirect() {

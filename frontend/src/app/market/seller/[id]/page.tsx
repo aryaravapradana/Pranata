@@ -24,8 +24,8 @@ import { motion } from "framer-motion";
 import {
   usePageLoading,
   useGlobalLoading,
+  useAppRouter as useRouter,
 } from "@/components/shared/loading-context";
-import { useRouter } from "next/navigation";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 import { Footer } from "@/components/layout/Footer";
 import { PlusBadge } from "@/components/ui/plus-badge";
@@ -422,7 +422,7 @@ export default function SellerProfilePage({
             >
               {/* Circular avatar overlapping banner with Plus Halo */}
               <AvatarHalo
-                isPlus={seller.subscriptionTier === "PLUS"}
+                isPlus={Boolean(seller.subscriptionTier && seller.subscriptionTier !== "FREE")}
                 avatarUrl={seller.avatarUrl}
                 name={seller.farmName || seller.fullName}
                 initials={initials}
@@ -444,7 +444,7 @@ export default function SellerProfilePage({
                 {seller.farmName ||
                   seller.fullName}
               </h1>
-              {seller.subscriptionTier === "PLUS" && (
+              {seller.subscriptionTier && seller.subscriptionTier !== "FREE" && (
                 <PlusBadge
                   variant="black"
                   size="sm"

@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useAppRouter as useRouter } from "@/components/shared/loading-context";
 
 export default function RegisterPageRedirect() {
   const router = useRouter();

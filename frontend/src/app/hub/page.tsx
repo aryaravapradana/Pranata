@@ -47,9 +47,8 @@ import {
   motion,
   AnimatePresence,
 } from "framer-motion";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { usePageLoading } from "@/components/shared/loading-context";
+import { useAppRouter as useRouter, usePageLoading } from "@/components/shared/loading-context";
 
 import { SellerOnboardingModal } from "@/components/modals/SellerOnboardingModal";
 import { PranataPayModal } from "@/components/modals/PranataPayModal";
@@ -73,7 +72,7 @@ export default function MainDashboard() {
   const [appliedProcurementId, setAppliedProcurementId] =
     useState<string | null>(null);
 
-  const isPlus = profile?.subscriptionTier === "PLUS";
+  const isPlus = Boolean(profile?.subscriptionTier && profile.subscriptionTier !== "FREE");
 
   // Data States
 
@@ -388,6 +387,7 @@ export default function MainDashboard() {
         "farmpro_session",
       );
     if (!sessionStr) {
+      setIsLoaded(true);
       router.push("/login");
       return;
     }
@@ -2308,6 +2308,7 @@ export default function MainDashboard() {
       <UpgradePlusModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
+        initialPlan="seller"
         onSuccess={() => {
           const sessionStr =
             localStorage.getItem("pranata_session") ||

@@ -12,7 +12,7 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useAppRouter as useRouter } from "@/components/shared/loading-context";
 import {
   Store,
   ShoppingCart,

@@ -16,6 +16,12 @@ import {
   Wallet,
   Sparkles,
   History,
+  ShoppingCart,
+  Store,
+  Utensils,
+  Tag,
+  Snowflake,
+  Award,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchApi, getApiBaseUrl } from "@/lib/apiClient";
@@ -37,12 +43,14 @@ interface UpgradePlusModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  initialPlan?: "customer" | "seller";
 }
 
 export function UpgradePlusModal({
   isOpen,
   onClose,
   onSuccess,
+  initialPlan,
 }: UpgradePlusModalProps) {
   const [mounted, setMounted] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -131,11 +139,31 @@ export function UpgradePlusModal({
     };
   }, [isOpen]);
 
+  const [selectedRoleTier, setSelectedRoleTier] = useState<"customer" | "seller">("customer");
+
+  const isSellerPlan = selectedRoleTier === "seller";
+  const planPrice = isSellerPlan ? 79000 : 39000;
+  const planName = isSellerPlan ? "Pranata Plus Seller" : "Pranata Plus Customer";
+  const planTierCode = isSellerPlan ? "SELLER_PLUS" : "CUSTOMER_PLUS";
   const isPranataPay = paymentMethod === "pranata_pay";
-  const planPrice = 79000;
-  const adminFee = isPranataPay ? 0 : 2000;
+  const adminFee = isPranataPay ? 0 : 2500;
   const grandTotal = planPrice + adminFee;
   const userBalance = sessionData?.walletBalance || 0;
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialPlan) {
+        setSelectedRoleTier(initialPlan);
+      } else {
+        const session = getSession();
+        if (session?.role === "PRODUCER") {
+          setSelectedRoleTier("seller");
+        } else {
+          setSelectedRoleTier("customer");
+        }
+      }
+    }
+  }, [isOpen, initialPlan]);
 
   const getPaymentName = () => {
     if (paymentMethod === "pranata_pay") return "Pranata Pay";
@@ -170,7 +198,7 @@ export function UpgradePlusModal({
       const res = await fetchApi(`${API_BASE}/api/subscription/upgrade`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentMethod }),
+        body: JSON.stringify({ paymentMethod, plan: planTierCode }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -178,7 +206,7 @@ export function UpgradePlusModal({
         setShowCheckoutModal(false);
         const updatedSession = {
           ...session,
-          subscriptionTier: "PLUS",
+          subscriptionTier: planTierCode,
           walletBalance: data.profile?.walletBalance ?? (isPranataPay ? Math.max(0, userBalance - grandTotal) : userBalance),
         };
         localStorage.setItem("pranata_session", JSON.stringify(updatedSession));
@@ -190,8 +218,10 @@ export function UpgradePlusModal({
 
         setTransactionResult({
           status: "success",
-          title: "Upgrade Plus Berhasil!",
-          message: "Selamat! Akun Anda kini aktif sebagai Member Pranata Plus. Seluruh fitur eksklusif Agentic AI, etalase prioritas, dan tender B2B siap digunakan.",
+          title: `Upgrade ${isSellerPlan ? "Seller" : "Customer"} Plus Berhasil!`,
+          message: isSellerPlan
+            ? "Selamat! Akun Anda kini aktif sebagai Member Pranata Plus Seller. Seluruh fitur eksklusif Top Placement etalase, Slot Sponsor, Farm Copilot kandang & FCR, dan tender B2B siap digunakan."
+            : "Selamat! Akun Anda kini aktif sebagai Member Pranata Plus Customer. Nikmati akses unlimited AI Chef & Resep Masak, 1-Click Smart Cart instan, bebas biaya platform Rp 2.500, dan diskon potongan daging siap dinikmati.",
           amount: planPrice,
           fee: adminFee,
           paymentMethod: getPaymentName(),
@@ -208,7 +238,7 @@ export function UpgradePlusModal({
         setShowCheckoutModal(false);
         const updatedSession = {
           ...session,
-          subscriptionTier: "PLUS",
+          subscriptionTier: planTierCode,
           walletBalance: isPranataPay ? Math.max(0, userBalance - grandTotal) : userBalance,
         };
         localStorage.setItem("pranata_session", JSON.stringify(updatedSession));
@@ -220,8 +250,10 @@ export function UpgradePlusModal({
 
         setTransactionResult({
           status: "success",
-          title: "Upgrade Plus Berhasil!",
-          message: "Selamat! Akun Anda kini aktif sebagai Member Pranata Plus. Seluruh fitur eksklusif Agentic AI, etalase prioritas, dan tender B2B siap digunakan.",
+          title: `Upgrade ${isSellerPlan ? "Seller" : "Customer"} Plus Berhasil!`,
+          message: isSellerPlan
+            ? "Selamat! Akun Anda kini aktif sebagai Member Pranata Plus Seller. Seluruh fitur eksklusif Top Placement etalase, Slot Sponsor, Farm Copilot kandang & FCR, dan tender B2B siap digunakan."
+            : "Selamat! Akun Anda kini aktif sebagai Member Pranata Plus Customer. Nikmati akses unlimited AI Chef & Resep Masak, 1-Click Smart Cart instan, bebas biaya platform Rp 2.500, dan diskon potongan daging siap dinikmati.",
           amount: planPrice,
           fee: adminFee,
           paymentMethod: getPaymentName(),
@@ -239,7 +271,7 @@ export function UpgradePlusModal({
       setShowCheckoutModal(false);
       const updatedSession = {
         ...session,
-        subscriptionTier: "PLUS",
+        subscriptionTier: planTierCode,
         walletBalance: isPranataPay ? Math.max(0, userBalance - grandTotal) : userBalance,
       };
       localStorage.setItem("pranata_session", JSON.stringify(updatedSession));
@@ -251,8 +283,10 @@ export function UpgradePlusModal({
 
       setTransactionResult({
         status: "success",
-        title: "Upgrade Plus Berhasil!",
-        message: "Selamat! Akun Anda kini aktif sebagai Member Pranata Plus. Seluruh fitur eksklusif Agentic AI, etalase prioritas, dan tender B2B siap digunakan.",
+        title: `Upgrade ${isSellerPlan ? "Seller" : "Customer"} Plus Berhasil!`,
+        message: isSellerPlan
+          ? "Selamat! Akun Anda kini aktif sebagai Member Pranata Plus Seller. Seluruh fitur eksklusif Top Placement etalase, Slot Sponsor, Farm Copilot kandang & FCR, dan tender B2B siap digunakan."
+          : "Selamat! Akun Anda kini aktif sebagai Member Pranata Plus Customer. Nikmati akses unlimited AI Chef & Resep Masak, 1-Click Smart Cart instan, bebas biaya platform Rp 2.500, dan diskon potongan daging siap dinikmati.",
         amount: planPrice,
         fee: adminFee,
         paymentMethod: getPaymentName(),
@@ -340,11 +374,47 @@ export function UpgradePlusModal({
                     {/* Header Intro Title */}
                     <div className="text-center space-y-3 max-w-2xl mx-auto">
                       <h1 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight">
-                        Tingkatkan Skala Bisnis Peternakan Anda
+                        {isSellerPlan
+                          ? "Tingkatkan Skala Bisnis Peternakan Anda"
+                          : "Belanja Daging Segar & Resep Pintar Keluarga"}
                       </h1>
                       <p className="text-xs sm:text-sm text-white/70 max-w-xl mx-auto leading-relaxed">
-                        Pilih paket yang sesuai untuk mempercepat penjualan ternak, analisis kandang berbasis AI, dan akses tender pasokan B2B.
+                        {isSellerPlan
+                          ? "Pilih paket yang sesuai untuk mempercepat penjualan ternak, analisis kandang berbasis AI, dan akses tender pasokan B2B."
+                          : "Nikmati kemudahan resep masakan pintar keluarga, 1-Click Smart Cart belanja instan, dan bebas biaya layanan di setiap transaksi."}
                       </p>
+                    </div>
+
+                    {/* Plan Selector Tabs (Customer vs Seller) */}
+                    <div className="flex justify-center pt-1">
+                      <div className="inline-flex p-1.5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md shadow-inner gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedRoleTier("customer")}
+                          className={cn(
+                            "px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer",
+                            selectedRoleTier === "customer"
+                              ? "bg-linear-to-r from-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-950/40 scale-[1.02] border border-emerald-400/30"
+                              : "text-white/70 hover:text-white hover:bg-white/5",
+                          )}
+                        >
+                          <ShoppingCart size={16} className="shrink-0" />
+                          <span>Membership Customer (Rp 39.000 / bln)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedRoleTier("seller")}
+                          className={cn(
+                            "px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer",
+                            selectedRoleTier === "seller"
+                              ? "bg-linear-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37] text-[#1C2E24] shadow-lg shadow-amber-950/40 scale-[1.02] border border-amber-300/40 font-black"
+                              : "text-white/70 hover:text-white hover:bg-white/5",
+                          )}
+                        >
+                          <Store size={16} className="shrink-0" />
+                          <span>Membership Seller (Rp 79.000 / bln)</span>
+                        </button>
+                      </div>
                     </div>
 
                     {/* Side-by-Side Comparison Cards (Basic vs Plus) */}
@@ -358,7 +428,7 @@ export function UpgradePlusModal({
                                 Paket Dasar
                               </span>
                               <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">
-                                Pranata Basic
+                                {isSellerPlan ? "Pranata Basic Seller" : "Pranata Basic Customer"}
                               </h3>
                             </div>
                             <span className="px-3 py-1 rounded-full bg-white/10 text-white/80 text-[11px] font-bold border border-white/15">
@@ -371,44 +441,89 @@ export function UpgradePlusModal({
                               Gratis
                             </div>
                             <p className="text-xs text-white/50 mt-1">
-                              Akses standar untuk peternak pemula
+                              {isSellerPlan
+                                ? "Akses standar untuk peternak & pedagang pemula"
+                                : "Akses belanja standar untuk konsumen sehari-hari"}
                             </p>
                           </div>
 
                           {/* Basic Features Checklist */}
                           <div className="space-y-3.5 pt-2 text-xs sm:text-sm">
-                            <div className="flex items-start gap-3 text-white/80">
-                              <CheckCircle2 size={18} className="text-white/40 shrink-0 mt-0.5" />
-                              <span>Listing produk di marketplace umum</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-white/80">
-                              <CheckCircle2 size={18} className="text-white/40 shrink-0 mt-0.5" />
-                              <span>Pencatatan kandang & ternak standar</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-white/80">
-                              <CheckCircle2 size={18} className="text-white/40 shrink-0 mt-0.5" />
-                              <span>Tanya jawab AI umum (tanpa sync data riil)</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-white/40 line-through">
-                              <X size={18} className="text-white/30 shrink-0 mt-0.5" />
-                              <span>Top Placement prioritas teratas di katalog</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-white/40 line-through">
-                              <X size={18} className="text-white/30 shrink-0 mt-0.5" />
-                              <span>Slot Sponsor 1 Produk ke algoritma pembeli</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-white/40 line-through">
-                              <X size={18} className="text-white/30 shrink-0 mt-0.5" />
-                              <span>Akses kirim tender pasokan B2B restoran</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-white/40 line-through">
-                              <X size={18} className="text-white/30 shrink-0 mt-0.5" />
-                              <span>Badge Terpercaya 'Plus Seller'</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-white/40 line-through">
-                              <X size={18} className="text-white/30 shrink-0 mt-0.5" />
-                              <span>Laporan laba rugi P&L otomatis</span>
-                            </div>
+                            {isSellerPlan ? (
+                              <>
+                                <div className="flex items-start gap-3 text-white/80">
+                                  <CheckCircle2 size={18} className="text-white/40 shrink-0 mt-0.5" />
+                                  <span>Listing produk di marketplace umum</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/80">
+                                  <CheckCircle2 size={18} className="text-white/40 shrink-0 mt-0.5" />
+                                  <span>Pencatatan kandang & ternak standar</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/80">
+                                  <CheckCircle2 size={18} className="text-white/40 shrink-0 mt-0.5" />
+                                  <span>Tanya jawab AI umum (tanpa sync data kandang)</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/40 line-through">
+                                  <X size={18} className="text-white/30 shrink-0 mt-0.5" />
+                                  <span>Top Placement prioritas teratas di katalog pasar</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/40 line-through">
+                                  <X size={18} className="text-white/30 shrink-0 mt-0.5" />
+                                  <span>Slot Sponsor 1 Produk ke algoritma pembeli</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/40 line-through">
+                                  <X size={18} className="text-white/30 shrink-0 mt-0.5" />
+                                  <span>Akses kirim tender pasokan B2B restoran</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/40 line-through">
+                                  <X size={18} className="text-white/30 shrink-0 mt-0.5" />
+                                  <span>Badge Terpercaya Emas 'Plus Seller'</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/40 line-through">
+                                  <X size={18} className="text-white/30 shrink-0 mt-0.5" />
+                                  <span>Laporan laba rugi P&L otomatis</span>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="flex items-start gap-3 text-white/80">
+                                  <CheckCircle2 size={18} className="text-white/40 shrink-0 mt-0.5" />
+                                  <span>Akses pencarian katalog produk pasar</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/80">
+                                  <CheckCircle2 size={18} className="text-white/40 shrink-0 mt-0.5" />
+                                  <span>Tanya jawab resep AI umum (terbatas 5x/hari)</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/80">
+                                  <CheckCircle2 size={18} className="text-white/40 shrink-0 mt-0.5" />
+                                  <span>Checkout manual tanpa rekomendasi vendor instan</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/40 line-through">
+                                  <X size={18} className="text-white/30 shrink-0 mt-0.5" />
+                                  <span>1-Click Smart Cart belanja bahan resep instan</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/40 line-through">
+                                  <X size={18} className="text-white/30 shrink-0 mt-0.5" />
+                                  <span>Tanya jawab Agentic AI Chef & Nutrisi tanpa batas</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/40 line-through">
+                                  <X size={18} className="text-white/30 shrink-0 mt-0.5" />
+                                  <span>Bebas Biaya Layanan Platform (Hemat Rp 2.500/transaksi)</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/40 line-through">
+                                  <X size={18} className="text-white/30 shrink-0 mt-0.5" />
+                                  <span>Voucher Diskon & Flash Sale Daging Segar mingguan</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/40 line-through">
+                                  <X size={18} className="text-white/30 shrink-0 mt-0.5" />
+                                  <span>Garansi Kesegaran Rantai Dingin Prioritas (Cold-Chain)</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white/40 line-through">
+                                  <X size={18} className="text-white/30 shrink-0 mt-0.5" />
+                                  <span>Lencana Emas 'Customer Plus' di profil</span>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
 
@@ -419,27 +534,27 @@ export function UpgradePlusModal({
                         </div>
                       </div>
 
-                      {/* PLUS PLAN CARD (HIGHLIGHTED WITH THE SINGLE OFFICIAL PLUS LOGO) */}
+                      {/* PLUS PLAN CARD */}
                       <div className="rounded-3xl bg-linear-to-b from-[#1C3627] via-[#162A1E] to-[#122118] border-2 border-[#D4AF37] p-6 sm:p-8 lg:p-10 flex flex-col justify-between relative shadow-2xl ring-4 ring-[#D4AF37]/20">
                         {/* Recommendation Badge */}
                         <div className="absolute -top-3.5 right-6 px-4 py-1.5 rounded-full bg-linear-to-r from-[#D4AF37] to-[#F3E5AB] text-[#1C2E24] text-[11px] font-black uppercase tracking-wider shadow-md">
-                          ★ Sangat Direkomendasikan
+                          {isSellerPlan ? "★ Sangat Direkomendasikan" : "★ Pilihan Terpopuler Pembeli"}
                         </div>
 
                         <div className="space-y-5">
                           <div className="flex items-center justify-between">
                             <div>
                               <span className="text-xs font-bold uppercase text-[#D4AF37] tracking-wider block mb-1">
-                                Paket Akselerasi Bisnis
+                                {isSellerPlan ? "Paket Akselerasi Bisnis" : "Paket Belanja & Kuliner Pintar"}
                               </span>
                               <div className="flex items-center gap-2.5">
                                 <img
                                   src="/logos/plus/plus-white.webp"
-                                  alt="Pranata Plus"
+                                  alt={planName}
                                   className="h-8 sm:h-10 w-auto object-contain"
                                 />
-                                <span className="px-2 py-0.5 rounded-md bg-[#D4AF37]/25 text-[#F5DEB3] text-[10px] font-black border border-[#D4AF37]/40 tracking-wider">
-                                  PRO
+                                <span className="px-2 py-0.5 rounded-md bg-[#D4AF37]/25 text-[#F5DEB3] text-[10px] font-black border border-[#D4AF37]/40 tracking-wider uppercase">
+                                  {isSellerPlan ? "SELLER PRO" : "CUSTOMER PLUS"}
                                 </span>
                               </div>
                             </div>
@@ -448,43 +563,76 @@ export function UpgradePlusModal({
                           <div className="py-4 border-y border-[#D4AF37]/20">
                             <div className="flex items-baseline gap-1.5">
                               <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-white">
-                                Rp 79.000
+                                Rp {planPrice.toLocaleString("id-ID")}
                               </span>
                               <span className="text-xs sm:text-sm text-[#F5DEB3]/80 font-bold">
                                 / 30 hari
                               </span>
                             </div>
                             <p className="text-xs sm:text-sm text-[#F5DEB3]/70 mt-1">
-                              Semua fitur tanpa batasan & dukungan prioritas
+                              {isSellerPlan
+                                ? "Semua fitur tanpa batasan & akselerasi penjualan"
+                                : "Bebas biaya platform, smart cart & proteksi mutu segar"}
                             </p>
                           </div>
 
                           {/* Plus Features Checklist */}
                           <div className="space-y-3.5 pt-2 text-xs sm:text-sm">
-                            <div className="flex items-start gap-3 text-white font-medium">
-                              <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
-                              <span><strong className="text-[#F5DEB3]">Top Placement Prioritas:</strong> Produk Anda tampil paling atas saat pembeli mencari ternak</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-white font-medium">
-                              <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
-                              <span><strong className="text-[#F5DEB3]">Slot Sponsor 1 Produk:</strong> Promosikan 1 produk andalan langsung ke radar pembeli</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-white font-medium">
-                              <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
-                              <span><strong className="text-[#F5DEB3]">Agentic AI Copilot Terhubung Database:</strong> Analisis riil pakan, panen, margin keuntungan 24/7</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-white font-medium">
-                              <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
-                              <span><strong className="text-[#F5DEB3]">Tender Pasokan B2B:</strong> Ajukan penawaran pasokan rutin ke restoran, hotel & katering</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-white font-medium">
-                              <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
-                              <span><strong className="text-[#F5DEB3]">Badge 'Plus Seller':</strong> Naikkan trust pembeli dan tingkatkan konversi transaksi jualan</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-white font-medium">
-                              <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
-                              <span><strong className="text-[#F5DEB3]">Laporan Finansial P&L Otomatis:</strong> Kalkulasi laba bersih, export pembukuan kas & biaya pakan</span>
-                            </div>
+                            {isSellerPlan ? (
+                              <>
+                                <div className="flex items-start gap-3 text-white font-medium">
+                                  <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                                  <span><strong className="text-[#F5DEB3]">Top Placement Prioritas:</strong> Produk Anda tampil paling atas saat pembeli mencari ternak</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white font-medium">
+                                  <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                                  <span><strong className="text-[#F5DEB3]">Slot Sponsor 1 Produk:</strong> Promosikan 1 produk andalan langsung ke radar pembeli</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white font-medium">
+                                  <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                                  <span><strong className="text-[#F5DEB3]">Agentic AI Copilot Kandang:</strong> Analisis riil pakan, rasio FCR & margin laba 24/7</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white font-medium">
+                                  <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                                  <span><strong className="text-[#F5DEB3]">Tender Pasokan B2B:</strong> Ajukan penawaran pasokan rutin ke restoran, hotel & katering</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white font-medium">
+                                  <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                                  <span><strong className="text-[#F5DEB3]">Badge 'Plus Seller':</strong> Naikkan trust pembeli dan tingkatkan konversi transaksi jualan</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white font-medium">
+                                  <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                                  <span><strong className="text-[#F5DEB3]">Laporan Finansial P&L Otomatis:</strong> Kalkulasi laba bersih, export kas & biaya pakan</span>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="flex items-start gap-3 text-white font-medium">
+                                  <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                                  <span><strong className="text-[#F5DEB3]">1-Click Agentic Smart Cart:</strong> Auto-isi seluruh bahan masakan & potongan segar langsung ke keranjang</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white font-medium">
+                                  <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                                  <span><strong className="text-[#F5DEB3]">Agentic AI Chef 24/7:</strong> Konsultasi resep ternak, hitung porsi keluarga & rekomendasi gizi tanpa batas</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white font-medium">
+                                  <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                                  <span><strong className="text-[#F5DEB3]">Bebas Biaya Layanan Platform:</strong> Bebas admin fee Rp 2.500 di setiap transaksi checkout belanja</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white font-medium">
+                                  <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                                  <span><strong className="text-[#F5DEB3]">Voucher Diskon Eksklusif:</strong> Akses flash sale mingguan untuk karkas, telur omega & susu segar</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white font-medium">
+                                  <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                                  <span><strong className="text-[#F5DEB3]">Garansi Kesegaran Rantai Dingin:</strong> Prioritas kurir thermo-box agar pesanan tiba dalam kesegaran 100%</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-white font-medium">
+                                  <CheckCircle2 size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                                  <span><strong className="text-[#F5DEB3]">Lencana Emas 'Customer Plus':</strong> Badge apresiasi eksklusif di profil akun & ulasan komunitas</span>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
 
@@ -501,7 +649,7 @@ export function UpgradePlusModal({
                               "shadow-xl shadow-[#D4AF37]/25 hover:opacity-95 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98",
                             )}
                           >
-                            <span>Lanjut Pembayaran (Rp 79.000)</span>
+                            <span>Lanjut Pembayaran (Rp {planPrice.toLocaleString("id-ID")})</span>
                             <ArrowRight size={18} />
                           </button>
                         </div>
@@ -544,7 +692,7 @@ export function UpgradePlusModal({
                           Pilih Pembayaran Langganan
                         </h3>
                         <p className="text-[11px] text-[#F5DEB3]">
-                          Paket Pranata Plus (Akses 30 Hari)
+                          Paket {planName} (Akses 30 Hari)
                         </p>
                       </div>
                     </div>
@@ -597,7 +745,7 @@ export function UpgradePlusModal({
                                 </span>
                               </div>
                               <p className="text-[10px] sm:text-[11px] text-[#2B4C3B] font-bold mt-0.5">
-                                Bebas Biaya Layanan (Hemat Rp 2.000) • 1-Klik Bayar
+                                Bebas Biaya Layanan (Hemat Rp 2.500) • 1-Klik Bayar
                               </p>
                             </div>
                           </div>
@@ -643,7 +791,7 @@ export function UpgradePlusModal({
                           className="w-full flex items-center justify-between p-3.5 hover:bg-white/10 transition-colors font-bold text-xs text-white cursor-pointer"
                         >
                           <div className="flex items-center gap-2">
-                            <span>Bank VA (Fee Rp 2.000)</span>
+                            <span>Bank VA (Fee Rp 2.500)</span>
                           </div>
                           {openPaymentCategory === "va" ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </button>
@@ -700,7 +848,7 @@ export function UpgradePlusModal({
                           className="w-full flex items-center justify-between p-3.5 hover:bg-white/10 transition-colors font-bold text-xs text-white cursor-pointer"
                         >
                           <div className="flex items-center gap-2">
-                            <span>E-Wallet & QRIS (Fee Rp 2.000)</span>
+                            <span>E-Wallet & QRIS (Fee Rp 2.500)</span>
                           </div>
                           {openPaymentCategory === "ewallet" ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </button>
@@ -757,13 +905,13 @@ export function UpgradePlusModal({
                         </h4>
                         <div className="space-y-2 pt-1 border-t border-white/10">
                           <div className="flex justify-between text-white/75 font-medium">
-                            <span>Biaya Langganan Plus (30 Hari)</span>
+                            <span>Biaya {planName} (30 Hari)</span>
                             <span className="font-bold text-white">Rp {planPrice.toLocaleString("id-ID")}</span>
                           </div>
                           <div className="flex justify-between text-white/75 font-medium">
                             <span>Biaya Layanan Platform</span>
                             <span className={cn("font-bold", isPranataPay ? "text-emerald-400" : "text-[#F5DEB3]")}>
-                              {isPranataPay ? "Gratis (Hemat Rp 2.000)" : "Rp 2.000"}
+                              {isPranataPay ? "Gratis (Hemat Rp 2.500)" : "Rp 2.500"}
                             </span>
                           </div>
                           <div className="border-t border-white/10 pt-2.5 flex justify-between font-black text-sm sm:text-base text-white">
@@ -940,7 +1088,7 @@ export function UpgradePlusModal({
                       <div className="flex justify-between text-[#5A635B]">
                         <span>Biaya Layanan:</span>
                         <span className="font-bold text-[#2B4C3B]">
-                          {transactionResult.fee === 0 ? "Gratis (Hemat Rp 2.000)" : `Rp ${transactionResult.fee.toLocaleString("id-ID")}`}
+                          {transactionResult.fee === 0 ? "Gratis (Hemat Rp 2.500)" : `Rp ${transactionResult.fee.toLocaleString("id-ID")}`}
                         </span>
                       </div>
 

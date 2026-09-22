@@ -49,11 +49,9 @@ import {
 import {
   usePageLoading,
   useGlobalLoading,
+  useAppRouter as useRouter,
 } from "@/components/shared/loading-context";
-import {
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import MarketplaceNavbar from "@/components/layout/MarketplaceNavbar";
 import { ProductGridSkeleton } from "@/components/ui/skeleton";
 

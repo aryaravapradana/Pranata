@@ -1,6 +1,5 @@
 "use client";
 import { cn } from "@/lib/utils";
-
 import React, {
   useEffect,
   useState,
@@ -9,67 +8,43 @@ import {
   motion,
   AnimatePresence,
 } from "framer-motion";
-import { useGlobalLoading } from "@/components/shared/loading-context";
+import {
+  useGlobalLoading,
+  SPLASH_CLOSE_DURATION,
+  SPLASH_OPEN_DURATION,
+} from "@/components/shared/loading-context";
 import { Loader2 } from "lucide-react";
 
 export function SplashScreen() {
-  const [targetRadius, setTargetRadius] =
-    useState(15000);
-  const { phase, isGlobalReady } =
-    useGlobalLoading();
+  const [targetRadius, setTargetRadius] = useState(15000);
+  const { phase, isGlobalReady } = useGlobalLoading();
 
   useEffect(() => {
     const calculateRadius = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
 
-      const logoWidth = Math.min(
-        w * 0.8,
-        400,
-      );
+      const logoWidth = Math.min(w * 0.8, 400);
       const ratio = logoWidth / 3343;
-      const logoHeight =
-        logoWidth * (994 / 3343);
+      const logoHeight = logoWidth * (994 / 3343);
 
-      const originXPhysical =
-        w / 2 - logoWidth / 2 + 520 * ratio;
-      const originYPhysical =
-        h / 2 - logoHeight / 2 + 497 * ratio;
+      const originXPhysical = w / 2 - logoWidth / 2 + 520 * ratio;
+      const originYPhysical = h / 2 - logoHeight / 2 + 497 * ratio;
 
       const maxCornerDist = Math.max(
-        Math.hypot(
-          originXPhysical,
-          originYPhysical,
-        ),
-        Math.hypot(
-          w - originXPhysical,
-          originYPhysical,
-        ),
-        Math.hypot(
-          originXPhysical,
-          h - originYPhysical,
-        ),
-        Math.hypot(
-          w - originXPhysical,
-          h - originYPhysical,
-        ),
+        Math.hypot(originXPhysical, originYPhysical),
+        Math.hypot(w - originXPhysical, originYPhysical),
+        Math.hypot(originXPhysical, h - originYPhysical),
+        Math.hypot(w - originXPhysical, h - originYPhysical),
       );
 
-      const requiredRadius =
-        maxCornerDist / ratio + 10000;
+      const requiredRadius = maxCornerDist / ratio + 10000;
       setTargetRadius(requiredRadius);
     };
 
     calculateRadius();
-    window.addEventListener(
-      "resize",
-      calculateRadius,
-    );
-    return () =>
-      window.removeEventListener(
-        "resize",
-        calculateRadius,
-      );
+    window.addEventListener("resize", calculateRadius);
+    return () => window.removeEventListener("resize", calculateRadius);
   }, []);
 
   const isClosed =
@@ -77,32 +52,29 @@ export function SplashScreen() {
     phase === "CLOSING" ||
     phase === "COVERED";
 
-  // TUTUP DULU (IN): 0.55s close animation
+  // STEP 1: TUTUP DULU - Smooth & snappy iris close
   const inTransition = {
-    duration: 0.55,
-    ease: [
-      0.65, 0, 0.35, 1,
-    ] as import("framer-motion").Easing,
+    duration: SPLASH_CLOSE_DURATION,
+    ease: [0.65, 0, 0.35, 1] as import("framer-motion").Easing,
   };
 
-  // BARU BUKA (OUT): 0.95s open animation
+  // STEP 3: BARU BUKA - Expansive smooth iris open revealing the loaded page
   const outTransition = {
-    duration: 0.95,
-    ease: [
-      0.85, 0, 0.15, 1,
-    ] as import("framer-motion").Easing,
+    duration: SPLASH_OPEN_DURATION,
+    ease: [0.15, 0.85, 0.35, 1] as import("framer-motion").Easing,
   };
 
   return (
     <div
-      className={`fixed inset-0 z-[99999] transition-opacity duration-300 pointer-events-none ${
+      className={cn(
+        "fixed inset-0 z-[99999]",
         isGlobalReady
-          ? "opacity-0"
-          : "opacity-100"
-      }`}
+          ? "pointer-events-none opacity-0"
+          : "pointer-events-auto opacity-100",
+      )}
       style={{
         contain: "strict",
-        willChange: "opacity, transform",
+        willChange: "transform",
       }}
     >
       <svg className="absolute inset-0 w-full h-full z-0">
@@ -125,17 +97,11 @@ export function SplashScreen() {
                 cx="520"
                 cy="497"
                 fill="black"
-                initial={{ r: 0 }}
+                initial={false}
                 animate={{
-                  r: isClosed
-                    ? 0
-                    : targetRadius || 15000,
+                  r: isClosed ? 0 : targetRadius || 15000,
                 }}
-                transition={
-                  isClosed
-                    ? inTransition
-                    : outTransition
-                }
+                transition={isClosed ? inTransition : outTransition}
               />
             </svg>
           </mask>
@@ -170,13 +136,13 @@ export function SplashScreen() {
             initial={{ opacity: 0 }}
             animate={{
               opacity: 1,
-              transition: { delay: 0.1 },
+              transition: { delay: 0.15 },
             }}
             exit={{ opacity: 0 }}
             className={cn(
               "absolute bottom-12 left-1/2",
               "-translate-x-1/2 flex flex-col",
-              "items-center gap-3 z-10",
+              "items-center gap-3 z-10 pointer-events-none select-none",
             )}
           >
             <Loader2 className="w-8 h-8 text-[#2B4C3B] animate-spin" />
