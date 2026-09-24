@@ -296,6 +296,40 @@ export default function MainDashboard() {
     useState(false);
   usePageLoading(!isLoaded);
 
+  // Compact contextData helper to keep chat request body small (<5KB) and avoid HTTP 413
+  const getCompactContextData = () => ({
+    profile: {
+      id: profile?.id,
+      role: profile?.role,
+      fullName: profile?.fullName,
+      username: profile?.username,
+      farmName: profile?.farmName,
+    },
+    orders: Array.isArray(orders)
+      ? orders.slice(0, 6).map((o: any) => ({
+          status: o.status,
+          totalAmount: o.totalAmount,
+        }))
+      : [],
+    products: Array.isArray(products)
+      ? products.slice(0, 6).map((p: any) => ({
+          title: p.title,
+          price: p.price,
+          stock: p.stock,
+          category: p.category,
+        }))
+      : [],
+    allMarketplaceCount,
+    events: Array.isArray(events)
+      ? events.slice(0, 6).map((e: any) => ({
+          title: e.title,
+          eventDate: e.eventDate,
+          type: e.type,
+        }))
+      : [],
+    weather,
+  });
+
   // AI Live Tile State
   const {
     messages,
@@ -305,14 +339,7 @@ export default function MainDashboard() {
   } = useChat({
     api: "/api/chat",
     body: {
-      contextData: {
-        profile,
-        orders,
-        products,
-        allMarketplaceCount,
-        events,
-        weather,
-      },
+      contextData: getCompactContextData(),
     },
   });
   const hasTriggeredInsight =
@@ -364,14 +391,7 @@ export default function MainDashboard() {
       },
       {
         body: {
-          contextData: {
-            profile,
-            orders,
-            products,
-            allMarketplaceCount,
-            events,
-            weather,
-          },
+          contextData: getCompactContextData(),
         },
       },
     );
@@ -599,14 +619,7 @@ export default function MainDashboard() {
             },
             {
               body: {
-                contextData: {
-                  profile,
-                  orders,
-                  products,
-                  allMarketplaceCount,
-                  events,
-                  weather,
-                },
+                contextData: getCompactContextData(),
               },
             },
           );

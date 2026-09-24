@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   RefreshCw,
   Trash2,
+  AlertCircle,
 } from "lucide-react";
 import {
   motion,
@@ -59,6 +60,34 @@ export default function StandaloneIntelligencePage() {
     append,
   } = useChat({
     body: { contextData },
+    experimental_prepareRequestBody: ({ messages, requestBody }) => {
+      // Keep only recent 8 messages to stay well within proxy / server limits
+      const recent = messages.slice(-8);
+      const lastIndex = recent.length - 1;
+
+      // Only the active/latest user turn retains raw base64 image data.
+      // Older turns have their bulky base64 data stripped so payloads never exceed 50KB.
+      const sanitized = recent.map((m, idx) => {
+        if (idx === lastIndex) return m;
+        const atts = m.experimental_attachments || (m as any).attachments;
+        if (atts && Array.isArray(atts) && atts.length > 0) {
+          return {
+            ...m,
+            experimental_attachments: atts.map((att: any) => ({
+              name: att.name,
+              contentType: att.contentType,
+              url: att.url?.startsWith("data:") ? "" : att.url,
+            })),
+          };
+        }
+        return m;
+      });
+
+      return {
+        ...requestBody,
+        messages: sanitized,
+      } as any;
+    },
   });
 
   const [files, setFiles] =
@@ -88,22 +117,43 @@ export default function StandaloneIntelligencePage() {
         ) || localStorage.getItem("pranata_session");
       if (!sessionStr) return;
       const session = JSON.parse(sessionStr);
-      const API_BASE = getApiBaseUrl();
       const isBuyer = session.role === "BUYER";
 
       try {
         if (isBuyer) {
-          // Fetch real marketplace catalog so AI can accurately recommend in-stock items
-          const marketRes = await fetchApi(`${API_BASE}/api/products?limit=50`).catch(() => null);
+          // Fetch real marketplace catalog (compact only to keep payload small)
+          const marketRes = await fetchApi(`${API_BASE}/api/products?limit=20`).catch(() => null);
           const marketData = marketRes && marketRes.ok ? await marketRes.json() : null;
-          const catalog = Array.isArray(marketData)
+          const rawCatalog = Array.isArray(marketData)
             ? marketData
             : marketData?.data || [];
 
+          // Only keep minimal fields needed for LLM matching (no description, no aiAnalysis, no raw base64)
+          const compactCatalog = rawCatalog.slice(0, 15).map((p: any) => {
+            const rawImg = Array.isArray(p.imageUrls) ? p.imageUrls[0] : (p.imageUrl || "");
+            const safeImg = typeof rawImg === "string" && !rawImg.startsWith("data:") ? rawImg : "";
+            return {
+              id: p.id,
+              title: p.title,
+              price: p.price,
+              unit: p.unit || "kg",
+              category: p.category || "",
+              stock: p.stock ?? 10,
+              grade: p.grade || undefined,
+              farmName: p.seller?.farmName || p.seller?.fullName || "Mitra Pranata",
+              imageUrl: safeImg,
+            };
+          });
+
           setContextData({
-            profile: session,
+            profile: {
+              id: session.id,
+              role: session.role,
+              fullName: session.fullName,
+              username: session.username,
+            },
             isBuyer: true,
-            marketCatalog: catalog,
+            marketCatalog: compactCatalog,
           });
         } else {
           // Producer context
@@ -115,34 +165,66 @@ export default function StandaloneIntelligencePage() {
               fetchApi(
                 `${API_BASE}/api/orders/PRODUCER/${session.id}`,
               ).catch(() => null),
-              fetchApi(`${API_BASE}/api/products?limit=30`).catch(() => null),
+              fetchApi(`${API_BASE}/api/products?limit=15`).catch(() => null),
             ]);
 
-          const products =
+          const rawProducts =
             prodRes && prodRes.ok
               ? await prodRes.json()
               : [];
-          const orders =
+          const rawOrders =
             ordRes && ordRes.ok
               ? await ordRes.json()
               : [];
-          const marketData =
+          const rawMarketData =
             marketRes && marketRes.ok
               ? await marketRes.json()
               : null;
 
+          const prodList = Array.isArray(rawProducts) ? rawProducts : rawProducts.data || [];
+          const ordList = Array.isArray(rawOrders) ? rawOrders : rawOrders.data || [];
+          const mktList = Array.isArray(rawMarketData) ? rawMarketData : rawMarketData?.data || [];
+
+          const compactProducts = prodList.slice(0, 6).map((p: any) => ({
+            title: p.title,
+            price: p.price,
+            stock: p.stock,
+            category: p.category,
+          }));
+
+          const compactOrders = ordList.slice(0, 6).map((o: any) => ({
+            status: o.status,
+            totalAmount: o.totalAmount,
+          }));
+
+          const compactCatalog = mktList.slice(0, 10).map((p: any) => {
+            const rawImg = Array.isArray(p.imageUrls) ? p.imageUrls[0] : (p.imageUrl || "");
+            const safeImg = typeof rawImg === "string" && !rawImg.startsWith("data:") ? rawImg : "";
+            return {
+              id: p.id,
+              title: p.title,
+              price: p.price,
+              unit: p.unit || "kg",
+              category: p.category || "",
+              stock: p.stock ?? 10,
+              grade: p.grade || undefined,
+              farmName: p.seller?.farmName || p.seller?.fullName || "Mitra Pranata",
+              imageUrl: safeImg,
+            };
+          });
+
           setContextData({
-            profile: session,
+            profile: {
+              id: session.id,
+              role: session.role,
+              fullName: session.fullName,
+              username: session.username,
+              farmName: session.farmName,
+            },
             isBuyer: false,
-            products: Array.isArray(products)
-              ? products
-              : products.data || [],
-            orders: Array.isArray(orders)
-              ? orders
-              : orders.data || [],
-            marketCatalog: Array.isArray(marketData)
-              ? marketData
-              : marketData?.data || [],
+            products: compactProducts,
+            orders: compactOrders,
+            marketCatalog: compactCatalog,
           });
         }
       } catch (e) {
@@ -164,7 +246,22 @@ export default function StandaloneIntelligencePage() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setMessages(parsed);
+          // If the cached history is very large (e.g. past base64 data URLs),
+          // automatically strip base64 attachments from older turns to unstuck from 413 error
+          const lastIdx = parsed.length - 1;
+          const sanitized = parsed.map((m: any, idx: number) => {
+            if (idx !== lastIdx && m.experimental_attachments) {
+              return {
+                ...m,
+                experimental_attachments: m.experimental_attachments.map((att: any) => ({
+                  ...att,
+                  url: att.url?.startsWith("data:") ? "" : att.url,
+                })),
+              };
+            }
+            return m;
+          });
+          setMessages(sanitized);
         }
       }
     } catch (e) {
@@ -180,7 +277,22 @@ export default function StandaloneIntelligencePage() {
     const cacheKey = `pranata_intelligence_chat_${profile.id}`;
     try {
       if (messages.length > 0) {
-        localStorage.setItem(cacheKey, JSON.stringify(messages));
+        // Strip base64 strings from older turns before saving to localStorage to prevent quota exhaustion
+        const lastIdx = messages.length - 1;
+        const toSave = messages.map((m: any, idx: number) => {
+          if (idx !== lastIdx && m.experimental_attachments) {
+            return {
+              ...m,
+              experimental_attachments: m.experimental_attachments.map((att: any) => ({
+                name: att.name,
+                contentType: att.contentType,
+                url: att.url?.startsWith("data:") ? "" : att.url,
+              })),
+            };
+          }
+          return m;
+        });
+        localStorage.setItem(cacheKey, JSON.stringify(toSave));
       } else {
         localStorage.removeItem(cacheKey);
       }
@@ -284,9 +396,9 @@ export default function StandaloneIntelligencePage() {
 
   const compressImage = (
     file: File,
-    maxWidth = 1024,
-    maxHeight = 1024,
-    quality = 0.75,
+    maxWidth = 720,
+    maxHeight = 720,
+    quality = 0.6,
   ): Promise<{
     name: string;
     contentType: string;
@@ -428,8 +540,6 @@ export default function StandaloneIntelligencePage() {
     handleSubmit(e, {
       experimental_attachments:
         attachments as any,
-      data: { contextData },
-      body: { contextData },
     });
     setFiles(null);
     if (fileInputRef.current)
@@ -1454,6 +1564,43 @@ export default function StandaloneIntelligencePage() {
                   </span>
                 </div>
               </div>
+            )}
+
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={cn(
+                  "bg-rose-50 border border-rose-200 text-rose-900",
+                  "rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center",
+                  "justify-between gap-3 shadow-xs",
+                )}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-rose-100 flex items-center justify-center shrink-0 text-rose-600">
+                    <AlertCircle size={18} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-rose-900">
+                      {error.message?.includes("413") || error.message?.includes("Too Large")
+                        ? "Ukuran riwayat chat atau lampiran terlalu besar (HTTP 413)."
+                        : "Gagal terhubung ke Pranata Intelligence."}
+                    </p>
+                    <p className="text-[11px] text-rose-700/90 font-medium mt-0.5">
+                      {error.message?.includes("413") || error.message?.includes("Too Large")
+                        ? "Riwayat percakapan sebelumnya menyimpan lampiran gambar besar. Silakan klik Reset Chat untuk memulai sesi baru yang ringan."
+                        : "Silakan periksa koneksi internet Anda atau coba beberapa saat lagi."}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleClearChatHistory}
+                  className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shrink-0 transition-colors shadow-xs cursor-pointer self-end sm:self-center"
+                >
+                  Reset Chat
+                </button>
+              </motion.div>
             )}
 
             <div ref={messagesEndRef} />

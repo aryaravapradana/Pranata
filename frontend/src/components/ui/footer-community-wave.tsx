@@ -30,9 +30,6 @@ export function FooterCommunityWave({
   const linkTextMain = isLightPage
     ? "text-white font-bold hover:underline hover:opacity-80"
     : "text-[#1C241E] font-bold hover:text-[#C25939] hover:underline";
-  const linkTextSub = isLightPage
-    ? "text-white font-bold hover:underline hover:opacity-80"
-    : "text-[#32452C] font-bold hover:text-[#C25939] hover:underline";
 
   // Dev Card styles:
   const cardBg = isLightPage
@@ -104,7 +101,7 @@ export function FooterCommunityWave({
             />
           </Link>
 
-          {/* 2. Made by UCCD_PakTonyPastiBangga for Veternity Beraksi 2026 */}
+          {/* 2. Made by UCCD_PakTonyPastiBangga */}
           <p
             className={`text-xs sm:text-sm font-medium ${subtextColor} tracking-wide`}
             style={{
@@ -120,15 +117,6 @@ export function FooterCommunityWave({
               className={`${linkTextMain} font-bold underline transition-colors`}
             >
               UCCD_PakTonyPastiBangga
-            </a>{" "}
-            for{" "}
-            <a
-              href="https://www.instagram.com/veternity.verse/"
-              target="_blank"
-              rel="noreferrer"
-              className={`${linkTextSub} font-bold underline transition-colors`}
-            >
-              Veternity Beraksi 2026
             </a>
           </p>
 

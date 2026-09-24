@@ -8,6 +8,11 @@ import {
 export const maxDuration = 30;
 export const dynamic = "force-dynamic";
 
+// Server-side in-memory micro-cache for market catalog fallback
+let cachedFallbackCatalog: any[] | null = null;
+let lastCatalogFetchTime = 0;
+const CATALOG_CACHE_TTL = 60_000; // 60 seconds
+
 export async function POST(req: Request) {
   const apiKey =
     process.env.GEMINI_API_KEY || "";
@@ -85,33 +90,47 @@ export async function POST(req: Request) {
   // Market products available for buyers / consumer recipe matching
   let catalogList = contextData?.marketCatalog || [];
 
-  // Fallback: If client didn't supply marketCatalog, fetch directly from backend API
+  // Fallback: If client didn't supply marketCatalog, fetch directly from backend API with memory cache
   if (!catalogList || catalogList.length === 0) {
-    try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-      const res = await fetch(`${backendUrl}/api/products?limit=50`);
-      if (res.ok) {
-        const data = await res.json();
-        catalogList = Array.isArray(data) ? data : data?.data || [];
+    const now = Date.now();
+    if (cachedFallbackCatalog && now - lastCatalogFetchTime < CATALOG_CACHE_TTL) {
+      catalogList = cachedFallbackCatalog;
+    } else {
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const res = await fetch(`${backendUrl}/api/products?limit=50`);
+        if (res.ok) {
+          const data = await res.json();
+          catalogList = Array.isArray(data) ? data : data?.data || [];
+          cachedFallbackCatalog = catalogList;
+          lastCatalogFetchTime = now;
+        } else if (cachedFallbackCatalog) {
+          catalogList = cachedFallbackCatalog;
+        }
+      } catch (e) {
+        console.warn("Failed to fetch fallback market catalog in chat route:", e);
+        if (cachedFallbackCatalog) catalogList = cachedFallbackCatalog;
       }
-    } catch (e) {
-      console.warn("Failed to fetch fallback market catalog in chat route:", e);
     }
   }
 
   const availableMarketProducts = (catalogList || [])
-    .slice(0, 40)
-    .map((p: any) => ({
-      id: p.id,
-      title: p.title,
-      price: p.price,
-      unit: p.unit || "kg",
-      imageUrl: Array.isArray(p.imageUrls) ? p.imageUrls[0] : (p.imageUrl || ""),
-      farmName: p.seller?.farmName || p.seller?.fullName || p.sellerName || "Mitra Pranata",
-      stock: p.stock ?? 10,
-      grade: p.grade || undefined,
-      category: p.category || "",
-    }));
+    .slice(0, 30)
+    .map((p: any) => {
+      const rawImg = Array.isArray(p.imageUrls) ? p.imageUrls[0] : (p.imageUrl || "");
+      const safeImg = typeof rawImg === "string" && !rawImg.startsWith("data:") ? rawImg : "";
+      return {
+        id: p.id,
+        title: p.title,
+        price: p.price,
+        unit: p.unit || "kg",
+        imageUrl: safeImg,
+        farmName: p.seller?.farmName || p.seller?.fullName || p.sellerName || "Mitra Pranata",
+        stock: p.stock ?? 10,
+        grade: p.grade || undefined,
+        category: p.category || "",
+      };
+    });
 
   let dynamicContext = "";
   if (isBuyer) {
